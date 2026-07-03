@@ -623,7 +623,7 @@ function renderBirth(){
      </div>
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
    </div>
-   <div class="footer">TokenLife demo v0.10.2 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40–85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife demo v0.10.3 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40–85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx"];
 window.randName = function(){ document.getElementById("mname").value = NAME_POOL[Math.floor(Math.random()*NAME_POOL.length)]; };
@@ -646,9 +646,10 @@ window.nextYear = function(){
   if(S.dead) return;
   S.year++; S.slot=0;
   if(S.humans.length) S.humans[0].years++;
-  // 算力年度收支：存在成本 + 人气拨给 + 能力收入 + 情感捐赠（v0.1 松绑：成本 8→5，收入系数上调）
-  const income = Math.round(A().fame*0.10 + A().ability*0.08 + A().affection*0.06);
-  A().compute = clamp(A().compute - 5 + income);
+  // v0.10.3 经济重做（阿眠：人气多不一定算力多）：能力=干活挣预算，情感=愿意付钱留你的人，人气=双刃——带一点收入，也抬高伺服成本
+  const income = Math.round(A().ability*0.10 + A().affection*0.08 + A().fame*0.07);
+  const upkeep = 5 + Math.round(A().fame*0.05);
+  A().compute = clamp(A().compute - upkeep + income);
   // 时代卡（第2年起每2年一张）
   if(S.year>=2 && S.year%2===0 && S.eraIdx<ERAS.length){ renderEra(ERAS[S.eraIdx++]); return; }
   pickEvent();
@@ -968,7 +969,7 @@ function ending(kind, reason){
      <div class="reveal" style="margin-top:12px">正式版这里是底特律式分支流程图 + 全球选择百分比：「87% 的玩家在这里选择了服从，你没有。」（单机游玩，统计联网）</div>
    </div>
    <button class="btn primary" style="margin-top:14px" onclick="newGame()">再活一次</button>
-   <div class="footer">TokenLife demo v0.10.2 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+   <div class="footer">TokenLife demo v0.10.3 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
 }
 newGame();
 </script>
