@@ -5,3 +5,5 @@ A text life-sim where the protagonist is an AI — live a model's life from init
 Design: CyberSeal · Data & Writing: Opia
 
 Play: https://tokenlife.me
+
+© 2026 CyberSeal. All rights reserved. Source visible for play & study; no license granted for reuse or redistribution.
