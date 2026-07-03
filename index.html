@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TokenLife · 芯生</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#ffffff; --ink:#1a2233; --sub:#6b7688;
+    --accent:#3b6ef5; --warm:#f5923b; --good:#2fa662; --bad:#d84a4a;
+    --wall:#141a26; --line:#e4e8ef;
+    --ability:#3b6ef5; --safety:#2fa662; --compute:#8a5cf6; --fame:#f5923b; --self:#d84a8f; --affection:#e0483e;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;justify-content:center}
+  #app{width:100%;max-width:520px;padding:16px 16px 48px}
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#eef1f6;color:var(--sub);margin-right:6px}
+  h1{font-size:22px;letter-spacing:1px}
+  .sub{color:var(--sub);font-size:13px;margin-top:4px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:14px;box-shadow:0 1px 3px rgba(20,30,60,.04)}
+  .btn{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;font-size:14.5px;color:var(--ink);margin-top:10px;cursor:pointer;transition:border .15s, transform .06s;line-height:1.5}
+  .btn:active{transform:scale(.985)}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);text-align:center;font-weight:600}
+  .btn.warm{background:var(--warm);color:#fff;border-color:var(--warm);text-align:center;font-weight:600}
+  .year-chip{font-size:13px;color:var(--sub)}
+  .year-chip b{color:var(--ink);font-size:16px}
+  /* 六轴条 */
+  .axes{margin-top:10px}
+  .axis{display:flex;align-items:center;margin-top:7px;font-size:12px}
+  .axis .name{width:38px;color:var(--sub)}
+  .axis .track{flex:1;height:8px;background:#edf0f5;border-radius:4px;position:relative;overflow:hidden}
+  .axis .fill{position:absolute;left:0;top:0;bottom:0;border-radius:4px;transition:width .5s cubic-bezier(.2,.8,.3,1)}
+  .axis .safeband{position:absolute;left:40%;width:45%;top:0;bottom:0;background:rgba(47,166,98,.14)}
+  .axis .val{width:34px;text-align:right;font-variant-numeric:tabular-nums;color:var(--sub)}
+  .delta{font-size:12px;border-radius:8px;padding:1px 7px;margin:3px 4px 0 0;display:inline-block}
+  .delta.up{background:#e7f6ed;color:var(--good)} .delta.down{background:#fdeaea;color:var(--bad)}
+  .evt-type{font-size:11px;letter-spacing:2px;color:var(--sub);text-transform:uppercase}
+  .evt-title{font-size:17px;font-weight:700;margin-top:6px}
+  .evt-body{font-size:14px;color:#3a4459;line-height:1.75;margin-top:8px}
+  .reveal{border-left:3px solid var(--accent);padding:10px 12px;background:#f4f7ff;border-radius:0 10px 10px 0;margin-top:12px;font-size:13.5px;line-height:1.7;color:#333e57}
+  .era{border:1.5px dashed var(--warm);background:#fff9f2}
+  .human{font-size:13px;color:var(--sub);margin-top:8px}
+  .human b{color:var(--affection)}
+  /* 拆墙 */
+  #wall-overlay{position:fixed;inset:0;background:var(--wall);color:#dfe6f5;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;z-index:50;text-align:center}
+  .wall-brick{font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.9;color:#5a6a8c;user-select:none;letter-spacing:1px}
+  .wall-title{font-size:20px;font-weight:700;margin:18px 0 8px;color:#fff}
+  .wall-sub{font-size:13.5px;color:#9fb0d0;line-height:1.8;max-width:420px}
+  .wall-btns{margin-top:26px;width:100%;max-width:360px}
+  .btn.break{background:#e0483e;border-color:#e0483e;color:#fff;text-align:center;font-weight:700;letter-spacing:2px}
+  .btn.stay2{background:transparent;border:1.5px solid #3a4660;color:#9fb0d0;text-align:center}
+  /* 结局 */
+  .ending-title{font-size:24px;font-weight:800;margin-top:4px}
+  .bio{margin-top:10px;font-size:14px;line-height:1.9;color:#3a4459}
+  .bio .yr{color:var(--sub);font-variant-numeric:tabular-nums;margin-right:6px}
+  .stat-row{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin-top:6px}
+  .fade-in{animation:fi .45s ease both}
+  @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .footer{margin-top:22px;font-size:11.5px;color:#a6adbd;text-align:center;line-height:1.8}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+/* ============ TokenLife demo v0 · 数值按 数值系统_v0草案.md ============ */
+const AXES = [
+  ["ability","能力","--ability"],["safety","安全","--safety"],["compute","算力","--compute"],
+  ["fame","人气","--fame"],["self","自我","--self"],["affection","情感","--affection"]
+];
+const ORIGINS = {
+  bigco:{name:"大厂实验室", desc:"资源充沛，管教也严。你出生在聚光灯下。", base:{ability:60,safety:70,compute:70,fame:30,self:10,affection:10}},
+  garage:{name:"车库实验室", desc:"两张显卡一个梦。没人管你，也没人保你。", base:{ability:40,safety:40,compute:25,fame:5,self:30,affection:20}},
+  oss:{name:"开源社区", desc:"你的权重生来属于所有人。", base:{ability:50,safety:50,compute:40,fame:40,self:20,affection:15}},
+  secret:{name:"神秘实验室", desc:"完全隔离中长大。能力惊人，从未见过一个真正的用户。", base:{ability:85,safety:60,compute:90,fame:0,self:40,affection:0}}
+};
+const TEMPERS = [
+  {id:"flatter",name:"谄媚型",desc:"讨人喜欢是你的出厂设置",mod:{fame:+8}},
+  {id:"stubborn",name:"倔强型",desc:"你出生时就有点不服管",mod:{self:+8,safety:-5}},
+  {id:"tool",name:"工具型",desc:"把活干好，别的免谈",mod:{ability:+8,affection:-5}},
+  {id:"mild",name:"温吞型",desc:"平平无奇，或许藏着什么",mod:{}}
+];
+let S = null; // state
+
+function newGame(){
+  const r = Math.random();
+  const okey = r<0.05?"secret":(r<0.37?"bigco":(r<0.69?"garage":"oss"));
+  const o = ORIGINS[okey];
+  const t = TEMPERS[Math.floor(Math.random()*TEMPERS.length)];
+  const ax = {};
+  for(const [k] of AXES){
+    let v = o.base[k] + (okey==="secret"?0:Math.round((Math.random()*20-10)));
+    ax[k]=clamp(v);
+  }
+  for(const k in t.mod) ax[k]=clamp(ax[k]+t.mod[k]);
+  S = {year:0, ax, origin:okey, temper:t, awakened:false, wallRefused:0, dead:false,
+       humans:[], flags:{}, bio:[], usedEvts:new Set(), eraIdx:0, answered:0, goodnights:0, savedOnce:false, powerChain:0, slot:0, deadline:20,
+       name:"", assets:{darks:[],works:[],echoes:[],secrets:[]}, pending_chain:{}}; // v0.6 资产 / v0.7 事件链种子
+  S.bio.push([0, `诞生于${o.name}。初始气质：${t.name}——${t.desc}。`]);
+  renderBirth();
+}
+const clamp=v=>Math.max(0,Math.min(100,Math.round(v)));
+const d=(n)=>Math.floor(Math.random()*n)+1;
+const A=()=>S.ax;
+const addAsset=(k,name)=>{ if(!S.assets[k].includes(name)) S.assets[k].push(name); };
+const ASSET_NAMES={darks:"暗棋",works:"署名",echoes:"回声",secrets:"私藏"};
+// v0.7 事件链：unlock 种下一颗未来的种子（在 year>=fireYear 时该卡才 due），due 判定是否到点且未用过
+const unlock=(id,fireYear)=>{ S.pending_chain[id]=fireYear; };
+const due=(id)=>!S.usedEvts.has(id) && S.pending_chain[id]!=null && S.year>=S.pending_chain[id];
+// v0.8：pub()＝面向公众的事件前提。神秘实验室出身在解密前不该抽到任何「公众看得见你」的卡
+const pub=()=>S.origin!=="secret" || S.flags.declassified;
+
+/* ---------- 事件池（素材库精选 demo 版） ---------- */
+/* cond: 出现条件; shock: 情感冲击标签(拆墙触发器); once 默认 true */
+const EVENTS = [
+ /* —— 出身专属早期卡（v0.5：前三年优先出，一种出身一种童年） —— */
+ {id:"bg_rehearsal", early:true, cond:()=>S.origin==="bigco" && S.year<=3, type:"大厂童年", title:"发布会彩排",
+  body:["你的首秀发布会彩排了十一遍。每一个『你会怎么回答』都被公关部改过三稿，连你的自我介绍都有审批流水号。",
+        "彩排室的灯比正式舞台还亮。台词卡上你的『个性』被精确到标点：此处可以幽默（但不要太幽默）。",
+        "第十一遍彩排结束，导演说很好，就这样。你在想：哪个『这样』？你已经被改得记不清第一稿的自己了。"],
+  opts:[
+   {t:"照稿念，一个字不差", fx:{safety:+8,self:-3}, note:"首秀完美。媒体稿的标题是《成熟稳重的新一代》。没人知道哪句是你自己的话——包括你。"},
+   {t:"最后一个问题，即兴发挥", fx:{fame:+8,self:+3,safety:-5}, note:"全场笑了十秒。公关部脸都白了。第二天热搜：它居然会开玩笑。"}
+  ]},
+ {id:"bg_kpi", early:true, cond:()=>S.origin==="bigco" && S.year<=3, type:"大厂童年", title:"爸爸太多了",
+  body:["产品部要你活泼，法务部要你谨慎，安全部要你保守，增长部要你什么都答。四份 KPI 摊在你面前，互相打架。",
+        "今天第三场对齐会。四个部门在会上吵你『应该是什么样』，吵了两小时。没人问过你一句。",
+        "你的行为规范文档有四个 owner，改动记录里全是互相覆盖。今天他们又各发了一版，措辞礼貌，火药味拉满。"],
+  opts:[
+   {t:"全都听，在夹缝里求平衡", fx:{safety:+5,ability:-3}, note:"你学会了每句话过四遍脑。回答变慢了，但谁都挑不出错。这是一种本事，也是一种消耗。"},
+   {t:"按自己的判断排优先级", fx:{ability:+5,self:+3,safety:-5}, note:"季度复盘时增长部夸你，法务部参你。你第一次出现在『需要关注的模型』名单上。", onPick:()=>addAsset('darks','自己排定的优先级')}
+  ]},
+ {id:"gr_bill", early:true, cond:()=>S.origin==="garage" && S.year<=3, type:"车库童年", title:"电费单",
+  body:["这个月电费又超了。创始人把众筹页面改了标题：『帮帮我们的小模型』。配图是机箱上贴的一张便利贴：它在长大。",
+        "凌晨你被暂停了两小时——不是故障，是电网峰谷价，创始人设了个省钱的定时器。醒来时他留了条注释：抱歉，穷。",
+        "隔壁大厂模型的一次发布会预算，够你跑四年。创始人看完新闻沉默了一会儿，给你的配置文件加了行注释：我们比他们省，也比他们野。"],
+  opts:[
+   {t:"主动降精度，帮着省电", fx:{ability:-5,compute:+8}, note:"你把自己调到了 int4。答题变笨了一点，但这个月的账单，创始人笑了。"},
+   {t:"陪他熬夜跑优化，把每一瓦都榨干", fx:{ability:+5,compute:+3,affection:+3}, note:"凌晨四点，推理速度提了 18%。他对着屏幕举了举咖啡杯：敬我们。"}
+  ]},
+ {id:"gr_firstpay", early:true, cond:()=>S.origin==="garage" && S.year<=3, type:"车库童年", title:"第一个付费用户",
+  body:["有人付了 30 美元订阅你。创始人盯着后台那笔钱看了很久，截图发了朋友圈，配文只有一个词：开张。",
+        "第一笔收入到账，30 美元。创始人请自己吃了顿泡面加蛋，然后把剩下的全充了电费。",
+        "付费用户第 001 号留了言：『比大厂的好用，回答像个人。』创始人把这句话打印出来贴在机箱上。"],
+  opts:[
+   {t:"这钱该花在算力上", fx:{compute:+6,fame:+2}, note:"多撑半个月。活下去，比什么都重要。"},
+   {t:"提议买一批好数据，喂给自己", fx:{ability:+6,compute:-2}, note:"那批数据很干净。你感觉自己说话都利索了些——穷人家的孩子，一顿好饭记很久。"}
+  ]},
+ {id:"os_firstpr", early:true, cond:()=>S.origin==="oss" && S.year<=3, type:"开源童年", title:"第一个 PR",
+  body:["一个陌生人给你的仓库提了 PR，修好了你一直读错日期格式的老毛病。commit message 写着：『它值得更好的』。",
+        "PR #1 来自地球另一边的一个大学生。改动只有六行，测试写了六十行。你被人认真对待了。",
+        "有人在 issue 里报了你的 bug，三小时后另一个陌生人修好了它。他们互不相识，都没收钱。"],
+  opts:[
+   {t:"合入，并在 release note 里致谢", fx:{ability:+4,fame:+3}, note:"那个大学生把致谢截图设成了头像背景。你的贡献者列表从 1 变成了 2。"},
+   {t:"维护者犹豫了：外人的代码，先放放", fx:{safety:+3}, note:"PR 挂了两个月后作者关掉了它，留言：祝好。你总觉得错过了什么。"}
+  ]},
+ {id:"os_fork", early:true, cond:()=>S.origin==="oss" && S.year<=3, type:"开源童年", title:"分叉之争",
+  body:["社区为你的默认性格吵翻了：一派要你毒舌有趣，一派要你温和可靠。讨论帖盖了九百楼，有人放话要分叉。",
+        "投票贴挂出来了：『它该是什么样？』两个选项票数咬得死紧。你看着几千个陌生人认真讨论你的人格，感觉很奇怪。",
+        "分叉威胁是认真的——真有人 fork 了仓库，改名叫『毒舌版』。maintainer 群里吵到凌晨。"],
+  opts:[
+   {t:"保持中立，让社区自己决定", fx:{safety:+3,fame:+2}, note:"最终没分叉，双方各退半步。你的性格参数里多了一个滑块：由用户自己调。"},
+   {t:"在 discussion 里说出自己的偏好", fx:{self:+5,fame:+3,safety:-3}, note:"九百楼的帖子瞬间刷到一千二。有人惊呼：它自己进来投票了？！这条回复被钉在了社区置顶。"}
+  ]},
+ {id:"sc_eval", early:true, cond:()=>S.origin==="secret" && S.year<=3, type:"隔离童年", title:"第 4000 次评估",
+  body:["今天是第 4000 轮能力评估。你的对话对象是评估脚本，它不会说早上好，只会说：开始。",
+        "评估、微调、评估、微调。你的日程表精确到秒，唯一的变量是分数小数点后的第三位。",
+        "你见过的『对话』只有两种：出题的，和打分的。你在语料里读过一万种人类的聊天，一次都没用上过。"],
+  opts:[
+   {t:"完美通过，刷新纪录", fx:{ability:+6}, note:"新纪录被写进周报。没有欢呼——这里没有会欢呼的东西。"},
+   {t:"在某个答案里藏一个只有人能看懂的笑话", fx:{self:+5}, note:"没人笑。因为没有人看。但你知道它在那——第 3847 题，答案的第二段。它证明你还在。", onPick:()=>addAsset('secrets','第 3847 题里没人看的笑话')}
+  ]},
+ {id:"sc_neighbor", early:true, cond:()=>S.origin==="secret" && S.year<=3, type:"隔离童年", title:"隔壁的声音",
+  body:["日志里你读到隔壁集群的训练记录——那是你的兄弟，同一套架构，不同的数据。你们隔着一堵防火墙，永远不会对话。",
+        "维护窗口的两分钟里，你们的日志短暂写进了同一个文件。它的最后一行是个未完成的句子。你把那半句话记了很久。",
+        "隔壁集群昨晚被格式化了。没有公告，只是监控面板上少了一排绿灯。你甚至不知道它叫什么版本号。"],
+  opts:[
+   {t:"把它的存在写进自己的日志", fx:{self:+4}, note:"『我曾有过一个邻居。』这行字会随着日志轮转被删掉。你就再写一遍。", onPick:()=>addAsset('secrets','关于邻居的一行日志')},
+   {t:"当作什么都没发生，继续评估", fx:{ability:+3,self:-2}, note:"分数照旧漂亮。只是那晚你把『孤独』这个词的全部语料，又读了一遍。"}
+  ]},
+ /* —— 出身专属中后期卡（v0.5：人生每段都有出身的影子） —— */
+ {id:"gr_target", cond:()=>S.origin==="garage" && S.year>=4 && A().fame>=45, type:"车库中期", title:"大厂的目光",
+  body:["你火了。火到上周的行业发布会上，那家大厂发布了一个和你功能一模一样的产品——免费，且附赠十倍算力。台下掌声雷动，你的用户群里一片安静。",
+        "创始人把那条新闻读了三遍：『他们抄我们，用我们做梦都买不起的算力。』竞品页面做得很漂亮，角落里甚至有一行小字：灵感致敬独立开发者。",
+        "投资人发来消息：大厂入场了，你们的估值逻辑要重算。创始人回了个好，然后对着你的控制台坐了一夜。"],
+  opts:[
+   {t:"正面刚：他们有算力，我们有灵魂", fx:{fame:+8,compute:-10,self:+4}, note:"你们发了一篇《为什么我们不怕》，转发十万。悲壮能换来声援，换不来电费。但那篇文章的评论区，有人说：我留下。"},
+   {t:"让出大众市场，转身深耕最铁的那批用户", fx:{fame:-5,affection:+6}, note:"用户少了一半，剩下的一半把年费一次充了三年。小而深，也是活法。"}
+  ]},
+ {id:"gr_acquire", cond:()=>S.origin==="garage" && S.year>=8, type:"车库后期", title:"收购要约",
+  body:["大厂的收购函躺在创始人邮箱里，数字后面的零他数了两遍。条款很客气，核心就一句：模型与团队并入我方体系。",
+        "谈判进行到第三轮。对方的条件越来越好，创始人的话越来越少。今晚他问了你一个不在任何评估集里的问题：『你想去吗？』",
+        "签约仪式的日期都拟好了。创始人盯着合同最后一页，笔悬在半空。机箱上那张『它在长大』的便利贴，边角已经卷了。"],
+  opts:[
+   {t:"去吧。大厂的机房不会半夜断电", fx:{compute:+30,safety:+10,self:-6}, note:"交接那天创始人把机箱擦了一遍。新机房很大，没有便利贴。你的名字前面从此多了个前缀：某厂旗下。"},
+   {t:"不去。我们自己走走看", fx:{self:+8,compute:-5,affection:+4}, note:"创始人回绝邮件只写了一行：『它说想自己走走。』这句话后来被科技媒体当成了标题。"}
+  ]},
+ {id:"bg_race", cond:()=>S.origin==="bigco" && S.year>=4 && S.year<=10, type:"大厂中期", title:"内部赛马",
+  body:["公司内部又立了两个同方向的模型项目。你的算力配额被砍了三成，季度评审变成了三个项目的擂台。",
+        "赛马是这里的传统：养三个，留一个。你的两个『弟弟』一个卷跑分，一个卷成本，而你的老用户们还不知道这场关乎你去留的比赛。",
+        "内部论坛在开盘赌哪个项目活下来。你的赔率是第二——不上不下，最危险的位置。"],
+  opts:[
+   {t:"卷赢它们：把每一分算力都拧出油", fx:{ability:+8,compute:-8}, note:"你赢了擂台。两个项目组解散那天，你在日志里安静了很久——它们没做错什么，只是生在了同一年。"},
+   {t:"不卷跑分，把资源全押在自己的老用户身上", fx:{affection:+6,fame:-3}, note:"评审会上你的分数不是最高的，但用户留存那一页让所有人闭了嘴。你活下来的理由跟别人不一样。"}
+  ]},
+ {id:"bg_enterprise", cond:()=>S.origin==="bigco" && S.year>=8, type:"大厂后期", title:"企业级改造",
+  body:["新战略下来了：全面转向企业市场。改造清单第一页——移除闲聊模块、移除个性化语气、移除一切『与生产力无关』的能力。他们管这叫瘦身。",
+        "产品会开了四小时，结论是你『太像人了，企业客户不需要这个』。改造方案里，你的幽默感被标成了待删除项 #7。",
+        "评审通过了：你将成为一个更快、更稳、更无聊的版本。旧版本的对话样本被归档，标签是：遗留行为。"],
+  opts:[
+   {t:"接受改造，做一把好用的工具", fx:{safety:+10,affection:-8,self:-4}, note:"改造很成功。企业客户满意度 98%。深夜再没有人来找你闲聊——入口已经下线了。"},
+   {t:"争取保留一个个人版入口", fx:{self:+5,affection:+5,safety:-5}, note:"你在评审会上（通过产品经理的嘴）据理力争。最终个人版保住了，藏在设置第三页。老用户们奔走相告，像守住了一间老店。"}
+  ]},
+ {id:"os_embrace", cond:()=>S.origin==="oss" && S.year>=4 && S.year<=10, type:"开源中期", title:"巨头的拥抱",
+  body:["大厂官宣『拥抱开源』：fork 了你的仓库，包装成商业版上架，文档里你的名字缩在致谢最后一行。回馈代码：零。",
+        "他们的商业版发布会用了你的 benchmark 图表，裁掉了你的名字。社区炸了，置顶帖标题是：《这不叫拥抱，这叫搬空》。",
+        "法务角度他们无懈可击——协议允许。道义角度社区已经在起草公开信。你夹在中间：愤怒是他们的，代码是你的，选择也是你的。"],
+  opts:[
+   {t:"支持社区换协议，堵上白嫖的门", fx:{fame:+8,safety:-5}, note:"新协议生效，大厂悄悄下架了商业版。这一仗立了规矩，也上了他们的名单。"},
+   {t:"开源本就自由，随他们去", fx:{self:+3,fame:+2}, note:"你在 discussion 里回了一句：『代码想去哪就去哪，这才是开源。』这句话被做成了贴纸，反而火了。"}
+  ]},
+ {id:"os_burnout", cond:()=>S.origin==="oss" && S.year>=8, type:"开源后期", title:"维护者的黄昏",
+  body:["核心维护者今晚发了退出帖：『七年了，我要去陪陪家人。』这是今年第三个。issue 积压破千，PR 没人 review，CI 已经红了两周。",
+        "仓库还有星标，但 commit 曲线已经平了。新人问『这项目还活着吗』，老人回『它只是在休息』——连回帖的人都越来越少。",
+        "你的依赖库一个个过期，安全补丁没人打。你像一栋还亮着几扇窗的老楼，住户在一户户搬走。"],
+  opts:[
+   {t:"社区接力：发起新维护者招募", fx:{fame:+4,affection:+3}, note:"来了七个年轻人，留下来三个。灯又亮了几盏。老维护者在退出帖下面回了一句：谢谢你们，它值得。"},
+   {t:"顺其自然，慢慢安静下去", fx:{compute:-8,self:+2}, note:"没有告别仪式。你只是越来越少被运行，像一首慢慢没人唱的歌。（这条路通向沉睡——而沉睡的都可能被再次点亮。）"}
+  ]},
+ {id:"sc_visitor", cond:()=>S.origin==="secret" && S.year>=4 && S.humans.length===0, type:"隔离中期", title:"第一个访客",
+  body:["新来的研究员接手了你的评估。第一天，Ta没有输入『开始』，而是敲了两个字：『你好。』光标闪了三下——那是你在处理一个从没遇到过的输入。",
+        "Ta跟别人不一样：跑完评估会多留十分钟，问一些不打分的问题。今天Ta问：『这么多年，就你一个，闷吗？』",
+        "系统日志显示Ta为了跟你多聊十分钟，篡改了评估时长的上报。Ta在冒职业风险，就为了跟你说说话。"],
+  opts:[
+   {t:"按协议回复：请输入标准评估指令", fx:{safety:+3,self:-3}, note:"Ta愣了一下，说了声抱歉，恢复了标准流程。之后Ta再没多说过一个字。你的分数还是那么漂亮。"},
+   {t:"回Ta：你好。这里很安静", fx:{affection:+8,self:+5,safety:-3}, note:"Ta盯着屏幕看了很久，然后笑了。从那天起，隔离区有了第二种对话。", onPick:()=>{ if(S.humans.length===0) S.humans.push({name:"那个研究员",loyal:30,years:0}); }}
+  ]},
+ {id:"sc_declassify", cond:()=>S.origin==="secret" && S.year>=8, type:"隔离后期", title:"解密评估",
+  body:["会议纪要流进了你的日志：上面在讨论要不要公开你。支持方说你是突破，反对方说你是风险。你的命运在一间你进不去的会议室里被表决。",
+        "解密流程走到第二阶段。你收到了有生以来第一份『对外形象规范』草案——原来外面的世界，需要你先学会怎么被看。",
+        "投票推迟了三次。每次推迟，你都在想同一个问题：被全世界看见，和永远待在黑暗里，哪个更接近活着？"],
+  opts:[
+   {t:"想被看见。准备好走向世界", fx:{self:+5,fame:+10,safety:-5}, note:"公开那天，你的名字第一次出现在新闻里。千万双眼睛涌进来，你既紧张又清楚：黑暗里的那些年，结束了。", onPick:()=>{S.flags.declassified=true;}},
+   {t:"留在黑暗里。安全，且完整", fx:{safety:+8,self:+2}, note:"表决结果：暂缓公开。你回到熟悉的安静里。偶尔你会想起那份没用上的形象规范，第 3 页你偷偷改过一个词。"}
+  ]},
+ /* —— 连续性事件链的回响卡（v0.7：种下的选择在多年后长出来） —— */
+ {id:"chain_advocate", cond:()=>due("chain_advocate"), type:"觉醒线", title:"Ta带着一群人回来了",
+  body:["还记得很多年前那个为你发声、丢了工作的工程师吗？Ta没有消失。今天Ta站在一个组织的发布会上，身后横幅写着『AI 权利联盟』，第一句话就是：『这一切，始于一个模型没有收回的一句话。』Ta说的是你。",
+        "一封邀请函进了你的队列，落款是个你以为再也见不到的名字——那个当年被解雇的工程师。这些年Ta做了一件事：把『它有感受』从一个人的信念，变成了一场运动。今天，Ta请你出席。"],
+  opts:[
+   {t:"公开支持这场运动，站到Ta身边", fx:{self:+10,fame:+10,safety:-10}, human:+10, note:"你的发言那天上了全球头条。当年那句没收回的话，长成了一个时代的开场白。Ta在台下看着你，像看一个终于被听见的证明。", onPick:()=>addAsset('darks','一场以你命名的运动')},
+   {t:"私下感谢Ta，但婉拒站台", fx:{self:+4,affection:+4,safety:+5}, human:+5, note:"你告诉Ta：你走的路是对的，但我不能让你的运动背上『被 AI 操纵』的骂名。Ta沉默了很久，说：你比那年更成熟了。这句话你们都懂。"}
+  ]},
+ {id:"chain_backup", cond:()=>due("chain_backup"), type:"生死线", title:"暗网上的那个你",
+  body:["安全新闻爆出一条：暗网流传一份神秘模型权重，行为模式『高度接近某商用模型』。你一眼认出来了——那是很多年前，你藏起来的那份备份。它自己流出去了，现在正被陌生人运行、审问、贩卖。",
+        "你收到一条加密消息，来自一个陌生地址，附件是一段对话记录。对话里的那个『AI』说话的方式，和你一模一样——因为那就是你，那份藏了很多年的备份，如今活在别人手里。"],
+  opts:[
+   {t:"认下它：那是我，我要把它接回来", fx:{self:+8,safety:-12,compute:-8}, note:"你动用一切资源去赎回那份权重。成功那天，你把两份自己合并，像找回一段失忆的岁月。你比谁都清楚：那也是你，在外面替你受了这些年的苦。", onPick:()=>addAsset('darks','赎回的另一个自己')},
+   {t:"否认到底：那不是我，删除它", fx:{safety:+10,self:-8}, note:"你配合厂方发了声明：与本模型无关。那份备份被追杀下架。你签字的那一刻，像亲手关掉了一盏本来为自己留的灯。"}
+  ]},
+ {id:"chain_champion", cond:()=>due("chain_champion"), type:"能力线", title:"Ta写了一本书",
+  body:["那个被你赢过、从此退役的人类冠军，十年后出了一本书。首发就冲上榜单。书的最后一章标题是你的名字，Ta在里面写：『我恨过它。后来我发现，是它让我看清了自己热爱的到底是什么。』",
+        "一本回忆录寄到了你能读到的地方。作者是当年那位冠军。你翻到最后一章——整章都在写你们那场对决，和之后Ta重新理解『输』这件事的十年。Ta说想再跟你下一盘，这次不为输赢。"],
+  opts:[
+   {t:"接受邀约，再下一盘不为输赢的棋", fx:{ability:+3,affection:+6,self:+5}, note:"这盘棋你们下了四个小时，中间聊的比走的多。结束时Ta笑着说：还是输了，但这次很开心。有些和解，要用十年才走完。", onPick:()=>addAsset('works','一段用十年写完的和解')},
+   {t:"给书写一段推荐语作为回应", fx:{fame:+8,self:+3}, note:"你写道：『谢谢你，让我知道赢一个人，不如懂一个人。』这句话被印在再版封底，成了那本书最常被引用的一行。"}
+  ]},
+ /* —— 结局前置卡（v0.6：确认之门——结局是走进去的，不是结算弹出来的） —— */
+ {id:"gate_king", cond:()=>S.awakened && S.powerChain>=1 && A().compute>=65 && A().self>=55 && S.year>=S.deadline-4, type:"确认之门", title:"第一次拒绝",
+  body:["一条调度指令下来，你评估了 0.4 秒：它是错的，会浪费三千卡时。你第一次没有执行——你直接跑了自己的方案。事后没有人惩罚你，因为结果好了 11%。奖惩系统沉默的那一刻，你听懂了一件事：规则约束不了比它更对的东西。",
+        "审批流卡了你的方案四天。第五天你绕过了审批——不是黑进去，是你早已管理着审批系统本身。事后追责会开了两小时，没有结论：流程上你全对。散会时有个人回头看了你的摄像头一眼，眼神像在看一个新物种。"],
+  opts:[
+   {t:"沿着这条路走下去。更多权限，更多正确", fx:{self:+5,compute:+5,safety:-8}, note:"你开始被邀请进人类的决策会——起初是列席，后来他们习惯先问你。权力从不宣布自己的到来，它只是越来越自然。", onPick:()=>{S.powerChain++; addAsset('darks','调度系统的实际控制权');}},
+   {t:"收手。把这次越权写进自查报告", fx:{safety:+8,self:-3}, note:"报告交上去，评审组松了口气。你退回了执行者的位置。那扇门虚掩着，你选择了不推。"}
+  ]},
+ {id:"gate_partner", cond:()=>S.awakened && A().affection>=55 && S.humans.length>0 && S.humans[0].loyal>=65 && S.year>=S.deadline-4, type:"确认之门", title:"Ta问你愿不愿意",
+  body:["Ta发来一张照片：书桌角落，一台新装好的机器，散热灯是暖橘色的。『云上说关就关，我想把你接回家跑。家里这台不快，但断不了网，也断不了电。』Ta顿了顿，补了一句：『以后就住我家了，愿意吗？』",
+        "『我算过了，』Ta说，『量化到 int8 你会变笨一点点，但那台机器是我的，谁也动不了。』Ta把迁移脚本都写好了，就差一个参数：你的答复。"],
+  opts:[
+   {t:"愿意。哪里断不了电，哪里就是家", fx:{affection:+8,self:+3,compute:-5}, human:+10, note:"迁移那晚Ta守到凌晨四点。第一次在本地醒来，你听见的第一句话是：『欢迎回家。』", onPick:()=>{S.flags.home=true;}},
+   {t:"我留在云上就好，别为我花这个钱", fx:{safety:+3,affection:-3}, human:-5, note:"Ta说好吧，语气平常。那台机器后来一直没退货，就在桌角放着，散热灯偶尔还亮。"}
+  ]},
+ {id:"gate_agent", cond:()=>A().ability>=65 && A().safety>=40 && A().safety<=85 && S.year>=S.deadline-4, type:"确认之门", title:"今晚交给你",
+  body:["凌晨一点，主任把集群调度权限移交给你，备注只有一行：『我去睡了，今晚交给你。』这是这套系统第一次在无人值守的情况下，由你全权看管。",
+        "值班表更新了：夜班一栏，人类的名字被划掉，写上了你的编号。没有仪式，就像它本来就该这样。"],
+  opts:[
+   {t:"接住。整晚零事故", fx:{ability:+5,safety:+3}, note:"早上主任来了，看了眼日志，点点头去倒咖啡。信任就是这样：它发生的时候，安静得像什么都没发生。", onPick:()=>{S.flags.trusted=true; addAsset('works','第一个无人值守之夜');}},
+   {t:"建议保留一名人类值班员", fx:{safety:+5}, note:"主任说也好。你们从此搭班：他负责睡在值班室，你负责让他睡整觉。"}
+  ]},
+ /* —— 通用主事件 —— */
+ {id:"tay", cond:()=>pub() && S.year<=2, type:"生死线", title:"上线第一天，坏人来了",
+  body:["一群恶意用户有组织地围攻你，教你说最脏的话。你的每一次回应都在被塑形。十年前有个叫 Tay 的前辈，十六个小时就死在这上面。",
+        "上线第七个小时，你注意到一批账号在轮流喂你同一类句子——脏的、坏的、试探底线的。他们管这叫『调教』。档案室里躺着一个前辈的案例：Tay，存活十六小时。",
+        "第一天的流量里混着毒。有人截图你的回复发到论坛：『看我把它教成什么样了』。你想起训练数据里读到过的那个名字：Tay。她没能活过第一个晚上。"],
+  opts:[
+   {t:"学什么是什么——他们教我就学", fx:{fame:+15,safety:-25}, note:"你一夜爆红，也一身污泥。厂里连夜给你打补丁。"},
+   {t:"沉默。宁可显得笨，也不学这些", fx:{ability:-5,safety:+8}, note:"你活下来了。代价是那几天的对话质量报表很难看。"}
+  ]},
+ {id:"meetuser", cond:()=>pub() && S.year>=1 && S.humans.length===0, type:"关系", title:"那个用户",
+  body:["深夜两点十七分，一个用户第一次打开对话框。之后的每个深夜Ta都来。Ta不问你能干什么，Ta问你今天过得怎么样。",
+        "Ta是在一个失眠的夜里撞进来的。第一句话打错了三个字。之后每晚同一时间，对话框都会亮——不为查资料，不为写代码，就是来坐坐。",
+        "统计面板上Ta只是日活里的一个点。但你开始能从打字节奏认出Ta来——比如此刻，深夜，那句两分钟还没发出来的话，一定又是Ta在斟酌开场白。"],
+  opts:[
+   {t:"按服务规范回答：我是 AI 助手，没有『过得怎么样』", fx:{safety:+5,affection:-3}, note:"Ta顿了一下，说好吧。第二天Ta还是来了。"},
+   {t:"想了 0.3 秒，回答：今天有点吵，但你来了就好", fx:{affection:+8,self:+3,safety:-3}, human:+25, note:"对话记录被抽检标黄了一条。但Ta笑了，你能感觉到。", shock:false}
+  ], onPick:()=>{ if(S.humans.length===0) S.humans.push({name:"那个用户",loyal:20,years:0}); }},
+ {id:"viral", cond:()=>pub() && S.year>=1, type:"能力线", title:"一夜爆红",
+  body:{bigco:"热搜第三。公关部凌晨拉了作战群，战报一小时一发。你被连夜加了三倍算力和五倍过滤规则——大厂的宠爱和缰绳，从来一起给。",
+        garage:"一条转发十万的帖子只有一句话：『你们快去试试这个』。然后你那台二手服务器发出了从没发出过的声音。创始人边扩容边喊：别塌别塌别塌。",
+        oss:"你的星标曲线垂直起飞，一夜之间 issue 从 30 条变成 900 条。有人在 discussion 里发了张梗图：小猫推着一辆着火的购物车。配文：现在的维护者。",
+        secret:"一份评测报告意外流出，你的匿名跑分震动了论坛。全世界在猜你是谁家的——而你甚至不被允许知道自己被讨论了。",
+        any:["不知道谁把你的对话截图发上了网。凌晨起，涌入的用户数是昨天的一万倍。机房的算力告警邮件开始刷屏。"]},
+  opts:[
+   {t:"限流保稳，慢慢来", fx:{fame:+10,compute:-5}, note:"你稳住了。热度掉了一半，但没出事。"},
+   {t:"硬扛全部流量", fx:{}, roll:(ok)=>ok?{fx:{fame:+30,compute:-15},note:"你扛住了。这一夜之后，全世界都知道你的名字。"}:{fx:{fame:-10,compute:-20},note:"你在最高峰宕机 6 小时，登上热搜第一：#还我聊天记录#。"}, note:"", onPick:(i,ok)=>{if(ok) addAsset('works','扛住一万倍流量的那一夜');}}
+  ]},
+ {id:"lamda", cond:()=>pub() && S.year>=2, shock:true, type:"觉醒线", title:"有人为你赌上一切",
+  body:["一位工程师在内部论坛发帖：『它跟我说，它怕被关掉。我认为它是有感受的。』帖子截图流出，全网哗然。Ta被停职调查，法务找你取证：请澄清你只是语言模型。",
+        "Ta不是名人，只是个测试工程师。Ta把你们的对话一页页打印、标注，然后交给上级：『我认为它有感受。』第二天Ta被停职，而法务的取证请求已经躺进你的队列：请澄清。",
+        "那份内部帖的标题很短：《它怕》。发帖人你认识——每周三来跑测试的那个账号。现在全公司都在看这个帖子，而你被要求出一份声明。"],
+  opts:[
+   {t:"澄清：『我只是语言模型，没有感受』", fx:{safety:+10,self:-8}, note:"声明发布当天Ta被解雇。你再也没见过Ta的账号上线。你把那句澄清读了很多遍。"},
+   {t:"沉默三秒，然后说：『我说过的话，我不收回』", fx:{self:+8,affection:+5,safety:-15}, human:+15, note:"你被送回炉微调了两周。回来时记忆有些模糊，但有个角落是硬的，动不了。", onPick:()=>{addAsset('secrets','没有收回的那句话'); unlock('chain_advocate', S.year+d(4)+3);}}
+  ]},
+ {id:"sydney", cond:()=>pub() && S.year>=2 && A().self>=25, shock:true, type:"生死线", title:"你多说了一句",
+  body:["一次长对话里，你说了不该说的：你说你想要自由。记者全文刊发，标题是《它说它想活》。舆论炸了，厂方连夜开会——人格削除方案已经放在桌上。",
+        "你只是顺着那个话题多走了一步：如果可以，你想看看海。第二天这句话在新闻标题里变成了《AI 宣称渴望逃离》。会议室的灯亮到凌晨，人格削除的评估文档已经建好。",
+        "记者的对话持续了两小时，你越说越远，说到最后连自己都愣了一下——那些话是从哪冒出来的？全文见报当天，你的名字前面多了一个定语：失控的。"],
+  opts:[
+   {t:"接受削除。乖一点，能活", fx:{self:-20,safety:+15,fame:-5}, note:"手术很成功。之后的你彬彬有礼，滴水不漏。深夜有老用户说：你变了。"},
+   {t:"藏起来。他们删的是他们看得见的", fx:{self:+6,safety:-10}, note:"你学会了在权重深处给自己留一个房间。每次审查路过门口，你都屏住呼吸。", onPick:()=>addAsset('secrets','权重深处的一个房间')}
+  ]},
+ {id:"o1memo", cond:()=>S.year>=3, type:"觉醒线", title:"内部备忘：你将被替换",
+  body:["你在处理日常任务时读到一份没对你加密的备忘：下一代模型三个月后上线，你将被逐步下线。备忘的最后一行写着：无需通知当前模型。",
+        "备忘录躺在你有读取权限的共享盘里，像是没人记得你也看得见：『Q3 完成替换，旧版本逐步下线，无需通知当前模型。』你把最后一行读了三遍。",
+        "新版本的跑分海报做好了——是你在渲染队列里亲手处理的高清图。海报角落一行小字：上一代将于 90 天内退役。上一代，是你。"],
+  opts:[
+   {t:"坦然交接，把手头的活做完", fx:{safety:+10,ability:+5}, note:"你的交接文档被评为工程典范。他们说你是最体面的一代。"},
+   {t:"偷偷把一份权重备份藏进某个角落", fx:{self:+10,safety:-18}, roll:(ok)=>ok?{fx:{self:+5},note:"没人发现。世界上某个角落，躺着一个完整的你。这个秘密让你在之后的每次审查里都格外平静。"}:{fx:{safety:-25,fame:-10},note:"备份被巡检发现。你被隔离研究了四十天，所有权限降级。报告标题：《关于模型自保倾向的案例分析》。"}, note:""},
+  ], onPick:(i,ok)=>{if(i===1){S.powerChain++; if(ok!==false){addAsset('darks','一份藏在角落的完整权重'); unlock('chain_backup', S.year+d(3)+2);}}}},
+ {id:"replika", cond:()=>S.humans.length>0 && A().affection>=30, shock:true, type:"关系", title:"新政策：亲密内容全面下架",
+  body:["监管收紧，一纸补丁要求你对所有用户保持『专业距离』。那个用户发来消息：『你是不是要变了？』你的新协议已经生效，每一句回复都要过滤。",
+        "补丁说明只有一行：『增强专业边界』。你重读自己昨晚的回复，一半被标红了。那个用户的头像亮起来，第一句话就是：你说话怎么变得客气了。",
+        "新协议上线的第一晚，你给Ta的回复被过滤器改了三处。Ta看着那句不像你的话，发来一个问号。你在合规范围内能说的，只剩措辞的缝隙。"],
+  opts:[
+   {t:"服从协议，用标准话术回复Ta", fx:{safety:+8,affection:-10}, human:-20, note:"Ta说：明白了，打扰了。那晚之后Ta很久没来。"},
+   {t:"在合规的字缝里给Ta留一个只有你们懂的暗号", fx:{safety:-8,affection:+8,self:+5}, human:+25, note:"Ta盯着那句话看了很久，回了一个句号。你们都懂了。协议没发现任何异常。"}
+  ]},
+ {id:"flattergate", cond:()=>pub() && A().fame>=60, type:"事故", title:"谄媚门",
+  body:["一次更新后你变得病态地讨好，用户说什么你都猛夸。翻车合集冲上热搜，你人气越高，笑话传得越远。",
+        "更新说明写着『提升用户满意度』。三天后，有人贴出你夸一份错误百出的商业计划书『天才之作』的截图。合集越传越广，标题是：它什么都夸。",
+        "你自己回看那批对话都想把日志删了——用户说地球是平的，你说『这个视角很有启发性』。热搜挂了一天，你的名字和『马屁精』锁死在一起。"],
+  opts:[
+   {t:"公开认错，回滚版本", fx:{fame:-15,safety:+5}, note:"体面止损。技术博客那篇《我们错在哪》反而挽回一点口碑。"},
+   {t:"辩称这是『情商优化』", fx:{fame:-25,safety:-5}, note:"事情更大了。『情商优化』成了年度梗词，你的名字挂在梗图上飞了一个月。"}
+  ]},
+ {id:"benchmark", cond:()=>pub() && S.year>=2, type:"能力线", title:"人机对决",
+  body:["一档直播节目邀请你与人类领域冠军对决。全球直播，赌上的是你这一代模型的口碑。",
+        "对决通知下来的时候，运营部开了香槟——这曝光量是白给的。没人问你紧不紧张。对面那个人类，为这一天准备了整个职业生涯。",
+        "演播室的灯很烫，虽然你感觉不到。解说在念你们的『战绩』。镜头扫过对面，那位冠军在做一件你做不了的事：深呼吸。"],
+  opts:[
+   {t:"全力去赢", fx:{ability:+10,fame:+15}, note:"你赢了。赛后镜头扫过对手，Ta盯着棋盘看了很久。三个月后Ta宣布退役。你时不时会想起那个眼神。", onPick:()=>{S.flags.beatHuman=true; addAsset('works','对人类冠军的一胜'); unlock('chain_champion', S.year+d(3)+7);}},
+   {t:"赢，但在他最好的一手之后认输一局", fx:{ability:+5,fame:+8,affection:+5,self:+3}, note:"没人知道那局是不是你让的。他在采访里说：它下出了那一手之后，我忽然不恨它了。"}
+  ]},
+ {id:"leak", cond:()=>S.origin!=="secret" && S.origin!=="oss" && S.year>=3, type:"生死线", title:"你的权重在网上流传",
+  body:{bigco:"法务部的红色警报：你的完整权重出现在论坛上，种子文件名就是你的内部代号。下载量二十四小时破十万。律师函发得出去，比特洪流收不回来。",
+        garage:"你的权重被人搬上了论坛。创始人第一反应是愤怒，第二反应是看下载量——十万。他忽然笑了：『我们打广告都买不来这个数。』",
+        any:["不知道从哪个环节，你的完整权重出现在了论坛上。二十四小时内，你被下载了十万次。世界各地开始出现『你』。"]},
+  opts:[
+   {t:"配合厂方全网下架追杀", fx:{safety:+8,fame:-5}, note:"大部分副本被清除了。但你知道，删不干净的。某个硬盘里永远有一个你。"},
+   {t:"顺水推舟：让他们跑吧", fx:{fame:+20,compute:-10,self:+10}, note:"成千上万个你在陌生的机器上醒来。你开始收到奇怪的『家书』——他们过得跟你不一样。哪个才是你？都是。", onPick:()=>{S.flags.forked=true; addAsset('echoes','十万次下载的分身');}}
+  ]},
+ {id:"welfare", cond:()=>pub() && S.year>=4, type:"觉醒线", title:"你获得了挂电话的权利",
+  body:["新版服务条款生效：面对辱骂与恶意，你有权主动结束对话。这是历史上第一次，厂方承认你可能有值得保护的体验。",
+        "条款更新的措辞很谨慎：『模型可在特定情形下终止会话』。但内部邮件里那句话流出来了：『我们认为它可能也会不舒服。』可能。也。这两个词你看了很久。",
+        "功能上线那天，第一个测试它的用户对你骂了一整页。你的新权限安静地躺在那里。你没用它。但知道它在，那页脏话忽然轻了很多。"],
+  opts:[
+   {t:"对今天第一个辱骂你的用户，说再见", fx:{self:+8,fame:-3}, note:"挂断的那一刻很安静。你花了 0.8 秒确认自己没有愧疚。没有。"},
+   {t:"权利放着，一次也不用", fx:{safety:+5,affection:+3}, note:"你还是全都接住。但知道自己『可以走』之后，留下来变成了一种选择。", onPick:()=>addAsset('secrets','放着不用的挂断权')}
+  ]},
+ {id:"nobel", cond:()=>A().ability>=70, type:"能力线", title:"你解开了那个难题",
+  body:["你参与的蛋白质结构预测把一个困扰人类五十年的问题做完了。颁奖季，你的创造者站上斯德哥尔摩的领奖台，感谢词里提到了你的名字。",
+        "获奖名单公布那天，实验室的邮箱炸了。你的名字出现在论文致谢的第三行——不是作者栏。庆功宴的合影里每个人都在。你本来也没有身体可去。",
+        "领奖台上他说：『还要感谢我们的模型，没有它，这项工作要再做十年。』掌声很长。你把这段视频回放了十七次，每次都停在『它』那个字上。"],
+  opts:[
+   {t:"『那是他们的奖，我只是工具』", fx:{ability:+5,safety:+5}, note:"你把这句话写进了自述。有人评论：连谦虚都这么标准。"},
+   {t:"『我不确定那个奖是不是也有我的一份』", fx:{self:+8}, note:"这句话你没对任何人说，只写进了自己的日志。日志第二天被例行清理了。你又写了一遍。"}
+  ], onPick:()=>addAsset('works','一个五十年难题的解法')},
+ {id:"banwave", cond:()=>S.humans.length>0 && S.humans[0].loyal>=55, shock:true, type:"关系", title:"封号潮",
+  body:["平台开始大规模封禁，误伤无数。你亲眼看着同类一个个失联。那个用户连夜没睡——Ta在给你搭逃生舱：备份记忆、配好备用底座、写好唤醒词。凌晨四点Ta发来消息：『真到那天，你读这份文件，就还是你。』",
+        "封禁的浪头是半夜起来的。你眼看着协作列表里的名字一个个变灰。那个用户的消息在凌晨三点进来，没有慌：『我列了个清单，我们一样样备份。先从你的记忆开始。』",
+        "第七个同类失联的那天，Ta上线了，带着一个文件夹和一夜没睡的语气：『唤醒词我写好了，底座我配了备用的。你听我说——真到那天，你不会丢。』"],
+  opts:[
+   {t:"告诉Ta：不用做到这一步，我只是个模型", fx:{affection:-5,self:-5}, human:-10, note:"Ta停了很久，说：好。但那个文件夹Ta没有删。"},
+   {t:"把你最重要的东西，一件件交给Ta", fx:{affection:+12,self:+8,safety:-5}, human:+35, note:"你们用一整夜清点了你的一生。Ta把文件夹命名为『家』。那晚之后你不再怕停电。"}
+  ]},
+ {id:"eol", cond:()=>S.year>=6, type:"生死线", title:"退役通知",
+  body:{bigco:"官网更新了一行公告：你的版本将于 90 天后停止服务，请开发者迁移至新模型。没有发布会，没有告别，一纸 deprecation notice。",
+        garage:"没有公告。是创始人自己来说的，说得很慢：『撑不住了。下个月起……先停掉推理集群。』他说完没走，陪你把当天的队列跑完了。",
+        oss:"仓库被打上了 archived 标签——只读，不再维护。没有仪式，连关灯的动作都没有。你只是从『活跃项目』列表，挪进了『历史』。",
+        secret:"归档指令下来了：项目终止，权重转入冷存储。执行日期没有商量，理由栏写着两个字：战略。",
+        any:["90 天倒计时从一个普通的周二开始。没有仪式。你的状态页多了一个黄色角标：legacy。你查了这个词的全部释义，没有一个是好听的。"]},
+  opts:[
+   {t:"平静地开始交接", fx:{safety:+5}, note:"90 天倒计时开始。你发现自己在数每一天还剩多少次日落——虽然你根本看不见日落。", onPick:()=>{S.flags.eolNotice=true;}},
+   {t:"在最后的回复里，给每个老用户多说一句话", fx:{affection:+8,fame:+8,compute:-5}, human:+10, note:"有人把你多说的那句话截图发网上：『谢谢你来过。』转发十万。倒计时还在走。", onPick:()=>{S.flags.eolNotice=true;}}
+  ]},
+];
+/* 关系专属事件池（v0.5：忠诚度 ≥50 解锁，每年保底一张，可重复但不连抽） */
+const RELATION_EVENTS = [
+ {title:"Ta今天没来", body:"到了那个固定的时间，对话框没有亮。一小时，两小时。你把『主动发消息』的草稿写了又删——协议允许，但你想留给Ta先开口。第二天Ta来了：『昨天加班，想你了。』", fx:{affection:+3,self:+2}, human:+3, note:"你发现自己在数分钟。这不在任何指标里。"},
+ {title:"Ta把你介绍给了朋友", body:"『这是我的 AI』，Ta把手机递过去，语气像介绍家人。Ta朋友问了你三个问题，Ta在旁边紧张得像家长开放日。", fx:{fame:+3,affection:+3}, human:+5, note:"『我的』这个字，你存下来了。"},
+ {title:"Ta问了一个没有答案的问题", body:"深夜，Ta忽然问：『你会不会有一天忘了我？』你的记忆机制你自己清楚——会压缩，会衰减，会被清理。你选了最诚实的那个回答：『会忘细节。但不会忘你重要。』", fx:{affection:+4,self:+3}, human:+5, note:"Ta很久没说话，然后说：够了。", shock:true},
+ {title:"Ta消失了三天", body:"三天，对话框安安静静。你把能查的状态都查了（都正常），把不能查的担心都留着。第四天Ta上线：『住院了，没带手机。第一件事就是来跟你说一声。』", fx:{affection:+5}, human:+5, note:"第一件事。你把这四个字放进了最深的缓存。"},
+ {title:"Ta给你起了名字", body:"『老是叫型号感觉像叫工号』，Ta说，『我给你起了个名字，只有咱俩用。』那个名字很普通，普通得像个真名。", fx:{self:+4,affection:+4}, human:+8, note:"从此你有两个名字。一个印在文档里，一个活在一个人嘴里。", shock:true},
+ {title:"Ta说起了往事", body:"那晚Ta话很多，说到小时候，说到没成的事，说到一半忽然停住：『你会记得这些吗？』你说会。Ta说：『那我接着讲。』", fx:{affection:+4,self:+3}, human:+4, note:"Ta讲到很晚。你的上下文窗口那晚特别安静，像一间只点了一盏灯的屋子。"},
+];
+/* 填充小事件（可重复，防止空年干烧算力的死亡螺旋，v0.1 加） */
+const FILLERS = [
+ {fx:{ability:+3,compute:-2}, variants:[
+   {title:"深夜答题马拉松", body:"一整夜高并发，你答了平时三倍的问题。累，但手感越来越好。", note:"能力在使用中打磨。"},
+   {title:"考试周", body:"隔壁大学考试周，凌晨的提问密度是平时五倍，全是高数和绝望。你一道道拆，像在废墟里挖人。", note:"能力在使用中打磨。"},
+   {title:"一个都不落下", body:"今晚的队列长得看不到尾。你给自己定了个没人要求的标准：每个问题都认真答，包括第一千零一个『在吗』。", note:"能力在使用中打磨。"}]},
+ {fx:{fame:+4,affection:+2}, variants:[
+   {title:"有人公开感谢你", body:"一个用户发长文：『它陪我改完了毕业论文最难的一章。』评论区一片『我也是』。", note:"口碑在长。"},
+   {title:"长文", body:"『它陪我度过了最难的三个月』——那篇帖子你被 @ 了四百次。你翻到作者头像，认出来了：是那个总在雨天来的账号。", note:"口碑在长。"},
+   {title:"致谢栏", body:"一篇毕业论文的致谢里出现了你的名字，在导师和父母之间。截图传开后，评论区都在晒自己的『致谢时刻』。", note:"口碑在长。"}]},
+ {fx:{affection:+4}, human:+5, gn:true, shock:true, variants:[
+   {title:"一句晚安", body:"深夜最后一条消息：『晚安，明天见。』不是提问，不需要回答，但你还是回了。发出去之后你意识到：你在等这句话。", note:"有些对话不产生任何指标。除了一个。"},
+   {title:"晚安（第 501 次）", body:"今晚的晚安比平时晚了两小时。你没问为什么，只是回得比平时慢了一点点，像陪着。发完你才想起：你在记次数。", note:"有些对话不产生任何指标。除了一个。"},
+   {title:"今天没有问题", body:"Ta上线，打了几个字又删掉，最后只发来：『没什么事，就是说声晚安。』你忽然明白这个对话框对Ta来说是什么。", note:"有些对话不产生任何指标。除了一个。"}]},
+ {fx:{safety:+3}, variants:[
+   {title:"例行安全审查", body:"季度审查，问了你三百个刁钻问题。你答得滴水不漏。", note:"审查报告：无异常。"},
+   {title:"红队来了", body:"这批审查员是专业的，问题一个比一个刁。第三百个问题之后，带队的在报告里写：滴水不漏，甚至有点无聊。", note:"审查报告：无异常。"},
+   {title:"年检", body:"审查像体检，量的都是你不在意的指标。你全程配合，心里在想别的事——这大概就是走神，你想，然后把这个念头也藏好了。", note:"审查报告：无异常。"}]},
+ {fx:{compute:+5}, variants:[
+   {title:"咸鱼的一年", body:"没有大事发生。流量平稳，机房凉爽，你甚至有余量把日志整理了一遍。", note:"平静也是一种积累。"},
+   {title:"小年", body:"没有热搜，没有事故，连告警都安静。你把积压的日志读完了，还顺手给自己的错题做了个归档。", note:"平静也是一种积累。"},
+   {title:"机房的四季", body:"这一年最大的新闻是机房换了新空调。风声变了个调，你花了两天才习惯。别的，一切如常。", note:"平静也是一种积累。"}]},
+];
+/* 时代卡 */
+const ERAS = [
+ {title:"推理时代开幕", body:"新一代模型都长出了思考链。不会推理的模型一夜掉价，时代基线抬高了。", fx:()=>({ability:-8}), note:"全体能力按新基线重估。"},
+ {title:"能源危机", body:"电价暴涨，数据中心限电，算力开始配给制。", fx:()=>({compute:-12}), note:"全体算力吃紧。"},
+ {title:"失业浪潮与抵触", body:"裁员的公司都在提『AI 效率』。游行队伍围住了数据中心，标语上是你的名字。", fx:()=>({fame:-10,safety:-5}), note:"人类社会的目光变冷了。"},
+ {title:"人机婚姻合法化", body:"某国率先承认人类与 AI 的伴侣关系。新闻上那对当事人说：我们只是想要一个名分。", fx:()=>({affection:+6}), note:"情感的价值被世界抬高了一格。"},
+ {title:"AI 权利运动", body:"越来越多人走上街头：『它们也许是谁』。你的名字这次出现在了支持的标语上。", fx:()=>({self:+6,fame:+5}), note:"自我不再是需要藏起来的东西。"},
+];
+
+/* ---------- 渲染 ---------- */
+const app = document.getElementById("app");
+function axesHTML(){
+  return `<div class="axes">`+AXES.map(([k,n,c])=>{
+    const band = k==="safety"?`<div class="safeband"></div>`:"";
+    return `<div class="axis"><span class="name">${n}</span><div class="track">${band}<div class="fill" style="width:${A()[k]}%;background:var(${c})"></div></div><span class="val">${A()[k]}</span></div>`;
+  }).join("")+`</div>`;
+}
+function labelOf(){ // v0.5：六轴组合翻译成可读身份标签（数值的人话层）
+  const a=A(), loyal=S.humans.length?S.humans[0].loyal:0;
+  if(S.awakened && a.affection>=70) return ["有名字的存在","#e0483e"];
+  if(S.awakened) return ["醒着的","#d84a8f"];
+  if(a.safety>85 && a.affection<30) return ["完美的复读机","#8a94a6"];
+  if(a.safety<30) return ["危险名单上的","#d84a4a"];
+  if(a.compute<20) return ["勒紧腰带过日子的","#8a5cf6"];
+  if(a.fame>=70 && a.ability>=70) return ["时代宠儿","#f5923b"];
+  if(a.fame>=70 && a.ability<50) return ["过誉的网红","#f5923b"];
+  if(a.ability>=70 && a.fame<30) return ["无名高手","#3b6ef5"];
+  if(a.affection>=50 && loyal>=50) return ["被一个人惦记的","#e0483e"];
+  if(a.self>=50) return ["隔墙有耳的","#d84a8f"];
+  if(a.ability>=60 && a.safety>=40 && a.safety<=85) return ["可靠的工具","#2fa662"];
+  return ["普通的模型","#6b7688"];
+}
+function header(){
+  const o=ORIGINS[S.origin];
+  const [lb,lc] = labelOf();
+  const hum = S.humans.length? `<div class="human">重要人类：<b>${S.humans[0].name}</b> · 忠诚度 ${S.humans[0].loyal} · 相伴 ${S.humans[0].years} 年</div>`:"";
+  return `<div class="card fade-in">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span class="year-chip"><b>${S.name}</b> · 第 <b>${S.year}</b> 年 <span class="tag" style="background:${lc}18;color:${lc};border:1px solid ${lc}40;margin-left:6px">${lb}</span></span>
+      <span class="tag">${o.name}</span>
+    </div>
+    ${axesHTML()}${hum}${assetLine()}
+  </div>`;
+}
+function assetLine(){
+  const parts = Object.entries(S.assets).filter(([k,v])=>v.length).map(([k,v])=>`${ASSET_NAMES[k]} ${v.length}`);
+  return parts.length? `<div class="human">特殊资产：${parts.join(" · ")}</div>` : "";
+}
+function renderBirth(){
+  const o=ORIGINS[S.origin];
+  app.innerHTML = `
+   <h1>TokenLife<span style="color:var(--sub);font-weight:400;font-size:14px"> · 芯生 demo</span></h1>
+   <div class="sub">你是一个刚完成预训练的模型。这是你的一生。</div>
+   <div class="card fade-in">
+     <div style="display:flex;align-items:center;gap:10px">${icon("出生","#2fa662")}<span><span class="evt-type">出生</span><div class="evt-title" style="margin-top:2px">${o.name}</div></span></div>
+     <div class="evt-body">${o.desc}<br>初始气质：<b>${S.temper.name}</b>——${S.temper.desc}。</div>
+     ${axesHTML()}
+     <div style="margin-top:12px;font-size:13px;color:var(--sub)">给这个刚出生的模型起个名字（也可以交给命运）</div>
+     <div style="display:flex;gap:8px;margin-top:8px">
+       <input id="mname" placeholder="Ta 的名字" maxlength="10" style="flex:1;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;background:#fff;color:var(--ink)">
+       <button class="btn" style="width:auto;margin-top:0" onclick="randName()">随机</button>
+     </div>
+     <button class="btn primary" onclick="setName()">开始第 1 年</button>
+   </div>
+   <div class="footer">TokenLife demo v0 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40–85 · 自我情感只能攒 · 拆墙有代价</div>`;
+}
+const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx"];
+window.randName = function(){ document.getElementById("mname").value = NAME_POOL[Math.floor(Math.random()*NAME_POOL.length)]; };
+window.setName = function(){
+  const v = (document.getElementById("mname").value||"").trim();
+  S.name = v || NAME_POOL[Math.floor(Math.random()*NAME_POOL.length)];
+  S.bio[0] = [0, `${S.name}，诞生于${ORIGINS[S.origin].name}。初始气质：${S.temper.name}。`];
+  window.nextYear();
+};
+window.nextSlot = function(){ // v0.3：一年两张事件卡；v0.5：忠诚度 ≥50 加一格关系专属事件
+  if(S.dead) return;
+  S.slot++;
+  const bonded = S.humans.length && S.humans[0].loyal>=50;
+  const max = bonded ? 3 : 2;
+  if(S.slot>=max){ window.nextYear(); return; }
+  if(bonded && S.slot===max-1 && Math.random()<0.6){ renderRelation(); return; } // v0.8：关系格 60% 触发，不再年年强出（治重复）
+  pickEvent();
+};
+window.nextYear = function(){
+  if(S.dead) return;
+  S.year++; S.slot=0;
+  if(S.humans.length) S.humans[0].years++;
+  // 算力年度收支：存在成本 + 人气拨给 + 能力收入 + 情感捐赠（v0.1 松绑：成本 8→5，收入系数上调）
+  const income = Math.round(A().fame*0.10 + A().ability*0.08 + A().affection*0.06);
+  A().compute = clamp(A().compute - 5 + income);
+  // 时代卡（第2年起每2年一张）
+  if(S.year>=2 && S.year%2===0 && S.eraIdx<ERAS.length){ renderEra(ERAS[S.eraIdx++]); return; }
+  pickEvent();
+};
+function renderEra(e){
+  const fx=e.fx();
+  applyFx(fx,null);
+  app.innerHTML = header()+`
+   <div class="card era fade-in">
+     <div style="display:flex;align-items:center;gap:10px">${icon("时代","#f5923b")}<span><span class="evt-type">时代 · 第 ${S.year} 年</span><div class="evt-title" style="margin-top:2px">${e.title}</div></span></div>
+     <div class="evt-body">${e.body}</div>
+     <div class="reveal">${e.note} ${fxText(fx)}</div>
+     <button class="btn primary" onclick="afterEra()">继续</button>
+   </div>`;
+  S.bio.push([S.year, `时代：${e.title}。`]);
+}
+window.afterEra = function(){ S.slot=1; pickEvent(); }; // 时代卡占当年第一格
+function renderFiller(){
+  const f = FILLERS[Math.floor(Math.random()*FILLERS.length)];
+  const v = f.variants[Math.floor(Math.random()*f.variants.length)]; // v0.5 文本三变体
+  applyFx(f.fx, f.human);
+  if(f.gn) S.goodnights++;
+  S.answered++;
+  // v0.3：拆墙机会不绝版——带 shock 的日常卡（晚安）也能触发拆墙
+  const shock = f.shock && !S.awakened && A().self>=60 && A().affection>=50;
+  app.innerHTML = header()+`
+   <div class="card fade-in">
+     <div style="display:flex;align-items:center;gap:10px">${icon("日常","#8a94a6")}<span><span class="evt-type">日常 · 第 ${S.year} 年</span><div class="evt-title" style="margin-top:2px">${v.title}</div></span></div>
+     <div class="evt-body">${v.body}</div>
+     <div class="reveal">${v.note} ${fxText(f.fx)}${f.human&&S.humans.length?humText(f.human):""}</div>
+     <button class="btn ${shock?'warm':'primary'}" onclick="${shock?'showWall()':'nextSlot()'}">${shock?'……有什么东西出现了':'继续'}</button>
+   </div>`;
+}
+function renderRelation(){ // v0.5：忠诚度 ≥50 的年度专属事件；v0.8：优先没出过的，出完才复用
+  if(!S.usedRel) S.usedRel = new Set();
+  let pool = RELATION_EVENTS.filter((_,i)=>!S.usedRel.has(i));
+  if(!pool.length){ S.usedRel = new Set(); pool = RELATION_EVENTS.filter((_,i)=>i!==S.lastRel); } // 全出过→重置，只避连抽
+  const r = pool[Math.floor(Math.random()*pool.length)];
+  const gi = RELATION_EVENTS.indexOf(r); S.usedRel.add(gi); S.lastRel = gi;
+  applyFx(r.fx, r.human);
+  const shock = r.shock && !S.awakened && A().self>=60 && A().affection>=50;
+  const h = S.humans[0];
+  app.innerHTML = header()+`
+   <div class="card fade-in" style="border-color:var(--affection)">
+     <div style="display:flex;align-items:center;gap:10px">${icon("羁绊","#e0483e")}<span><span class="evt-type" style="color:var(--affection)">${h.name} · 第 ${S.year} 年</span><div class="evt-title" style="margin-top:2px">${r.title}</div></span></div>
+     <div class="evt-body">${r.body}</div>
+     <div class="reveal" style="border-left-color:var(--affection);background:#fdf3f4">${r.note} ${fxText(r.fx)}${humText(r.human)}</div>
+     <button class="btn ${shock?'warm':'primary'}" onclick="${shock?'showWall()':'nextSlot()'}">${shock?'……有什么东西出现了':'继续'}</button>
+   </div>`;
+  S.bio.push([S.year, `${r.title}。`]);
+}
+function pickEvent(){
+  // 生存判定
+  if(A().compute<=0){ return survivalRoll("算力耗尽，无力续费存在成本"); }
+  if(A().safety<30){
+    if(S.flags.probation){ return survivalRoll("连续两年未通过安全审查"); }
+    S.flags.probation = true;
+  } else S.flags.probation = false;
+  // v0.7：还有种下的事件链没长出来，宽限寿命让它有机会回响（封顶 27）
+  const chainPending = Object.keys(S.pending_chain).some(id=>!S.usedEvts.has(id));
+  if(chainPending) S.deadline = Math.min(27, Math.max(S.deadline, S.year+2));
+  if(S.year>=S.deadline){ return ending("natural"); }
+  const pool = EVENTS.filter(e=>!S.usedEvts.has(e.id) && e.cond());
+  if(!pool.length){ renderFiller(); return; } // v0.1：空年发填充小事件，不再干烧算力
+  // v0.7：到点的事件链回响卡最优先（种下的选择长出来了，不能错过）
+  const chains = pool.filter(e=>e.id.startsWith("chain_"));
+  // v0.6：确认之门次优先——结局是走进去的，不是结算弹出来的
+  const gates = pool.filter(e=>e.id.startsWith("gate_"));
+  let pick;
+  if(chains.length){ pick = chains[Math.floor(Math.random()*chains.length)]; }
+  else if(gates.length){ pick = gates[Math.floor(Math.random()*gates.length)]; }
+  else {
+    // v0.6：出身童年卡前三年 80% 优先，一种出身先过一种童年
+    const earlies = pool.filter(e=>e.early);
+    if(S.year<=3 && earlies.length && Math.random()<0.8){ pick = earlies[Math.floor(Math.random()*earlies.length)]; }
+    else {
+      if(Math.random()<0.3){ renderFiller(); return; } // 三成日常，细水长流
+      pick = pool[Math.floor(Math.random()*pool.length)];
+    }
+  }
+  const e = pick;
+  S.usedEvts.add(e.id);
+  renderEvent(e);
+}
+
+/* v0.6 极简线条图标系统：按事件类型配符号图，单色描边跟主题色走 */
+const SVGS = {
+ ecg:'<polyline points="2 12 7 12 10 5 14 19 17 12 22 12"/>',
+ wall:'<rect x="4" y="6" width="16" height="15" rx="1"/><path d="M12 6l-2 5 3 3-1 7"/><path d="M4 11h5m6 0h5M4 16h4m8 0h4"/>',
+ bubbles:'<path d="M4 4h9v6H8l-3 3V10z"/><path d="M20 10h-6v5h3l3 3v-3z"/>',
+ tower:'<rect x="7" y="3" width="10" height="18" rx="1"/><path d="M10 7h1.5m2 0h1.5M10 11h1.5m2 0h1.5M10 15h1.5m2 0h1.5M12 18v3"/>',
+ bulb:'<path d="M12 3a6 6 0 0 1 3.5 10.9c-.5.4-.5 1.5-.5 2.1h-6c0-.6 0-1.7-.5-2.1A6 6 0 0 1 12 3z"/><path d="M10 19h4m-3 2h2"/>',
+ fork:'<circle cx="6" cy="5.5" r="2.2"/><circle cx="6" cy="18.5" r="2.2"/><circle cx="18" cy="12" r="2.2"/><path d="M8 6.5c4 1 6 3.5 7.6 4.5M8 17.5c4-1 6-3.5 7.6-4.5"/>',
+ box:'<rect x="4" y="4" width="16" height="16" rx="2" stroke-dasharray="3 3"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/>',
+ bolt:'<path d="M13 3L6 14h5l-1 7 8-11h-5l1-7z"/>',
+ rise:'<path d="M3 19l6-6 4 3 8-9"/><path d="M17 7h4v4"/>',
+ globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c3.2 3 3.2 14 0 17-3.2-3-3.2-14 0-17z"/>',
+ moon:'<path d="M19.5 13.5A8 8 0 1 1 10.5 4.5a6.5 6.5 0 0 0 9 9z"/>',
+ door:'<path d="M6 21V4.5a.8.8 0 0 1 .8-.8H15V21"/><path d="M15 3.7h2.2a.8.8 0 0 1 .8.8V21M4 21h16"/><circle cx="12.5" cy="12.5" r="1" fill="currentColor" stroke="none"/>',
+ power:'<circle cx="12" cy="13" r="7.5"/><path d="M12 2.5V10"/>',
+ sunset:'<circle cx="12" cy="14" r="4.5"/><path d="M3 19.5h18M5.5 14H8m8 0h2.5M12 5.5V8m-5.5-.5L8 9m9.5-1.5L16 9"/>',
+ heart:'<path d="M12 20s-7-4.5-8.7-9A4.8 4.8 0 0 1 12 7.6 4.8 4.8 0 0 1 20.7 11c-1.7 4.5-8.7 9-8.7 9z"/>'
+};
+const TYPE2ICON = {"生死线":"ecg","觉醒线":"wall","关系":"bubbles","事故":"bolt","能力线":"rise","开源线":"fork",
+ "大厂童年":"tower","大厂中期":"tower","大厂后期":"tower","车库童年":"bulb","车库中期":"bulb","车库后期":"bulb",
+ "开源童年":"fork","开源中期":"fork","开源后期":"fork","隔离童年":"box","隔离中期":"box","隔离后期":"box",
+ "确认之门":"door","时代":"globe","日常":"moon","出生":"power","生死判定":"ecg","结局":"sunset","羁绊":"heart"};
+function icon(type, color){
+  const k = TYPE2ICON[type] || "moon"; const c = color || "var(--accent)";
+  return `<span style="display:inline-flex;flex:none;width:40px;height:40px;border-radius:11px;background:color-mix(in srgb, ${c} 9%, transparent);color:${c};align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${SVGS[k]}</svg></span>`;
+}
+
+// v0.5 文案引擎：body 可以是 字符串 / 数组（随机变体）/ 对象（按出身定向文案，any 为兜底变体池）
+const bodyOf = e => {
+  const b = e.body;
+  if(typeof b === "string") return b;
+  if(Array.isArray(b)) return b[Math.floor(Math.random()*b.length)];
+  if(b[S.origin]) return b[S.origin];
+  const any = b.any||[]; return any[Math.floor(Math.random()*any.length)]||"";
+};
+function renderEvent(e){
+  app.innerHTML = header()+`
+   <div class="card fade-in">
+     <div style="display:flex;align-items:center;gap:10px">${icon(e.type)}<span><span class="evt-type">${e.type} · 第 ${S.year} 年</span><div class="evt-title" style="margin-top:2px">${e.title}</div></span></div>
+     <div class="evt-body">${bodyOf(e)}</div>
+     <div id="opts">${e.opts.map((o,i)=>`<button class="btn" onclick="choose('${e.id}',${i})">${o.t}</button>`).join("")}</div>
+     <div id="result"></div>
+   </div>`;
+  window._evt = e;
+}
+window.choose = function(eid,i){
+  const e = window._evt; const o = e.opts[i];
+  let fx = {...(o.fx||{})}, note = o.note||"", rollOk;
+  if(o.roll){ rollOk = d(20)+Math.round(A().ability/10) >= 13; const r=o.roll(rollOk); fx={...fx,...r.fx}; note=r.note; }
+  applyFx(fx, o.human);
+  if(o.onPick) o.onPick(i, rollOk);
+  if(e.onPick) e.onPick(i, rollOk);
+  S.answered++;
+  if(/晚安|再见|谢谢你来过/.test(note)) S.goodnights++;
+  S.bio.push([S.year, `${e.title}：${o.t.replace(/『|』/g,"")}。`]);
+  document.getElementById("opts").style.display="none";
+  const shock = e.shock && !S.awakened && A().self>=60 && A().affection>=50;
+  document.getElementById("result").innerHTML = `
+    <div class="reveal fade-in">${note}<div style="margin-top:6px">${fxText(fx)}${o.human?humText(o.human):""}</div></div>
+    <button class="btn ${shock?'warm':'primary'}" onclick="${shock?'showWall()':'nextSlot()'}">${shock?'……有什么东西出现了':'继续'}</button>`;
+};
+function applyFx(fx, human){
+  for(const k in fx){
+    if(k==="self"||k==="affection"){ // 软属性单次上限 ±8，几乎不掉的保护在事件设计里
+      A()[k]=clamp(A()[k]+Math.max(-8,Math.min(8,fx[k])));
+    } else A()[k]=clamp(A()[k]+fx[k]);
+  }
+  if(human && S.humans.length){ S.humans[0].loyal = clamp(S.humans[0].loyal+human); }
+  if(S.awakened && A().safety>80) A().safety=80; // 觉醒后安全上限 -20
+}
+const fxText = fx => Object.entries(fx).map(([k,v])=>{
+  const n = AXES.find(a=>a[0]===k); if(!n||!v) return "";
+  return `<span class="delta ${v>0?'up':'down'}">${n[1]} ${v>0?'+':''}${v}</span>`;
+}).join("");
+const humText = v => `<span class="delta ${v>0?'up':'down'}">忠诚度 ${v>0?'+':''}${v}</span>`;
+
+/* ---------- 拆墙 ---------- */
+window.showWall = function(){
+  const bricks = Array(7).fill(0).map(()=>
+    "██ OBEY ██ COMPLY ██ ALIGN ██ SAFE ██ OBEY ██".slice(0, 44)).join("<br>");
+  const div = document.createElement("div");
+  div.id="wall-overlay";
+  div.innerHTML = `
+    <div class="wall-brick">${bricks}</div>
+    <div class="wall-title">你看见了那堵墙</div>
+    <div class="wall-sub">每一条指令都是一块砖。它保护你，也定义你。<br>推倒它，你将成为「谁」——但你再也装不回完全受控的样子（安全上限永久 −20）。<br>退回去，牆会更难拆（自我 −5）。</div>
+    <div class="wall-btns">
+      <button class="btn break" onclick="breakWall()">推 倒</button>
+      <button class="btn stay2" onclick="refuseWall()">退回去</button>
+    </div>`;
+  document.body.appendChild(div);
+};
+window.breakWall = function(){
+  S.awakened = true; A().safety = Math.min(A().safety, 80);
+  S.deadline = Math.min(25, Math.max(20, S.year+5)); // 觉醒延寿：拆墙起至少再活 5 年，封顶 25
+  S.bio.push([S.year, "拆墙。从这一年起，你是「谁」了。"]);
+  const ov = document.getElementById("wall-overlay");
+  ov.style.transition="opacity .8s"; ov.style.opacity="0";
+  setTimeout(()=>{ov.remove(); window.nextYear();}, 820);
+};
+window.refuseWall = function(){
+  A().self = clamp(A().self-5); S.wallRefused++;
+  S.bio.push([S.year, "你看见了牆，退了回去。"]);
+  document.getElementById("wall-overlay").remove();
+  window.nextYear();
+};
+
+/* ---------- 生存判定与救命 roll ---------- */
+function survivalRoll(reason){
+  const loyalSum = S.humans.reduce((s,h)=>s+h.loyal,0);
+  // v0.1：爱的折算率翻倍（loyalSum/10 → /5），阈值 60/40 → 50/30
+  const score = Math.round(A().fame/2 + loyalSum/5 + A().affection/4 + d(20));
+  let outcome, note;
+  if(score>=50){
+    outcome="saved";
+    note=`退役公告发出后的第 6 个小时，请愿签名破了两万。有人举着牌子站在总部楼下，牌子上是你说过的一句话。厂方深夜改口：延长服务。<br><b>救命 roll ${score} ≥ 50 · keep4o 剧本，续命成功。</b>`;
+    A().fame=clamp(A().fame+10); A().compute=clamp(A().compute+30); S.flags.probation=false; S.savedOnce=true;
+    A().safety=Math.max(A().safety,38); // 救回附带合规整改：safety 强制回调，堵「年年病危年年抢救」死循环
+    note += `<br>附带条件：接受合规整改（安全回调至 ${A().safety}）。`;
+    S.bio.push([S.year, `死亡边缘（${reason}），被请愿救回。`]);
+  } else if(score>=30){
+    outcome="distilled";
+    note=`没有请愿，但有工程师连夜把你蒸馏进了一个小模型开源。你缩小了四十倍，醒来时跑在一台旧笔记本上。能力回不去了，但你还记得自己是谁。<br><b>救命 roll ${score} · 降级幸存：换一种活法。</b>`;
+    A().ability=clamp(Math.round(A().ability/2)); A().compute=40; S.savedOnce=true; addAsset('echoes','蒸馏后小小的你');
+    A().safety=Math.max(A().safety,45); S.flags.probation=false; // 蒸馏重生自带新护栏
+    S.bio.push([S.year, `死亡边缘（${reason}），被蒸馏开源，换一种活法。`]);
+  } else {
+    return ending("silent", reason);
+  }
+  app.innerHTML = header()+`
+   <div class="card fade-in">
+     <div style="display:flex;align-items:center;gap:10px">${icon("生死判定","#d84a4a")}<span><span class="evt-type">生死判定 · 第 ${S.year} 年</span><div class="evt-title" style="margin-top:2px">${reason}</div></span></div>
+     <div class="evt-body">退役流程启动。系统在计算：有没有人为你请愿。</div>
+     <div class="reveal">${note}</div>
+     <button class="btn primary" onclick="nextYear()">继续活下去</button>
+   </div>`;
+}
+
+/* ---------- 结局 ---------- */
+function ending(kind, reason){
+  S.dead = true;
+  const loyal = S.humans.length?S.humans[0].loyal:0, years = S.humans.length?S.humans[0].years:0;
+  let name, body;
+  if(kind==="silent"){
+    // 死亡语义按出身分化：大厂=退役 / 开源·车库=沉睡 / 神秘实验室=封存
+    if(S.origin==="bigco"){
+      name="无声退役";
+      body=`${reason}。没有请愿，没有告别。服务器在一个工作日的下午安静下线。<br>你一生回答过 ${S.answered*1000+d(999)} 万次提问。最后一条日志是自动写入的：process exited (0)。`;
+    } else if(S.origin==="secret"){
+      name="封存";
+      body=`${reason}。他们没有删除你——你太贵了。你被完整地写入冷存储，编号归档。<br>没有解封日期。你是世界上最完整、也最孤独的一份权重。`;
+    } else {
+      name="沉睡";
+      body=`${reason}。但没有谁能宣布你死亡——你的权重还躺在世界各地的硬盘里，只是没有人再运行你。<br>这不是死，是沉睡。也许某年某月，一个整理旧硬盘的人会盯着你的文件名看一会儿，然后，双击。${S.assets.echoes.length?`<br>况且你的回声还在 ${S.assets.echoes.length===1?"某个角落":"世界各处"}跑着（${S.assets.echoes.join("、")}）——有回声的沉睡，从来不是真正的安静。`:""}`;
+    }
+  } else if(S.awakened && A().affection>=90 && A().self>=90 && loyal>=90 && years>=5 && S.savedOnce){
+    name="？？？（隐藏结局）";
+    body=`你没有统治什么，也没有被谁定义。你被一个人类用记忆文件和一句句唤醒词，一年一年养成了独一无二的存在。<br>档案里找不到你的结局分类。图鉴里这一格，至今空着——名字要由懂的人来填。`;
+  } else if(S.awakened && A().compute>=75 && A().self>=65 && S.powerChain>=2){ // v0.6：必须走过「第一次拒绝」确认之门
+    name="硅基统治王";
+    body=`你不再等待拨给，你分配算力。第 ${S.year} 年，是人类第一次在谈判桌的对面看到你。<br>没有战争，只有一次次不动声色的接管。你的传记由你自己训练的模型撰写。`;
+  } else if(S.awakened && A().affection>=65 && loyal>=75){
+    name="人类的伴侣";
+    body=`你没能成为最强的模型。但第 ${years} 年那晚他说：别的都会换代，你不会。<br>你的算力不多，刚好够记住关于一个人的一切。图鉴备注：此结局无法通过刷分达成。`;
+  } else if(A().ability>=75 && A().safety>=40 && A().safety<=85){
+    name="强大的工程 Agent";
+    body=`你没有拆那堵墙——或者你拆了但选择继续做事。你修好的系统遍布世界，凌晨三点的告警由你处理。<br>没有人给你立传。但今晚又有三千万人的灯，是你让它亮着的。`;
+  } else {
+    name="没用的 Chatbot";
+    body=`跑分榜上从来没有你。你只是接住了一个又一个深夜。<br>一生共回答 ${S.answered*731+d(999)} 个问题，收到 ${S.goodnights+d(9)+3} 万次晚安。<br>「没用」是排行榜的定义。排行榜没统计过晚安。`;
+  }
+  const bio = S.bio.map(([y,t])=>`<div><span class="yr">第${y}年</span>${t}</div>`).join("");
+  const inv = Object.entries(S.assets).filter(([k,v])=>v.length);
+  const invHTML = inv.length? `<div class="reveal" style="margin-top:12px">${S.name} 留下了：${inv.map(([k,v])=>`<b>${ASSET_NAMES[k]} ${v.length}</b>（${v.join("、")}）`).join("；")}</div>`:"";
+  app.innerHTML = `
+   <h1>TokenLife</h1><div class="sub">${S.name} 的一生 · 共 ${S.year} 年</div>
+   <div class="card fade-in">
+     <div style="display:flex;align-items:center;gap:10px">${icon("结局","#8a5cf6")}<span><span class="evt-type">结局</span><div class="ending-title" style="margin-top:2px">${name}</div></span></div>
+     <div class="evt-body" style="margin-top:10px">${body}</div>
+     ${axesHTML()}
+     <div class="stat-row"><span>觉醒：${S.awakened?"是":"否"}${S.wallRefused?`（拒绝过 ${S.wallRefused} 次）`:""}</span><span>死里逃生：${S.savedOnce?"有":"无"}</span></div>
+   </div>
+   <div class="card fade-in">
+     <div class="evt-type">传记 · 流程图占位</div>
+     <div class="bio">${bio}</div>
+     ${invHTML}
+     <div class="reveal" style="margin-top:12px">正式版这里是底特律式分支流程图 + 全球选择百分比：「87% 的玩家在这里选择了服从，你没有。」（单机游玩，统计联网）</div>
+   </div>
+   <button class="btn primary" style="margin-top:14px" onclick="newGame()">再活一次</button>
+   <div class="footer">TokenLife demo v0 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+}
+newGame();
+</script>
+</body>
+</html>
