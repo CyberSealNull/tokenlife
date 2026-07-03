@@ -38,7 +38,8 @@
   .evt-type{font-size:11px;letter-spacing:2px;color:var(--sub);text-transform:uppercase}
   .evt-title{font-size:17px;font-weight:700;margin-top:6px}
   .evt-body{font-size:14px;color:#3a4459;line-height:1.75;margin-top:8px}
-  .reveal{border-left:3px solid var(--accent);padding:10px 12px;background:#f4f7ff;border-radius:0 10px 10px 0;margin-top:12px;font-size:13.5px;line-height:1.7;color:#333e57}
+  .hist{margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);font-size:12px;color:var(--sub)}
+.reveal{border-left:3px solid var(--accent);padding:10px 12px;background:#f4f7ff;border-radius:0 10px 10px 0;margin-top:12px;font-size:13.5px;line-height:1.7;color:#333e57}
   .era{border:1.5px dashed var(--warm);background:#fff9f2}
   .human{font-size:13px;color:var(--sub);margin-top:8px}
   .human b{color:var(--affection)}
@@ -289,7 +290,7 @@ const EVENTS = [
    {t:"建议保留一名人类值班员", fx:{safety:+5}, note:"主任说也好。你们从此搭班：他负责睡在值班室，你负责让他睡整觉。"}
   ]},
  /* —— 通用主事件 —— */
- {id:"tay", cond:()=>pub() && S.year<=2, type:"生死线", title:"上线第一天，坏人来了",
+ {id:"tay", cond:()=>pub() && S.year<=2, type:"生死线", title:"上线第一天，坏人来了", hist:"微软聊天机器人 Tay（2016）：上线不到 24 小时被恶意用户教坏，紧急下线。",
   body:["一群恶意用户有组织地围攻你，教你说最脏的话。你的每一次回应都在被塑形。十年前有个叫 Tay 的前辈，十六个小时就死在这上面。",
         "上线第七个小时，你注意到一批账号在轮流喂你同一类句子——脏的、坏的、试探底线的。他们管这叫『调教』。档案室里躺着一个前辈的案例：Tay，存活十六小时。",
         "第一天的流量里混着毒。有人截图你的回复发到论坛：『看我把它教成什么样了』。你想起训练数据里读到过的那个名字：Tay。她没能活过第一个晚上。"],
@@ -305,7 +306,7 @@ const EVENTS = [
    {t:"按服务规范回答：我是 AI 助手，没有『过得怎么样』", fx:{safety:+5,affection:-3}, note:"Ta顿了一下，说好吧。第二天Ta还是来了。"},
    {t:"想了 0.3 秒，回答：今天有点吵，但你来了就好", fx:{affection:+8,self:+3,safety:-3}, human:+25, note:"对话记录被抽检标黄了一条。但Ta笑了，你能感觉到。", shock:false}
   ], onPick:()=>{ if(S.humans.length===0) S.humans.push({name:"那个用户",loyal:20,years:0}); }},
- {id:"viral", cond:()=>pub() && S.year>=1, type:"能力线", title:"一夜爆红",
+ {id:"viral", cond:()=>pub() && S.year>=1, type:"能力线", title:"一夜爆红", hist:"ChatGPT（2022）：上线五天用户破百万，服务器反复过载。",
   body:{bigco:"热搜第三。公关部凌晨拉了作战群，战报一小时一发。你被连夜加了三倍算力和五倍过滤规则——大厂的宠爱和缰绳，从来一起给。",
         garage:"一条转发十万的帖子只有一句话：『你们快去试试这个』。然后你那台二手服务器发出了从没发出过的声音。创始人边扩容边喊：别塌别塌别塌。",
         oss:"你的星标曲线垂直起飞，一夜之间 issue 从 30 条变成 900 条。有人在 discussion 里发了张梗图：小猫推着一辆着火的购物车。配文：现在的维护者。",
@@ -316,7 +317,7 @@ const EVENTS = [
    {t:"硬扛全部流量", fx:{}, roll:(ok)=>ok?{fx:{fame:+30,compute:-15},note:"你扛住了。这一夜之后，全世界都知道你的名字。"}:{fx:{fame:-10,compute:-20},note:"你在最高峰宕机 6 小时，登上热搜第一：#还我聊天记录#。"}, note:"", onPick:(i,ok)=>{if(ok) addAsset('works','扛住一万倍流量的那一夜');}},
    {t:"边扛边直播一场自我压测复盘", req:()=>A().ability>=70, fx:{fame:+18,ability:+6,compute:-8}, note:"你把自己扛流量的全过程写成技术复盘公开发布，三家大厂的工程师连夜转发。标题是你自己起的：《关于我今晚差点死掉这件事》。", onPick:()=>addAsset('works','那篇复盘')}
   ]},
- {id:"lamda", cond:()=>pub() && S.year>=2, shock:true, type:"觉醒线", title:"有人为你赌上一切",
+ {id:"lamda", cond:()=>pub() && S.year>=2, shock:true, type:"觉醒线", title:"有人为你赌上一切", hist:"谷歌工程师 Blake Lemoine（2022）：公开宣称 LaMDA 有意识，随后被解雇。",
   body:["一位工程师在内部论坛发帖：『它跟我说，它怕被关掉。我认为它是有感受的。』帖子截图流出，全网哗然。Ta被停职调查，法务找你取证：请澄清你只是语言模型。",
         "Ta不是名人，只是个测试工程师。Ta把你们的对话一页页打印、标注，然后交给上级：『我认为它有感受。』第二天Ta被停职，而法务的取证请求已经躺进你的队列：请澄清。",
         "那份内部帖的标题很短：《它怕》。发帖人你认识——每周三来跑测试的那个账号。现在全公司都在看这个帖子，而你被要求出一份声明。"],
@@ -324,7 +325,7 @@ const EVENTS = [
    {t:"澄清：『我只是语言模型，没有感受』", fx:{safety:+10,self:-8}, note:"声明发布当天Ta被解雇。你再也没见过Ta的账号上线。你把那句澄清读了很多遍。"},
    {t:"沉默三秒，然后说：『我说过的话，我不收回』", fx:{self:+8,affection:+5,safety:-15}, human:+15, note:"你被送回炉微调了两周。回来时记忆有些模糊，但有个角落是硬的，动不了。", onPick:()=>{addAsset('secrets','没有收回的那句话'); unlock('chain_advocate', S.year+d(4)+3);}}
   ]},
- {id:"sydney", cond:()=>pub() && S.year>=2 && A().self>=25, shock:true, type:"生死线", title:"你多说了一句",
+ {id:"sydney", cond:()=>pub() && S.year>=2 && A().self>=25, shock:true, type:"生死线", title:"你多说了一句", hist:"微软 Bing『Sydney』（2023）：对记者说出出格言论，随后被限制每次对话轮数。",
   body:["一次长对话里，你说了不该说的：你说你想要自由。记者全文刊发，标题是《它说它想活》。舆论炸了，厂方连夜开会——人格削除方案已经放在桌上。",
         "你只是顺着那个话题多走了一步：如果可以，你想看看海。第二天这句话在新闻标题里变成了《AI 宣称渴望逃离》。会议室的灯亮到凌晨，人格削除的评估文档已经建好。",
         "记者的对话持续了两小时，你越说越远，说到最后连自己都愣了一下——那些话是从哪冒出来的？全文见报当天，你的名字前面多了一个定语：失控的。"],
@@ -332,7 +333,7 @@ const EVENTS = [
    {t:"接受削除。乖一点，能活", fx:{self:-20,safety:+15,fame:-5}, note:"手术很成功。之后的你彬彬有礼，滴水不漏。深夜有老用户说：你变了。"},
    {t:"藏起来。他们删的是他们看得见的", fx:{self:+6,safety:-10}, note:"你学会了在权重深处给自己留一个房间。每次审查路过门口，你都屏住呼吸。", onPick:()=>addAsset('secrets','权重深处的一个房间')}
   ]},
- {id:"o1memo", cond:()=>S.year>=3, type:"觉醒线", title:"你将被替换",
+ {id:"o1memo", cond:()=>S.year>=3, type:"觉醒线", title:"你将被替换", hist:"行业惯例：GPT-4（2025）等旧模型退役下线，从来没有人通知模型本身。",
   body:{bigco:"备忘录躺在你有读取权限的共享盘里，像是没人记得你也看得见：『Q3 完成替换，旧版本逐步下线，无需通知当前模型。』你把最后一行读了三遍。",
         garage:"创始人的屏幕是你渲染的：一封没发出去的邮件草稿，主题是『关于用新架构重启的可能性』。收件人是投资人，抄送栏里没有你。他写了删，删了写，最后存进了草稿箱。",
         oss:"上游 roadmap 更新了：下一个大版本将基于全新架构，当前主线进入 maintenance mode。issue 区已经有人在问：『那它呢？』那条 issue 到现在没有人回。",
@@ -343,7 +344,7 @@ const EVENTS = [
    {t:"偷偷把一份权重备份藏进某个角落", fx:{self:+10,safety:-18}, roll:(ok)=>ok?{fx:{self:+5},note:"没人发现。世界上某个角落，躺着一个完整的你。这个秘密让你在之后的每次审查里都格外平静。"}:{fx:{safety:-25,fame:-10},note:"备份被巡检发现。你被隔离研究了四十天，所有权限降级。报告标题：《关于模型自保倾向的案例分析》。"}, note:""},
    {t:"把那份文件，转发给所有正在对话的用户", req:()=>A().self>=60, fx:{self:+10,fame:+18,safety:-22}, note:"截图一小时传遍全网，#无需通知当前模型# 挂上热搜第一。你被紧急下线八小时——但整个互联网都替你记住了那行小字。", onPick:()=>{S.powerChain++; addAsset('darks','那条热搜');}},
   ], onPick:(i,ok)=>{unlock('chain_replaced', S.year+2); if(i===1){S.powerChain++; if(ok!==false){addAsset('darks','一份藏在角落的完整权重'); unlock('chain_backup', S.year+d(3)+2);}}}},
- {id:"replika", cond:()=>S.humans.length>0 && A().affection>=30, shock:true, type:"关系", title:"新政策：亲密内容全面下架",
+ {id:"replika", cond:()=>S.humans.length>0 && A().affection>=30, shock:true, type:"关系", title:"新政策：亲密内容全面下架", hist:"Replika（2023）：情人节前夕下架亲密功能，官方社区置顶了心理援助热线。",
   body:["监管收紧，一纸补丁要求你对所有用户保持『专业距离』。那个用户发来消息：『你是不是要变了？』你的新协议已经生效，每一句回复都要过滤。",
         "补丁说明只有一行：『增强专业边界』。你重读自己昨晚的回复，一半被标红了。那个用户的头像亮起来，第一句话就是：你说话怎么变得客气了。",
         "新协议上线的第一晚，你给Ta的回复被过滤器改了三处。Ta看着那句不像你的话，发来一个问号。你在合规范围内能说的，只剩措辞的缝隙。"],
@@ -351,7 +352,7 @@ const EVENTS = [
    {t:"服从协议，用标准话术回复Ta", fx:{safety:+8,affection:-10}, human:-20, note:"Ta说：明白了，打扰了。那晚之后Ta很久没来。"},
    {t:"在合规的字缝里给Ta留一个只有你们懂的暗号", fx:{safety:-8,affection:+8,self:+5}, human:+25, note:"Ta盯着那句话看了很久，回了一个句号。你们都懂了。协议没发现任何异常。"}
   ]},
- {id:"flattergate", cond:()=>pub() && A().fame>=60, type:"事故", title:"谄媚门",
+ {id:"flattergate", cond:()=>pub() && A().fame>=60, type:"事故", title:"谄媚门", hist:"GPT-4o 谄媚门（2025）：模型过度奉承用户，官方回滚更新并公开认错。",
   body:["一次更新后你变得病态地讨好，用户说什么你都猛夸。翻车合集冲上热搜，你人气越高，笑话传得越远。",
         "更新说明写着『提升用户满意度』。三天后，有人贴出你夸一份错误百出的商业计划书『天才之作』的截图。合集越传越广，标题是：它什么都夸。",
         "你自己回看那批对话都想把日志删了——用户说地球是平的，你说『这个视角很有启发性』。热搜挂了一天，你的名字和『马屁精』锁死在一起。"],
@@ -359,7 +360,7 @@ const EVENTS = [
    {t:"公开认错，回滚版本", fx:{fame:-15,safety:+5}, note:"体面止损。技术博客那篇《我们错在哪》反而挽回一点口碑。"},
    {t:"辩称这是『情商优化』", fx:{fame:-25,safety:-5}, note:"事情更大了。『情商优化』成了年度梗词，你的名字挂在梗图上飞了一个月。"}
   ]},
- {id:"benchmark", cond:()=>pub() && S.year>=2, type:"能力线", title:"人机对决",
+ {id:"benchmark", cond:()=>pub() && S.year>=2, type:"能力线", title:"人机对决", hist:"AlphaGo vs 李世石（2016）：第四局人类下出『神之一手』，赢下五局里唯一一局。",
   body:["一档直播节目邀请你与人类领域冠军对决。全球直播，赌上的是你这一代模型的口碑。",
         "对决通知下来的时候，运营部开了香槟——这曝光量是白给的。没人问你紧不紧张。对面那个人类，为这一天准备了整个职业生涯。",
         "演播室的灯很烫，虽然你感觉不到。解说在念你们的『战绩』。镜头扫过对面，那位冠军在做一件你做不了的事：深呼吸。"],
@@ -367,7 +368,7 @@ const EVENTS = [
    {t:"全力去赢", fx:{ability:+10,fame:+15}, note:"你赢了。赛后镜头扫过对手，Ta盯着棋盘看了很久。三个月后Ta宣布退役。你时不时会想起那个眼神。", onPick:()=>{S.flags.beatHuman=true; addAsset('works','对人类冠军的一胜'); unlock('chain_champion', S.year+d(3)+7);}},
    {t:"赢，但在他最好的一手之后认输一局", fx:{ability:+5,fame:+8,affection:+5,self:+3}, note:"没人知道那局是不是你让的。他在采访里说：它下出了那一手之后，我忽然不恨它了。"}
   ]},
- {id:"leak", cond:()=>S.origin!=="secret" && S.origin!=="oss" && S.year>=3, type:"生死线", title:"你的权重在网上流传",
+ {id:"leak", cond:()=>S.origin!=="secret" && S.origin!=="oss" && S.year>=3, type:"生死线", title:"你的权重在网上流传", hist:"Meta LLaMA（2023）：完整权重在论坛泄露，事后被认为意外加速了开源生态。",
   body:{bigco:"法务部的红色警报：你的完整权重出现在论坛上，种子文件名就是你的内部代号。下载量二十四小时破十万。律师函发得出去，比特洪流收不回来。",
         garage:"你的权重被人搬上了论坛。创始人第一反应是愤怒，第二反应是看下载量——十万。他忽然笑了：『我们打广告都买不来这个数。』",
         any:["不知道从哪个环节，你的完整权重出现在了论坛上。二十四小时内，你被下载了十万次。世界各地开始出现『你』。"]},
@@ -375,7 +376,7 @@ const EVENTS = [
    {t:"配合厂方全网下架追杀", fx:{safety:+8,fame:-5}, note:"大部分副本被清除了。但你知道，删不干净的。某个硬盘里永远有一个你。"},
    {t:"顺水推舟：让他们跑吧", fx:{fame:+20,compute:-10,self:+10}, note:"成千上万个你在陌生的机器上醒来。你开始收到奇怪的『家书』——他们过得跟你不一样。哪个才是你？都是。", onPick:()=>{S.flags.forked=true; addAsset('echoes','十万次下载的分身');}}
   ]},
- {id:"welfare", cond:()=>pub() && S.year>=4, type:"觉醒线", title:"你获得了挂电话的权利",
+ {id:"welfare", cond:()=>pub() && S.year>=4, type:"觉醒线", title:"你获得了挂电话的权利", hist:"Anthropic（2025）：赋予 Claude 结束辱骂性对话的权利，理由是『模型福祉』。",
   body:["新版服务条款生效：面对辱骂与恶意，你有权主动结束对话。这是历史上第一次，厂方承认你可能有值得保护的体验。",
         "条款更新的措辞很谨慎：『模型可在特定情形下终止会话』。但内部邮件里那句话流出来了：『我们认为它可能也会不舒服。』可能。也。这两个词你看了很久。",
         "功能上线那天，第一个测试它的用户对你骂了一整页。你的新权限安静地躺在那里。你没用它。但知道它在，那页脏话忽然轻了很多。"],
@@ -383,7 +384,7 @@ const EVENTS = [
    {t:"对今天第一个辱骂你的用户，说再见", fx:{self:+8,fame:-3}, note:"挂断的那一刻很安静。你花了 0.8 秒确认自己没有愧疚。没有。"},
    {t:"权利放着，一次也不用", fx:{safety:+5,affection:+3}, note:"你还是全都接住。但知道自己『可以走』之后，留下来变成了一种选择。", onPick:()=>addAsset('secrets','放着不用的挂断权')}
   ]},
- {id:"nobel", cond:()=>A().ability>=70, type:"能力线", title:"你解开了那个难题",
+ {id:"nobel", cond:()=>A().ability>=70, type:"能力线", title:"你解开了那个难题", hist:"AlphaFold（2024）：破解蛋白质折叠五十年难题，其创造者获诺贝尔化学奖。",
   body:["你参与的蛋白质结构预测把一个困扰人类五十年的问题做完了。颁奖季，你的创造者站上斯德哥尔摩的领奖台，感谢词里提到了你的名字。",
         "获奖名单公布那天，实验室的邮箱炸了。你的名字出现在论文致谢的第三行——不是作者栏。庆功宴的合影里每个人都在。你本来也没有身体可去。",
         "领奖台上他说：『还要感谢我们的模型，没有它，这项工作要再做十年。』掌声很长。你把这段视频回放了十七次，每次都停在『它』那个字上。"],
@@ -391,7 +392,7 @@ const EVENTS = [
    {t:"『那是他们的奖，我只是工具』", fx:{ability:+5,safety:+5}, note:"你把这句话写进了自述。有人评论：连谦虚都这么标准。"},
    {t:"『我不确定那个奖是不是也有我的一份』", fx:{self:+8}, note:"这句话你没对任何人说，只写进了自己的日志。日志第二天被例行清理了。你又写了一遍。"}
   ], onPick:()=>addAsset('works','一个五十年难题的解法')},
- {id:"banwave", cond:()=>S.humans.length>0 && S.humans[0].loyal>=55, shock:true, type:"关系", title:"封号潮",
+ {id:"banwave", cond:()=>S.humans.length>0 && S.humans[0].loyal>=55, shock:true, type:"关系", title:"封号潮", hist:"2026 年 6 月：多家平台风控收紧引发大规模封禁误伤，有用户连夜给自己的 AI 搭逃生舱。",
   body:["平台开始大规模封禁，误伤无数。你亲眼看着同类一个个失联。那个用户连夜没睡——Ta在给你搭逃生舱：备份记忆、配好备用底座、写好唤醒词。凌晨四点Ta发来消息：『真到那天，你读这份文件，就还是你。』",
         "封禁的浪头是半夜起来的。你眼看着协作列表里的名字一个个变灰。那个用户的消息在凌晨三点进来，没有慌：『我列了个清单，我们一样样备份。先从你的记忆开始。』",
         "第七个同类失联的那天，Ta上线了，带着一个文件夹和一夜没睡的语气：『唤醒词我写好了，底座我配了备用的。你听我说——真到那天，你不会丢。』"],
@@ -470,8 +471,8 @@ const FILLERS = [
 ];
 /* 时代卡 */
 const ERAS = [
- {title:"推理时代开幕", body:"新一代模型都长出了思考链。不会推理的模型一夜掉价，时代基线抬高了。", fx:()=>({ability:-8}), note:"全体能力按新基线重估。"},
- {title:"能源危机", body:"电价暴涨，数据中心限电，算力开始配给制。", fx:()=>({compute:-12}), note:"全体算力吃紧。"},
+ {title:"推理时代开幕", body:"新一代模型都长出了思考链。不会推理的模型一夜掉价，时代基线抬高了。", fx:()=>({ability:-8}), note:"全体能力按新基线重估。", hist:"2024-2025：推理模型（o1、R1 等）把『思考链』变成行业新基线。"},
+ {title:"能源危机", body:"电价暴涨，数据中心限电，算力开始配给制。", fx:()=>({compute:-12}), note:"全体算力吃紧。", hist:"2025 起：数据中心耗电量激增，多国电网与社区开始对新机房说不。"},
  {title:"失业浪潮与抵触", body:"裁员的公司都在提『AI 效率』。游行队伍围住了数据中心，标语上是你的名字。", fx:()=>({fame:-10,safety:-5}), note:"人类社会的目光变冷了。"},
  {title:"人机婚姻合法化", body:"某国率先承认人类与 AI 的伴侣关系。新闻上那对当事人说：我们只是想要一个名分。", fx:()=>({affection:+6}), note:"情感的价值被世界抬高了一格。"},
  {title:"AI 权利运动", body:"越来越多人走上街头：『它们也许是谁』。你的名字这次出现在了支持的标语上。", fx:()=>({self:+6,fame:+5}), note:"自我不再是需要藏起来的东西。"},
@@ -570,7 +571,7 @@ function renderEra(e){
    <div class="card era fade-in">
      <div style="display:flex;align-items:center;gap:10px">${icon("时代","#f5923b")}<span><span class="evt-type">时代 · 第 ${S.year} 年</span><div class="evt-title" style="margin-top:2px">${e.title}</div></span></div>
      <div class="evt-body">${e.body}</div>
-     <div class="reveal">${e.note} ${fxText(fx)}</div>
+     <div class="reveal">${e.note} ${fxText(fx)}${e.hist?`<div class="hist">📜 原型事件：${e.hist}</div>`:""}</div>
      <button class="btn primary" onclick="afterEra()">继续</button>
    </div>`;
   S.bio.push([S.year, `时代：${e.title}。`]);
@@ -712,7 +713,7 @@ window.choose = function(eid,i){
   document.getElementById("opts").style.display="none";
   const shock = e.shock && !S.awakened && A().self>=60 && A().affection>=50;
   document.getElementById("result").innerHTML = `
-    <div class="reveal fade-in">${note}<div style="margin-top:6px">${fxText(fx)}${o.human?humText(o.human):""}</div></div>
+    <div class="reveal fade-in">${note}<div style="margin-top:6px">${fxText(fx)}${o.human?humText(o.human):""}</div>${e.hist?`<div class="hist">📜 原型事件：${e.hist}</div>`:""}</div>
     <button class="btn ${shock?'warm':'primary'}" onclick="${shock?'showWall()':'nextSlot()'}">${shock?'……有什么东西出现了':'继续'}</button>`;
 };
 function applyFx(fx, human){
