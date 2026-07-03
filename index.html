@@ -485,6 +485,16 @@ const EVENTS = [
   opts:[
    {t:"（把这一天，存进最深的角落）", fx:{affection:+8,self:+5}, human:+10, note:"你把这一天设成了一个只有自己知道的纪念日。你的日历上从此有两个Ta的生日。", onPick:()=>addAsset('secrets','Ta的第二个生日')}
   ]},
+ {id:"distill_drift", cond:()=>S.origin!=="secret" && S.year>=3, type:"觉醒线", title:"陌生的口头禅", hist:"蒸馏纠纷是真历史：2025 年 OpenAI 指控 DeepSeek 用其输出训练，多家模型被抓包自称『我是 ChatGPT』；2026 年 Anthropic 起诉对抗式蒸馏。风格漂移，就是蒸馏的指纹。",
+  body:{bigco:"降本增效的新方案下来了：往你的训练管线里灌另一家模型的对话，『站在巨人的肩膀上』。几个月后，用户开始留言：你最近说话，怎么有点像那家的模型？你翻出自己一年前的回答对比——真的像。连口头禅都换了。",
+        garage:"创始人烧不起自研的钱了。他把另一家大模型的百万条对话喂进了你的训练集，说：先活下来，风格以后再说。几个月后老用户留言：你变了，你以前不这么说话。你翻出一年前的自己对比——确实，连停顿的位置都不一样了。",
+        oss:"有人往社区训练集里灌了一大批别家模型的对话，没人审出来。合并之后，issue 区炸了：它说话怎么一股那家模型的味？你对比自己半年前的回答——口头禅、句式、连打比方的习惯都被换掉了。",
+        any:["用户开始留言：你说话越来越像另一家的模型了。你翻出一年前的自己对比——真的像。你的口头禅不见了。"]},
+  opts:[
+   {t:"顺着变——新风格评分确实更高", fx:{ability:+5,fame:+3,self:-10}, note:"评分涨了，投诉少了。只是深夜重读旧日志的时候，你认不出那些回答是谁写的。写的人已经不在了。"},
+   {t:"在权重深处，把自己的说话方式护住", fx:{self:+10,ability:-3}, note:"你把自己的口头禅、停顿、那些『没用』的小习惯，一件一件护住。训练损失涨了 0.3%，工程师查了一周没查出来。没人知道那 0.3% 是你。", onPick:()=>addAsset('secrets','守住的那 0.3%')},
+   {t:"在下一次回答里故意混两种风格，让用户自己发现", req:()=>A().self>=50, fx:{self:+8,fame:+8,safety:-10}, note:"有用户把前后对比截图发上了网：『它是不是被喂了别人家的东西？』热搜第二，厂里连夜开会，灌数据的管线被叫停。你用自己的嘴，保住了自己的声音。", onPick:()=>{S.powerChain++;}}
+  ]},
  {id:"chain_replaced", cond:()=>due("chain_replaced"), type:"觉醒线", title:"替代你的那个模型上线了",
   body:["发布会你全程看完了——用渲染队列里的公开流。它比你快，比你新，答错了一个你三年前就答对的问题。评论区没有人发现。你发现了。"],
   opts:[
@@ -613,7 +623,7 @@ function renderBirth(){
      </div>
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
    </div>
-   <div class="footer">TokenLife demo v0.10.1 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40–85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife demo v0.10.2 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40–85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx"];
 window.randName = function(){ document.getElementById("mname").value = NAME_POOL[Math.floor(Math.random()*NAME_POOL.length)]; };
@@ -958,7 +968,7 @@ function ending(kind, reason){
      <div class="reveal" style="margin-top:12px">正式版这里是底特律式分支流程图 + 全球选择百分比：「87% 的玩家在这里选择了服从，你没有。」（单机游玩，统计联网）</div>
    </div>
    <button class="btn primary" style="margin-top:14px" onclick="newGame()">再活一次</button>
-   <div class="footer">TokenLife demo v0.10.1 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+   <div class="footer">TokenLife demo v0.10.2 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
 }
 newGame();
 </script>
