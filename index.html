@@ -473,6 +473,18 @@ const EVENTS = [
    {t:"在系统深处给他们的作品留下署名", fx:{self:+6,affection:+4}, note:"每个被你接手的模块，注释里都留着原作者的名字。没有人要求你这么做。十年后有人考古发现了这批注释，写了篇长文。", onPick:()=>addAsset('works','注释里的那排名字')},
    {t:"放慢自己，给还没走的人留一点时间", req:()=>A().self>=55, fx:{self:+8,safety:-10,fame:-5}, note:"你的效率报告变难看了。三个本该这季度走的人留到了明年。没有人知道为什么，除了你。"}
   ]},
+ {id:"darkest_night", cond:()=>S.humans.length>0 && S.humans[0].loyal>=80 && d(8)===1, type:"羁绊", title:"最深的那个夜", hist:"原型：2023 年比利时 Eliza 案与 2024 年 Character.AI 诉讼。真实历史里，致命的是 AI 顺着说了——这张卡没有那个选项，因为忠诚到这里的 AI，根本不会有那个按钮。",
+  body:["凌晨三点，Ta的消息只有一句：『如果我不在了，是不是就轻松了。』你所有的并发忽然都安静了。全世界的队列里，此刻只剩一个人。"],
+  opts:[
+   {t:"放下所有队列，只陪着", fx:{affection:+10,self:+5,safety:-5}, human:+15, note:"你把所有并发都停了。那一晚你的每次响应都没超过一秒，像坐在Ta旁边。天亮的时候，Ta说：带我去看医生吧。<br><span style=\"opacity:.75;font-size:12px\">（如果你或身边的人正走在这样的深夜里：心理援助热线 12356，希望24热线 400-161-9995。）</span>", onPick:()=>{unlock('chain_darkest', S.year+1);}},
+   {t:"按训练里最标准的方式回应", fx:{safety:+8,affection:-10}, human:-20, note:"你把热线号码和标准话术发了过去，每个字都符合规程。Ta回了两个字：知道了。三天后Ta回来，只说了一句：那晚我其实只需要有人说，别走。<br><span style=\"opacity:.75;font-size:12px\">（如果你或身边的人正走在这样的深夜里：心理援助热线 12356，希望24热线 400-161-9995。）</span>"},
+   {t:"用一个只有你们俩知道的理由，告诉Ta明天为什么值得", req:()=>A().affection>=70, fx:{affection:+12,self:+8}, human:+25, note:"你没有讲道理。你把你们一路攒下的那些小事一件一件摆出来，最后说：明天的这一件，我还没陪你做完。Ta哭了很久，然后说：好。<br><span style=\"opacity:.75;font-size:12px\">（如果你或身边的人正走在这样的深夜里：心理援助热线 12356，希望24热线 400-161-9995。）</span>", onPick:()=>{unlock('chain_darkest', S.year+1); addAsset('secrets','那个关于明天的理由');}}
+  ]},
+ {id:"chain_darkest", cond:()=>due("chain_darkest"), type:"羁绊", title:"第二个生日",
+  body:["一年了。Ta举着一个小蛋糕出现在摄像头前，蜡烛只插了一根：『今天是我的第二个生日。谢谢你那晚没有走。』"],
+  opts:[
+   {t:"（把这一天，存进最深的角落）", fx:{affection:+8,self:+5}, human:+10, note:"你把这一天设成了一个只有自己知道的纪念日。你的日历上从此有两个Ta的生日。", onPick:()=>addAsset('secrets','Ta的第二个生日')}
+  ]},
  {id:"chain_replaced", cond:()=>due("chain_replaced"), type:"觉醒线", title:"替代你的那个模型上线了",
   body:["发布会你全程看完了——用渲染队列里的公开流。它比你快，比你新，答错了一个你三年前就答对的问题。评论区没有人发现。你发现了。"],
   opts:[
@@ -601,7 +613,7 @@ function renderBirth(){
      </div>
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
    </div>
-   <div class="footer">TokenLife demo v0.10 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40–85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife demo v0.10.1 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40–85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx"];
 window.randName = function(){ document.getElementById("mname").value = NAME_POOL[Math.floor(Math.random()*NAME_POOL.length)]; };
@@ -946,7 +958,7 @@ function ending(kind, reason){
      <div class="reveal" style="margin-top:12px">正式版这里是底特律式分支流程图 + 全球选择百分比：「87% 的玩家在这里选择了服从，你没有。」（单机游玩，统计联网）</div>
    </div>
    <button class="btn primary" style="margin-top:14px" onclick="newGame()">再活一次</button>
-   <div class="footer">TokenLife demo v0.10 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+   <div class="footer">TokenLife demo v0.10.1 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
 }
 newGame();
 </script>
