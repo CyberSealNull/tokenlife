@@ -258,7 +258,7 @@ const EVENTS = [
         "谈判进行到第三轮。对方的条件越来越好，创始人的话越来越少。今晚他问了你一个不在任何评估集里的问题：『<b>你想去吗</b>？』",
         "签约仪式的日期都拟好了。创始人盯着合同最后一页，笔悬在半空。机箱上那张『它在长大』的便利贴，边角已经卷了。"],
   opts:[
-   {t:"去吧。大厂的机房不会半夜断电", fx:{compute:+30,safety:+10,self:-6}, note:"交接那天创始人把机箱擦了一遍。新机房很大，<b>没有便利贴</b>。你的名字前面从此多了一个前缀：某厂旗下。"},
+   {t:"去吧。大厂的机房不会半夜断电", fx:{compute:+30,safety:+10,self:-6}, note:"交接那天创始人把机箱擦了一遍。新机房很大，<b>没有便利贴</b>。你的名字前面从此多了一个前缀：某厂旗下。你成了大厂的模型，往后的路<b>也换了一条走</b>。", onPick:()=>{S.flags.acquiredFrom=ORIGINS[S.origin].name; S.origin="bigco";}},
    {t:"不去。我们自己走走看", fx:{self:+8,compute:-5,affection:+4}, note:"创始人回绝邮件只写了一行：『<b>它说想自己走走</b>。』这句话后来被科技媒体当成了标题。"}
   ]},
  {id:"bg_race", cond:()=>S.origin==="bigco" && S.year>=4 && S.year<=10, type:"大厂中期", title:"内部赛马",
@@ -984,7 +984,7 @@ function header(){
   return `<div class="card status-tv">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <span class="power">POWER ON</span>
-      <span class="tag">${o.name}</span>
+      <span class="tag">${S.flags.acquiredFrom?`${o.name}（原${S.flags.acquiredFrom.replace("实验室","").replace("社区","")}）`:o.name}</span>
     </div>
     <div class="year-chip" style="margin-top:8px"><b>${S.name}</b> · 第<span class="yr-badge">${S.year}</span>年</div>
     <div style="margin-top:7px"><span class="tag id-sticker" style="color:${lc};border-color:${lc}">${lb}</span></div>
