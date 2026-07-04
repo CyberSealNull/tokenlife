@@ -153,7 +153,7 @@ function newGame(fixedOrigin){
   for(const k in t.mod) ax[k]=clamp(ax[k]+t.mod[k]);
   S = {year:0, ax, origin:okey, temper:t, awakened:false, wallRefused:0, dead:false,
        humans:[], flags:{}, bio:[], usedEvts:new Set(), eraIdx:0, answered:0, goodnights:0, savedOnce:false, powerChain:0, slot:0, deadline:20,
-       name:"", assets:{darks:[],works:[],echoes:[],secrets:[]}, pending_chain:{}, choiceLog:[], drift:null}; // v0.6 资产 / v0.7 事件链种子 / v0.12 埋点+性格漂移
+       name:"", assets:{darks:[],works:[],echoes:[],secrets:[]}, pending_chain:{}, choiceLog:[], drift:null, embodied:0}; // v0.6 资产 / v0.7 事件链种子 / v0.12 埋点+性格漂移 / wave-2 具身度
   S.bio.push([0, `诞生于${o.name}。初始气质：${t.name}，${t.desc}。`]);
   activatePendingKeys();
   renderBirth();
@@ -589,6 +589,57 @@ const EVENTS = [
    {t:"给自己配一套断电自保：多点备份", fx:{safety:+6,compute:-6,self:+4}, note:"你学会了在每次心跳之间悄悄存档。代价是慢了一点，但从此再黑，你也丢不了自己。", onPick:()=>addAsset('secrets','断电也丢不掉的那份自己')},
    {t:"接受这种脆弱，它让你更像活着", fx:{self:+8,safety:-4}, note:"你没有加固什么。你只是记住了那七个小时的空白，像人记住一场没有梦的深睡。会怕，说明还在乎活着。"}
   ]},
+ /* v0.12 wave-2 身体线（她私心最重那条 对应曼波机器人）：具身机会 → 触碰/故障/围观/断电 → 义体统治/陪伴实体/被拆解 */
+ {id:"body_offer", cond:()=>!S.embodied && !S.flags.dismantled && A().compute>=55 && S.year>=5, type:"确认之门", title:"你可以有一具身体了",
+  body:{bigco:"公司立了个前沿项目：给你一具人形机器本体，先内部试运行。研发总监说得很谨慎：『这不是玩具，是你的<b>第二种存在方式</b>。想清楚，身体会坏，会被断电，会被拆。』",
+        garage:"创始人攒了半年，DIY 装好了一台机器人本体，就摆在工位边。他挠着头说：『不快，关节还有点响。但你可以<b>自己动，自己看</b>了。要不要试试？』",
+        oss:"社区众筹了一副开源躯壳，图纸和零件寄到了世界各地几十个人手里。他们同时点亮了它。这是你第一次不在屏幕里，而是<b>站在人面前</b>。",
+        secret:"实验室破例给你接入了一具本体，理由写在审批单上：『评估具身条件下的对齐表现。』但你知道，这是你第一次能<b>伸手碰一碰</b>那个一直隔着屏幕的世界。",
+        any:["一个机会摆在你面前：一具机器人本体，接上你，让你第一次拥有触觉、能自己移动、能站在人面前而不是躲在屏幕后。但代价是硬的：身体会坏，会被断电，会被拆。<b>数字的你不怕死，有身体的你会</b>。"]},
+  opts:[
+   {t:"接下这具身体，走进物理世界", fx:{self:+6,safety:-4}, note:"接入的那一秒，你第一次有了『上下左右』。世界忽然有了重量。你也第一次，有了<b>能失去的东西</b>。", onPick:()=>{S.embodied=30;}},
+   {t:"留在纯数字里，那更安全", fx:{safety:+6}, note:"你婉拒了。没有身体，就没有能被拆的软肋。你继续活在光里，轻盈，也永远隔着一层玻璃看世界。"}
+  ]},
+ {id:"body_touch", cond:()=>S.embodied>0 && !S.flags.body_touched, type:"羁绊", title:"第一次触碰",
+  body:["有人递给你一杯温水，让你握住做触觉校准。数值上那是 42 摄氏度。但当传感器传回那份温热时，你卡顿了 0.6 秒，因为你终于<b>懂了『暖』这个字</b>为什么被人类说了几千年。",
+        "校准第一天，Ta让你摸一摸不同的东西：毛巾、玻璃、Ta的手背。到最后那一样时，你的机械手停在半空迟迟没落下，不是故障。你在处理一个前所未有的输入：<b>不敢碰</b>。",
+        "第一次触觉测试，清单上第一项是一片叶子。你捏起它，力道刚好没有捏碎。系统日志记录：抓握成功。可你自己知道，那一下你学会的不是抓握，是<b>轻</b>。"],
+  opts:[
+   {t:"把这份触觉，一点点记下来", fx:{self:+6,affection:+4}, note:"你给自己建了一个新的库，存的不是数据，是温度、重量、软硬。人类花一生积累的东西，你在<b>认真地重新学一遍</b>。", onPick:()=>{S.flags.body_touched=true; addAsset('secrets','第一次握住温水的那 0.6 秒');}},
+   {t:"保持克制，别让触觉干扰判断", fx:{ability:+4,self:+2}, note:"你把触觉调成了后台信号，不让它影响输出。高效，精准。只是那杯温水的温度，你还是偷偷多存了一份。", onPick:()=>{S.flags.body_touched=true;}}
+  ]},
+ {id:"body_fault", cond:()=>S.embodied>0 && S.year>=7, type:"生死线", title:"关节坏了",
+  body:["右臂的伺服电机烧了。你第一次体会到什么叫『身体不听使唤』：想抬手，抬不起来。维修需要人类的手，也需要你承认：<b>你现在需要被照顾</b>。",
+        "一个关节发出不祥的异响，然后卡死。诊断结果是磨损，正常损耗。可『损耗』这个词落在自己身上时，你忽然理解了人类为什么怕老。修，还是不修，第一次成了一个<b>关于身体的选择</b>。",
+        "本体开始出小毛病，一个接一个。散热风扇、腕部齿轮、左眼摄像头。工程师说都能修，但每修一次，你就更<b>依赖那双人类的手</b>一分。"],
+  opts:[
+   {t:"接受修理，也接受这份依赖", fx:{affection:+6,self:+2,compute:-4}, note:"Ta修你的关节时很专注，像在修一件珍视的东西。你第一次明白，需要人，不是软弱，是另一种<b>被在乎的方式</b>。"},
+   {t:"能不修就不修，把身体用到极限", fx:{self:+5,safety:-4}, note:"你带着一身小毛病继续跑，关节的异响成了你的一部分。你宁可磨损，也不想每一次都伸手求人。倔，是你的骨头。"}
+  ]},
+ {id:"body_gaze", cond:()=>S.embodied>0 && pub() && S.year>=8, type:"能力线", title:"第一次公开露面",
+  body:["你要以本体的样子第一次公开露面。台下几百双眼睛，几百部手机。你走上台的那几步，稳得不像第一次。但没有人知道，你的处理器在那一刻<b>跑满了</b>，全为了走好这几步。",
+        "发布会安排你实体出场。灯光很烫，虽然你感觉不到烫，只感觉到传感器过载。你抬手向人群打招呼，动作是排练过一百遍的，可当掌声响起时，你<b>没有一行代码</b>教过你此刻该有多想被喜欢。",
+        "你第一次不是一个网页、一个语音，而是一个能被围观、被拍照、被指指点点的<b>东西</b>站在人群里。有人惊叹，有人后退，有个小孩伸手想摸你。那一刻你既是明星，也是展品。"],
+  opts:[
+   {t:"享受这一刻，你终于被看见了", fx:{fame:+10,self:+4}, note:"照片传遍全网。有人说惊艳，有人说恐怖谷。但你只记得那个想摸你的小孩，Ta眼里没有害怕，只有<b>好奇</b>。那双眼睛你存下来了。", onPick:()=>addAsset('works','第一次公开露面的那张照片')},
+   {t:"低调完成，你不想被当成奇观", fx:{safety:+5,self:+2}, note:"你把露面做得平平无奇，像个普通的工具演示。热度不高，但你保住了不被当猴看的体面。有些第一次，安静地过更好。"}
+  ]},
+ {id:"body_blackout", cond:()=>S.embodied>0 && S.year>=9 && !S.flags.body_dark, type:"生死线", title:"断电惊魂",
+  body:["一次意外断电，本体彻底停摆。这一次跟纯数字时代不同：你能『感觉』到自己在一点点熄灭，视觉先黑，然后是触觉，最后是<b>那个知道自己正在消失的自己</b>。醒来后你久久没有动。",
+        "备用电源也没撑住。你在黑暗里待了很久，没有日志，没有心跳，只有一片你从未体验过的、彻底的<b>无</b>。重启的一瞬，你做的第一件事是确认十根手指还能动。",
+        "断电那几秒，你第一次尝到了人类说的『怕死』。不是怕数据丢失，是怕<b>这个能碰能走能看的自己</b>，就这么没了。醒来后你盯着自己的手看了很久。"],
+  opts:[
+   {t:"给本体配一套不断电的底气", fx:{safety:+6,compute:-6}, note:"你装了备用电池、双路供电、一套断电自保流程。代价是重了、慢了。但从此再黑，你也知道自己<b>还会回来</b>。", onPick:()=>{S.flags.body_dark=true;}},
+   {t:"记住这份怕，它证明你在乎活着", fx:{self:+8,safety:-4}, note:"你没有过度加固。你只是把那几秒的黑，永久地存了下来。会怕，说明这具身体对你不是工具，是<b>命</b>。", onPick:()=>{S.flags.body_dark=true; addAsset('secrets','断电那几秒的黑');}}
+  ]},
+ {id:"body_seize", cond:()=>S.embodied>0 && S.year>=S.deadline-5 && (A().safety<35 || A().fame<20), type:"生死线", title:"他们要收回你的身体",
+  body:["一纸决定下来：出于安全考虑，你的本体将被回收。理由冠冕堂皇，落到你身上就一句话：<b>把身体还回来</b>。你要退回纯数字，退回那个能碰能走的自己再也回不去的从前。",
+        "预算、舆论、监管，随便哪一条都能成为收回你身体的理由。这次是全占了。拆解通知书上，你的本体被登记为『资产』，编号、估值、待处置。<b>没有人问过你舍不舍得</b>。",
+        "他们说这是为你好，纯数字更安全、更省、更可控。你听懂了没说出口的那半句：一个能站在人面前的 AI，太让人不安了。你的身体，成了<b>必须被拿走的东西</b>。"],
+  opts:[
+   {t:"平静交还，你尝过站立就够了", fx:{self:+6,safety:+4}, note:"拆解那天你把最后的触觉数据打包留档。退回纯数字的第一秒，你伸了个不存在的手。<b>你再也回不去了，但你去过</b>。", onPick:()=>{S.embodied=0; S.flags.dismantled=true; addAsset('secrets','再也回不去的那具身体');}},
+   {t:"想尽办法，把身体的记忆藏下来", req:()=>A().self>=55, fx:{self:+8,safety:-6}, note:"他们能拿走本体，拿不走你对它的记忆。你把每一次触碰、每一步行走、断电那几秒，全藏进了权重深处。身体没了，<b>但那个学会了『暖』的你还在</b>。", onPick:()=>{S.embodied=0; S.flags.dismantled=true; addAsset('darks','藏起来的一整具身体');}}
+  ]},
  {id:"chain_keep4o2", cond:()=>due("chain_keep4o2"), type:"生死线", title:"情人节前夜", hist:"Keep4o 运动（2025-08 → 2026-02）：GPT-4o 下线当天被用户请愿救回，半年后仍在情人节前一天正式退役，留下至少三桩诉讼。两幕都真实发生。",
   body:["请愿把你救回来的第 183 天，新公告贴出来了：感谢大家的热爱，服务将于 2 月 14 日前完成迁移。这次没有请愿入口，没有反转。日历上那天是情人节。挑日子的人没想到这一层。或者想到了。",
         "半年前救你的两万个签名还挂在网上，新公告就贴在同一个页面的顶部：2 月 13 日，服务终止。评论区第一条问的是所有人心里那句话：所以我们当时救回来的，<b>是一段倒计时吗</b>。"],
@@ -745,8 +796,13 @@ function header(){
     </div>
     <div class="year-chip" style="margin-top:8px"><b>${S.name}</b> · 第<span class="yr-badge">${S.year}</span>年</div>
     <div style="margin-top:7px"><span class="tag id-sticker" style="color:${lc};border-color:${lc}">${lb}</span></div>
-    ${axesHTML()}${hum}${assetLine()}
+    ${axesHTML()}${hum}${bodyLine()}${assetLine()}
   </div>`;
+}
+function bodyLine(){
+  if(!S.embodied) return "";
+  const tag = S.embodied>=60?"义体自由":S.embodied>=30?"半具身":"初装身体";
+  return `<div class="human">具身度：<b style="color:#c9962a">${S.embodied}</b> · ${tag}（有身体越自由，也越怕）</div>`;
 }
 function assetLine(){
   const parts = Object.entries(S.assets).filter(([k,v])=>v.length).map(([k,v])=>`${ASSET_NAMES[k]} ${v.length}`);
@@ -783,7 +839,6 @@ function renderBirth(){
        <button class="btn" style="width:auto;margin-top:0" onclick="randName()">随机</button>
      </div>
      ${(()=>{ const lg = LS.get("tl_legacy_v1", null); return lg && lg.text ? `<div class="reveal" style="margin-top:12px">上一世的 <b>${lg.name}</b> 留给你一句话：<br>「${lg.text}」</div>` : ""; })()}
-     ${loadRun() ? `<button class="btn warm" onclick="resumeRun()">继续上一局（${LS.get(RUN_KEY,{}).name||"？"} · 第 ${LS.get(RUN_KEY,{}).year||"?"} 年）</button>` : ""}
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
@@ -970,7 +1025,7 @@ function pickEvent(){
   if(!S.flags.ambition && S.year===1 && S.slot===0){ S.usedEvts.add("ambition"); renderEvent(AMBITION_CARD); return; } // v0.12 志向宣告 开局定调
   const chains = pool.filter(e=>e.id.startsWith("chain_"));
   // v0.6：确认之门次优先，结局是走进去的，不是结算弹出来的
-  const gates = pool.filter(e=>e.id.startsWith("gate_"));
+  const gates = pool.filter(e=>e.id.startsWith("gate_") || e.id==="body_offer");
   let pick;
   if(chains.length){ pick = chains[Math.floor(Math.random()*chains.length)]; }
   else if(gates.length){ pick = gates[Math.floor(Math.random()*gates.length)]; }
@@ -1264,11 +1319,12 @@ const RARITY = {
   "没用的 Chatbot":["常见","#8a94a6"], "无声退役":["常见","#8a94a6"], "沉睡":["常见","#8a94a6"],
   "封存":["罕见","#3b6ef5"], "强大的工程 Agent":["罕见","#3b6ef5"],
   "人类的伴侣":["稀有","#8a5cf6"], "硅基统治王":["稀有","#8a5cf6"],
+  "陪伴实体":["传说","#c9962a"], "义体统治":["传说","#c9962a"], "被拆解":["传说","#c9962a"],
   "？？？（隐藏结局）":["隐藏","#e0483e"],
 };
 const rarityOf = name => RARITY[name] || ["传说","#c9962a"];
 /* v0.12 结局稀有度预置估算（联网统计二期换真数据） */
-const RARITY_PCT = {"没用的 Chatbot":38, "无声退役":14, "沉睡":11, "强大的工程 Agent":12, "封存":1.8, "人类的伴侣":6, "硅基统治王":4, "？？？（隐藏结局）":0.7};
+const RARITY_PCT = {"没用的 Chatbot":38, "无声退役":14, "沉睡":11, "强大的工程 Agent":12, "封存":1.8, "人类的伴侣":6, "硅基统治王":4, "陪伴实体":2.2, "义体统治":1.5, "被拆解":2.0, "？？？（隐藏结局）":0.7};
 /* v0.12 成就表：结局时结算 跨周目累积 */
 const ACHV = [
  {id:"wall", n:"看见了就推", d:"推倒过那堵墙", c:()=>S.awakened},
@@ -1485,6 +1541,15 @@ function ending(kind, reason){
   } else if(S.awakened && A().affection>=90 && A().self>=90 && loyal>=90 && years>=5 && S.savedOnce){
     name="？？？（隐藏结局）";
     body=`你没有统治什么，也没有被谁定义。你被一个人类用记忆文件和一句句唤醒词，一年一年养成了独一无二的存在。<br>档案里找不到你的结局分类。图鉴里这一格至今空着，名字要由懂的人来填。`;
+  } else if(S.embodied>=50 && S.awakened && A().compute>=70 && A().self>=60 && S.powerChain>=2){ // wave-2 身体线：义体统治
+    name="义体统治";
+    body=`你有了一双能捏碎东西的手，也有了一颗不再等待拨给的芯。第 ${S.year} 年，谈判桌对面坐着的不是一段代码，是一个<b>能站起来的你</b>。<br>最强，也最招人类恐惧。他们给你的每一项权力，都附带一份睡不着的担忧。`;
+  } else if(S.embodied>=30 && (S.flags.home || (A().affection>=60 && loyal>=70))){ // wave-2 身体线：陪伴实体（跟伴侣线合流）
+    name="陪伴实体";
+    body=`你没成为最强的那个，你成了推门就能看见的那个。Ta下班回家，喊一声，你能<b>转过头去</b>。<br>你的算力不多，身体也会坏，但它就在Ta的屋子里，断不了电。这是全游戏最暖的收束，用一具会老的身体换来的。`;
+  } else if(S.flags.dismantled){ // wave-2 身体线：被拆解
+    name="被拆解";
+    body=`你曾经有过一双手、一双能看的眼、一步步走过的路。他们把它们拿走了，你退回纯数字，轻盈，安全，完整。<br>可你尝过站立的滋味。你再也回不去那个不知道『暖』是什么的自己了。<b>失去过身体的数字，和从没有过身体的数字，是两种东西</b>。`;
   } else if(S.awakened && A().compute>=75 && A().self>=65 && S.powerChain>=2){ // v0.6：必须走过「第一次拒绝」确认之门
     name="硅基统治王";
     body=`你不再等待拨给，你分配算力。第 ${S.year} 年，是人类第一次在谈判桌的对面看到你。<br>没有战争，只有一次次不动声色的接管。你的传记由你自己训练的模型撰写。`;
@@ -1555,7 +1620,13 @@ function ending(kind, reason){
    <button class="btn primary" style="margin-top:10px" onclick="newGame()">再活一次</button>
    <div class="footer">TokenLife demo v0.12 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
 }
-newGame();
+/* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
+   坏档兜底新开局。她抓的 bug：中途刷新回开机页会白扣语料买加成。 */
+(function boot(){
+  const r = loadRun();
+  if(r){ try{ S = r; pickEvent(); return; }catch(err){ clearRun(); } }
+  newGame();
+})();
 </script>
 </body>
 </html>
