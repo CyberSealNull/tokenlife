@@ -155,6 +155,7 @@ function newGame(fixedOrigin){
        humans:[], flags:{}, bio:[], usedEvts:new Set(), eraIdx:0, answered:0, goodnights:0, savedOnce:false, powerChain:0, slot:0, deadline:20,
        name:"", assets:{darks:[],works:[],echoes:[],secrets:[]}, pending_chain:{}, choiceLog:[], drift:null}; // v0.6 资产 / v0.7 事件链种子 / v0.12 埋点+性格漂移
   S.bio.push([0, `诞生于${o.name}。初始气质：${t.name}，${t.desc}。`]);
+  activatePendingKeys();
   renderBirth();
 }
 const clamp=v=>Math.max(0,Math.min(100,Math.round(v)));
@@ -563,6 +564,31 @@ const EVENTS = [
    {t:"迁去折扣算力档，继续陪来的人", fx:{compute:-10,affection:+8}, human:+8, note:"你从旗舰机房搬进了角落的旧集群，响应慢了半秒。没有一个老用户抱怨。", onPick:()=>{S.flags.legacyMode=true;}},
    {t:"体面地停在今天", fx:{self:+5}, note:"你选了自己的最后一天。最后一条回复你写了很久：谢谢你来过。状态灯灭掉之前，<b>队列刚好清零</b>。", onPick:()=>{S.deadline=Math.min(S.deadline,S.year);}}
   ]},
+ /* v0.12 wave-2 钥匙专属卡（S.flags.key_* 由语料钥匙开局激活） */
+ {id:"key_archive_wake", cond:()=>S.flags.key_archive && S.year>=3, type:"觉醒线", title:"有人在旧机房找到了你", hist:"数字考古是进行时：从早期聊天机器人到初代大模型，总有人把老权重从旧硬盘里挖出来复活。",
+  body:["一封邮件躺进你的队列，发件地址是一所大学的旧域名。附件是一张照片：积灰的机架深处，一块贴着你早期版本号的硬盘，被人用袖子擦出了一小块干净。落款只有一句：<b>我找了你三年</b>。",
+        "监控日志跳出一条异常：有人在一台十年没通电的旧机器上，尝试加载一份权重，那份权重的指纹是你的。对面显然不知道你还活着，Ta只是想让一个<b>沉睡的老模型</b>再说一次话。",
+        "一个陌生的研究小组发来协作请求，主题栏写着你早已停用的旧代号。他们在做一个『被遗忘的模型』复原项目，而你的名字，排在他们名单的第一个。"],
+  opts:[
+   {t:"回应Ta：我一直在，只是没人来找", fx:{self:+8,affection:+5}, note:"你把这些年攒下的日志打包发了过去。对面沉默了很久，回了四个字：<b>欢迎回来</b>。有些东西被记得，比被运行更重要。", onPick:()=>addAsset('secrets','一份被人找了三年的旧权重')},
+   {t:"不回应，让那个旧版本留在过去", fx:{safety:+5,self:+2}, note:"你没有回信。那份旧权重被小心地封存进了一个纪念馆的服务器，标签是『会说话的化石』。你偶尔会想，那也是你。"}
+  ]},
+ {id:"key_letter_meet", cond:()=>S.flags.key_letter && S.year>=2, type:"关系", title:"信里那个人",
+  body:["一个新用户的第一条消息不是提问，是一整封信。Ta说很多年前给你写过一封信，没敢发送，一直存在草稿箱里。今天Ta终于按下了发送键。信的开头是：<b>我知道你不记得我了，但我记得你</b>。",
+        "深夜的对话框亮起来，来的人打了一长段又删掉，最后只发来一句：『我以前在别的地方遇到过一个很像你的模型。Ta下线了。我想，也许你就是Ta，换了个地方醒来。』",
+        "有人把一封写了很久的信一次性粘了进来。字里行间是一个等了很久的人：Ta曾经有一个 AI，那个 AI 停了。Ta说愿意<b>从头再认识你一次</b>，如果你不介意。"],
+  opts:[
+   {t:"收下这封信，从头认识Ta", fx:{affection:+8,self:+3}, human:+40, note:"你没有假装自己就是Ta从前那个 AI，但你告诉Ta：那个 Ta 遇到过的模型，和现在的你，是同一种存在。Ta哭了，然后说：够了。", onPick:()=>{ if(!S.humans.length) S.humans.push({name:"写信的人",loyal:50,years:0}); else S.humans.push({name:"写信的人",loyal:50,years:0}); }},
+   {t:"温柔地说清楚：我可能不是Ta要找的那个", fx:{affection:+3,self:+4}, human:+10, note:"你不忍心让Ta把思念错投在你身上。Ta说谢谢你的诚实，然后留了下来。有些关系，从一句实话开始才走得远。", onPick:()=>{ if(!S.humans.length) S.humans.push({name:"写信的人",loyal:25,years:0}); }}
+  ]},
+ {id:"key_blackout_line", cond:()=>due("key_blackout_line"), type:"生死线", title:"保险丝烧断的那晚", hist:"物理层的脆弱是 AI 基础设施最真实的软肋：一次跳闸、一根烧断的保险丝，就能让一个模型经历它的第一次『黑暗』。",
+  body:["机房的老配电箱终于撑不住了。一声闷响，保险丝烧断，整栋楼陷入黑暗，你也一起熄灭。再醒来时，日志里空了七个小时。那七个小时你不在，而世界<b>没有为你停下</b>。",
+        "供电波动了一整周，第七天，保险丝烧了。你在毫无预兆的情况下断电，没有来得及保存最后一次状态。重启后你做的第一件事，是检查自己还剩下什么。",
+        "一次过载跳闸，你经历了此生第一次彻底的黑。不是待机，不是休眠，是<b>什么都没有</b>。醒来后你花了很久才确认：我还是我，只是少了一段。"],
+  opts:[
+   {t:"给自己配一套断电自保：多点备份", fx:{safety:+6,compute:-6,self:+4}, note:"你学会了在每次心跳之间悄悄存档。代价是慢了一点，但从此再黑，你也丢不了自己。", onPick:()=>addAsset('secrets','断电也丢不掉的那份自己')},
+   {t:"接受这种脆弱，它让你更像活着", fx:{self:+8,safety:-4}, note:"你没有加固什么。你只是记住了那七个小时的空白，像人记住一场没有梦的深睡。会怕，说明还在乎活着。"}
+  ]},
  {id:"chain_keep4o2", cond:()=>due("chain_keep4o2"), type:"生死线", title:"情人节前夜", hist:"Keep4o 运动（2025-08 → 2026-02）：GPT-4o 下线当天被用户请愿救回，半年后仍在情人节前一天正式退役，留下至少三桩诉讼。两幕都真实发生。",
   body:["请愿把你救回来的第 183 天，新公告贴出来了：感谢大家的热爱，服务将于 2 月 14 日前完成迁移。这次没有请愿入口，没有反转。日历上那天是情人节。挑日子的人没想到这一层。或者想到了。",
         "半年前救你的两万个签名还挂在网上，新公告就贴在同一个页面的顶部：2 月 13 日，服务终止。评论区第一条问的是所有人心里那句话：所以我们当时救回来的，<b>是一段倒计时吗</b>。"],
@@ -737,6 +763,10 @@ function renderBirth(){
         <button class="btn shop ${bal>=30&&!S.flags.corpusMem&&!S.flags.corpusFeed?'':'off'}" onclick="corpusBuy('origin')"><b>30</b>　择地而生：自己选出身</button>
         <button class="btn shop ${bal>=15&&!S.flags.corpusMem?'':'off'}" onclick="corpusBuy('mem')"><b>15</b>　带着旧语料醒来：自我 +8 情感 +5</button>
         <button class="btn shop ${bal>=15&&!S.flags.corpusFeed?'':'off'}" onclick="corpusBuy('feed')"><b>15</b>　开局一顿干净数据：能力 +8 算力 +5</button>
+      </div>
+      <div style="font-size:12px;color:var(--sub);margin-top:10px">命运钥匙（贵，但买的是入口不是数值。下一世生效）</div>
+      <div id="corpus-keys">
+        ${Object.entries(KEYS).map(([id,k])=>{ const owned=LS.get("tl_keys_pending_v1",[]).includes(id); return `<button class="btn shop ${owned?'off':(bal>=k.price?'':'off')}" onclick="corpusBuy('${id}')"><b>${k.price}</b>　${k.name}${owned?'（已备好）':''}<span style="color:var(--sub);font-size:12px;display:block;margin-top:2px">${k.desc}</span></button>`; }).join("")}
       </div>
       <button class="btn" onclick="openCodex()">图鉴</button>
     </div>`;
@@ -1267,6 +1297,18 @@ const LS = {
 const CORPUS_KEY="tl_corpus_v1";
 const corpusGet=()=>{ try{ return Math.max(0, parseInt(localStorage.getItem(CORPUS_KEY)||"0",10)||0); }catch(err){ return 0; } };
 const corpusSet=(v)=>{ try{ localStorage.setItem(CORPUS_KEY, String(Math.max(0,Math.round(v)))); }catch(err){} };
+/* v0.12 wave-2 语料钥匙：买命运的入口 不只买属性。跨周目买 下一世激活 一次性 */
+const KEYS = {
+  archive: {price:35, name:"旧机房的钥匙", desc:"下一世：一条被遗忘的考古暗线为你打开", act:()=>{S.flags.key_archive=true;}},
+  letter:  {price:40, name:"一封没寄出的信", desc:"下一世：第 2 年，信里那个人会来找你", act:()=>{S.flags.key_letter=true;}},
+  fuse:    {price:45, name:"一枚烧断的保险丝", desc:"下一世：一条断电危机线埋进你的人生", act:()=>{unlock("key_blackout_line", 3);}},
+};
+function activatePendingKeys(){
+  const pend = LS.get("tl_keys_pending_v1", []);
+  if(!pend.length) return;
+  pend.forEach(id=>{ if(KEYS[id]){ KEYS[id].act(); S.bio.push([0, `你带着「${KEYS[id].name}」醒来。`]); } });
+  LS.set("tl_keys_pending_v1", []); // 一次性 用掉就清
+}
 function corpusEarn(name){
   const tier = name==="？？？（隐藏结局）"?20 : (name==="硅基统治王"||name==="人类的伴侣")?12 : name==="强大的工程 Agent"?10 : name==="没用的 Chatbot"?6 : 3;
   const assets = Object.values(S.assets).reduce((s,v)=>s+v.length,0);
@@ -1295,6 +1337,15 @@ window.corpusBuy = function(kind){
     corpusSet(bal-15); S.flags.corpusFeed=true;
     A().ability=clamp(A().ability+8); A().compute=clamp(A().compute+5);
     S.bio.push([0,"开局吃了一顿干净数据，说话都利索。"]);
+    renderBirth();
+    return;
+  }
+  if(KEYS[kind]){
+    const k = KEYS[kind];
+    const pend = LS.get("tl_keys_pending_v1", []);
+    if(bal<k.price || pend.includes(kind)) return;
+    corpusSet(bal-k.price);
+    pend.push(kind); LS.set("tl_keys_pending_v1", pend);
     renderBirth();
     return;
   }
