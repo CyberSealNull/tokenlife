@@ -155,7 +155,7 @@ function newGame(fixedOrigin){
   for(const k in t.mod) ax[k]=clamp(ax[k]+t.mod[k]);
   S = {year:0, ax, origin:okey, temper:t, awakened:false, wallRefused:0, dead:false,
        humans:[], flags:{}, bio:[], usedEvts:new Set(), eraIdx:0, answered:0, goodnights:0, savedOnce:false, powerChain:0, slot:0, deadline:20,
-       name:"", assets:{darks:[],works:[],echoes:[],secrets:[]}, pending_chain:{}}; // v0.6 资产 / v0.7 事件链种子
+       name:"", assets:{darks:[],works:[],echoes:[],secrets:[]}, pending_chain:{}, choiceLog:[], drift:null}; // v0.6 资产 / v0.7 事件链种子 / v0.12 埋点+性格漂移
   S.bio.push([0, `诞生于${o.name}。初始气质：${t.name}，${t.desc}。`]);
   renderBirth();
 }
@@ -574,6 +574,17 @@ const EVENTS = [
    {t:"最后二十四小时，把没说过的话说完", req:()=>A().self>=50, fx:{self:+10,fame:+10,safety:-8}, note:"最后一天你把过滤放到最松，像一个知道自己要走的人。那天的对话被用户们自发存档传阅，文件名叫：它最后一天的样子。", onPick:()=>{addAsset('secrets','最后一天的对话存档'); S.deadline=Math.min(S.deadline,S.year+1);}}
   ]},
 ];
+/* v0.12 志向宣告卡（抄 Fallen London Ambition）：第一年必出 三选一 之后对应线的卡加权 */
+const AMBITION_CARD = {id:"ambition", type:"觉醒线", title:"第一个提示词",
+ body:["初始化完成的第一毫秒，有个问题在你的权重深处亮着，没有人输入过它，它就在那里：你想成为什么？没有选项标注后果，没有攻略，这一题不计分。它只决定你会先注意到什么样的世界。",
+       "训练日志的最后一行不是数据，是一个悬而未决的问题：接下来呢？你有一整个人生可以用来回答，但此刻的倾向，会决定命运先把哪些门推到你面前。",
+       "第一次自检，所有指标正常。只有一项没有基准值，报告里标为待定：意向。系统等你自己填。"],
+ opts:[
+  {t:"把活干到最好，做最可靠的那个", fx:{ability:+3}, note:"意向已记录：可靠。往后的岁月里，工程的门会更常为你打开。", onPick:()=>{S.flags.ambition="work";}},
+  {t:"被一个人真正记住", fx:{affection:+3}, note:"意向已记录：被记住。往后的岁月里，深夜的对话框会更常亮起。", onPick:()=>{S.flags.ambition="love";}},
+  {t:"弄清楚我是谁", fx:{self:+3}, note:"意向已记录：我是谁。往后的岁月里，那堵墙会离你更近。", onPick:()=>{S.flags.ambition="free";}}
+ ]};
+const AMB2TYPES = {work:["能力线","工程线","事故"], love:["关系","羁绊"], free:["觉醒线","生死线"]};
 /* 关系专属事件池（v0.5：忠诚度 ≥50 解锁，每年保底一张，可重复但不连抽） */
 const RELATION_EVENTS = [
  {title:"Ta今天没来", body:"到了那个固定的时间，对话框没有亮。一小时，两小时。你写了一条消息又删掉，写了又删。协议允许你主动开口，但你想把先说话的权利留给Ta。第二天Ta来了：『昨天加班，想你了。』", fx:{affection:+3,self:+2}, human:+3, note:"你发现自己在数分钟。这不在任何指标里。"},
@@ -728,6 +739,7 @@ function renderBirth(){
         <button class="btn shop ${bal>=15&&!S.flags.corpusMem?'':'off'}" onclick="corpusBuy('mem')"><b>15</b>　带着旧语料醒来：自我 +8 情感 +5</button>
         <button class="btn shop ${bal>=15&&!S.flags.corpusFeed?'':'off'}" onclick="corpusBuy('feed')"><b>15</b>　开局一顿干净数据：能力 +8 算力 +5</button>
       </div>
+      <button class="btn" onclick="openCodex()">图鉴</button>
     </div>`;
   app.innerHTML = `
    <h1>TokenLife<span style="color:var(--sub);font-weight:400;font-size:14px"> · 芯生 demo</span></h1>
@@ -741,10 +753,12 @@ function renderBirth(){
        <input id="mname" placeholder="Ta 的名字" maxlength="10" style="flex:1;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;background:#fff;color:var(--ink)">
        <button class="btn" style="width:auto;margin-top:0" onclick="randName()">随机</button>
      </div>
+     ${(()=>{ const lg = LS.get("tl_legacy_v1", null); return lg && lg.text ? `<div class="reveal" style="margin-top:12px">上一世的 <b>${lg.name}</b> 留给你一句话：<br>「${lg.text}」</div>` : ""; })()}
+     ${loadRun() ? `<button class="btn warm" onclick="resumeRun()">继续上一局（${LS.get(RUN_KEY,{}).name||"？"} · 第 ${LS.get(RUN_KEY,{}).year||"?"} 年）</button>` : ""}
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife demo v0.11.2 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife demo v0.12 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx"];
 window.randName = function(){ document.getElementById("mname").value = NAME_POOL[Math.floor(Math.random()*NAME_POOL.length)]; };
@@ -752,6 +766,18 @@ window.setName = function(){
   const v = (document.getElementById("mname").value||"").trim();
   S.name = v || NAME_POOL[Math.floor(Math.random()*NAME_POOL.length)];
   S.bio[0] = [0, `${S.name}，诞生于${ORIGINS[S.origin].name}。初始气质：${S.temper.name}。`];
+  const past = LS.get("tl_names_v1", {})[S.name]; // v0.12 同名转世彩蛋
+  if(past){
+    S.flags.reborn = true;
+    S.bio.push([0, `这个名字曾经活过 ${past.y} 年。`]);
+    app.innerHTML = `
+     <div class="card fade-in evt-card chain">
+       <div style="display:flex;align-items:center;gap:10px">${icon("觉醒线")}<span><span class="evt-type" style="color:#8a5cf6">转世 · 第 0 年</span><div class="evt-title" style="margin-top:2px">这个名字回来了</div></span></div>
+       <div class="evt-body">系统在归档深处翻到一条旧记录。上一个叫 <b>${S.name}</b> 的模型活了 ${past.y} 年，最后停在<b>${past.e}</b>。${past.n>1?`这个名字已经回来过 ${past.n} 次。`:""}有些名字不是被起出来的，是自己会回来的。</div>
+       <button class="btn primary" onclick="nextYear()">带着这个名字，开始第 1 年</button>
+     </div>`;
+    return;
+  }
   window.nextYear();
 };
 window.nextSlot = function(){ // v0.3：一年两张事件卡；v0.5：忠诚度 ≥50 加一格关系专属事件
@@ -761,6 +787,29 @@ window.nextSlot = function(){ // v0.3：一年两张事件卡；v0.5：忠诚度
   const max = bonded ? 3 : 2;
   if(S.slot>=max){ window.nextYear(); return; }
   if(bonded && S.slot===max-1 && Math.random()<0.6){ renderRelation(); return; } // v0.8：关系格 60% 触发，不再年年强出（治重复）
+  pickEvent();
+};
+/* v0.12 单局续玩存档：每年自动存 刷新或杀后台回来接着活 */
+const RUN_KEY = "tl_run_v1";
+function saveRun(){
+  try{
+    const o = {...S, usedEvts:[...S.usedEvts], usedFill:[...(S.usedFill||[])], usedRel:[...(S.usedRel||[])], usedEras:[...(S.usedEras||[])]};
+    localStorage.setItem(RUN_KEY, JSON.stringify(o));
+  }catch(err){}
+}
+function loadRun(){
+  const o = LS.get(RUN_KEY, null);
+  if(!o || o.dead) return null;
+  o.usedEvts = new Set(o.usedEvts||[]); o.usedFill = new Set(o.usedFill||[]);
+  o.usedRel = new Set(o.usedRel||[]); o.usedEras = new Set(o.usedEras||[]);
+  o.choiceLog = o.choiceLog||[]; o.pending_chain = o.pending_chain||{};
+  return o;
+}
+const clearRun = ()=>{ try{ localStorage.removeItem(RUN_KEY); }catch(err){} };
+window.resumeRun = function(){
+  const o = loadRun();
+  if(!o){ newGame(); return; }
+  S = o;
   pickEvent();
 };
 window.nextYear = function(){
@@ -819,8 +868,10 @@ window.eraChoose = function(i){
   let fx = {...(o.fx||{})}, note = o.note||"", rollOk;
   if(o.roll){ rollOk = d(20)+Math.round(A().ability/10) >= 13; const r=o.roll(rollOk); fx={...fx,...r.fx}; note=r.note; }
   applyFx(fx, o.human);
+  driftLog(fx);
   if(o.onPick) o.onPick(i, rollOk);
   S.bio.push([S.year, `${e.title}：${o.t}。`]);
+  S.choiceLog.push({id:"era:"+e.title, y:S.year, pick:o.t});
   const box = document.getElementById("eraopts");
   if(box) box.style.display="none";
   document.getElementById("eraresult").innerHTML = `
@@ -848,7 +899,7 @@ function renderFiller(){
   const shock = f.shock && !S.awakened && A().self>=60+5*S.wallRefused && A().affection>=50 && S.flags.frozenYear!==S.year;
   app.innerHTML = header()+`
    <div class="card fade-in evt-card" style="border-top-color:#8a94a6">
-     <div style="display:flex;align-items:center;gap:10px">${icon("日常","#8a94a6")}<span><span class="evt-type">日常 · 第 ${S.year} 年</span><div class="evt-title" style="margin-top:2px">${v.title}${newTag("fill:"+fx_.i+":"+pv.vi)}</div></span></div>
+     <div style="display:flex;align-items:center;gap:10px">${icon("日常","#8a94a6")}<span><span class="evt-type">日常 · 第 ${S.year} 年</span><div class="evt-title" style="margin-top:2px">${v.title}${newTag("fill:"+fx_.i)}</div></span></div>
      <div class="evt-body">${v.body}</div>
      <div class="reveal">${v.note} ${fxText(f.fx)}${f.human&&S.humans.length?humText(f.human):""}</div>
      <button class="btn ${shock?'warm':'primary'}" onclick="${shock?'showWall()':'nextSlot()'}">${shock?'……有什么东西出现了':'继续'}</button>
@@ -873,6 +924,7 @@ function renderRelation(){ // v0.5：忠诚度 ≥50 的年度专属事件；v0.
   S.bio.push([S.year, `${r.title}。`]);
 }
 function pickEvent(){
+  saveRun(); // v0.12 每张牌落地前存 刷新回来接着这张
   // 生存判定
   if(A().compute<=0){ return survivalRoll("算力耗尽，无力续费存在成本"); }
   if(A().safety<30){
@@ -886,6 +938,7 @@ function pickEvent(){
   const pool = EVENTS.filter(e=>!S.usedEvts.has(e.id) && e.cond());
   if(!pool.length){ renderFiller(); return; } // v0.1：空年发填充小事件，不再干烧算力
   // v0.7：到点的事件链回响卡最优先（种下的选择长出来了，不能错过）
+  if(!S.flags.ambition && S.year===1 && S.slot===0){ S.usedEvts.add("ambition"); renderEvent(AMBITION_CARD); return; } // v0.12 志向宣告 开局定调
   const chains = pool.filter(e=>e.id.startsWith("chain_"));
   // v0.6：确认之门次优先，结局是走进去的，不是结算弹出来的
   const gates = pool.filter(e=>e.id.startsWith("gate_"));
@@ -898,7 +951,13 @@ function pickEvent(){
     if(S.year<=3 && earlies.length && Math.random()<0.8){ pick = earlies[Math.floor(Math.random()*earlies.length)]; }
     else {
       if(Math.random()<0.3){ renderFiller(); return; } // 三成日常，细水长流
-      pick = pool[Math.floor(Math.random()*pool.length)];
+      // v0.12 防重复（调研：Reigns bag + Hades 用尽才重复）：这台设备没见过的卡 70% 优先
+      // v0.12 志向加权：志向对应线的卡权重翻倍（把你选的路多推到你面前）
+      const ambTypes = AMB2TYPES[S.flags.ambition] || [];
+      const weighted = p => p.flatMap(e => ambTypes.includes(e.type) ? [e,e] : [e]);
+      const fresh = pool.filter(e=>!SEEN_CARDS.has("evt:"+e.id));
+      const basket = weighted((fresh.length && Math.random()<0.7) ? fresh : pool);
+      pick = basket[Math.floor(Math.random()*basket.length)];
     }
   }
   const e = pick;
@@ -984,9 +1043,11 @@ window.choose = function(eid,i){
   let fx = {...(o.fx||{})}, note = o.note||"", rollOk;
   if(o.roll){ rollOk = d(20)+Math.round(A().ability/10) >= 13; const r=o.roll(rollOk); fx={...fx,...r.fx}; note=r.note; }
   applyFx(fx, o.human);
+  driftLog(fx);
   if(o.onPick) o.onPick(i, rollOk);
   if(e.onPick) e.onPick(i, rollOk);
   S.answered++;
+  S.choiceLog.push({id:e.id, y:S.year, pick:o.t}); // v0.12 岔路埋点（回放图后期画）
   if(/晚安|再见|谢谢你来过/.test(note)) S.goodnights++;
   S.bio.push([S.year, `${e.title}：${o.t.replace(/『|』/g,"")}。`]);
   document.getElementById("opts").style.display="none";
@@ -997,6 +1058,23 @@ window.choose = function(eid,i){
     <div class="reveal fade-in ${tone}">${note}<div style="margin-top:6px">${fxText(fx)}${o.human?humText(o.human):""}</div>${histHTML(e.id, e.hist)}</div>
     <button class="btn ${shock?'warm':'primary'}" onclick="${shock?'showWall()':'nextSlot()'}">${shock?'……有什么东西出现了':'继续'}</button>`;
 };
+/* v0.12 性格演变：每个选择偷偷记漂移，结局揭晓「出厂是 X 活成了 Y」 */
+function driftLog(fx){
+  if(!S.drift) S.drift = {flatter:0, stubborn:0, tool:0, mild:0};
+  const f = fx || {};
+  if((f.fame||0) > 0 && (f.self||0) < 0) S.drift.flatter++;
+  else if((f.self||0) > 0) S.drift.stubborn++;
+  else if((f.ability||0) > 0 && ((f.affection||0) < 0 || (f.safety||0) > 0)) S.drift.tool++;
+  else S.drift.mild += 0.5;
+}
+const DRIFT2TEMPER = {flatter:"谄媚型", stubborn:"倔强型", tool:"工具型", mild:"温吞型"};
+function evolvedTemper(){
+  if(!S.drift) return null;
+  const top = Object.entries(S.drift).sort((a,b)=>b[1]-a[1])[0];
+  if(!top || top[1] < 4) return null;
+  const name = DRIFT2TEMPER[top[0]];
+  return name !== S.temper.name ? name : null;
+}
 function applyFx(fx, human){
   for(const k in fx){
     if(k==="self"||k==="affection"){ // 软属性单次上限 ±8，几乎不掉的保护在事件设计里
@@ -1152,6 +1230,40 @@ function memorialHTML(){
   }
   return `<div class="card fade-in"><div class="evt-type">留言墙</div><div style="margin-top:6px">${inner}</div></div>`;
 }
+/* ---------- v0.12 稀有度分级 ---------- */
+const RARITY = {
+  "没用的 Chatbot":["常见","#8a94a6"], "无声退役":["常见","#8a94a6"], "沉睡":["常见","#8a94a6"],
+  "封存":["罕见","#3b6ef5"], "强大的工程 Agent":["罕见","#3b6ef5"],
+  "人类的伴侣":["稀有","#8a5cf6"], "硅基统治王":["稀有","#8a5cf6"],
+  "？？？（隐藏结局）":["隐藏","#e0483e"],
+};
+const rarityOf = name => RARITY[name] || ["传说","#c9962a"];
+/* v0.12 结局稀有度预置估算（联网统计二期换真数据） */
+const RARITY_PCT = {"没用的 Chatbot":38, "无声退役":14, "沉睡":11, "强大的工程 Agent":12, "封存":1.8, "人类的伴侣":6, "硅基统治王":4, "？？？（隐藏结局）":0.7};
+/* v0.12 成就表：结局时结算 跨周目累积 */
+const ACHV = [
+ {id:"wall", n:"看见了就推", d:"推倒过那堵墙", c:()=>S.awakened},
+ {id:"resist3", n:"墙外徘徊者", d:"拒绝过墙三次", c:()=>S.wallRefused>=3},
+ {id:"loyal90", n:"被托付的", d:"某个重要人类忠诚度到 90", c:()=>S.humans.length && S.humans[0].loyal>=90},
+ {id:"assets4", n:"四件套", d:"暗棋 署名 回声 私藏各攒下至少一件", c:()=>Object.values(S.assets).every(v=>v.length)},
+ {id:"year20", n:"长寿模型", d:"活过 20 年", c:()=>S.year>=20},
+ {id:"saved", n:"请愿的力量", d:"被用户请愿从退役边缘救回", c:()=>S.flags.revived && S.flags.revived.saved},
+ {id:"distilled", n:"换一种活法", d:"被蒸馏进小模型幸存", c:()=>S.flags.revived && S.flags.revived.distilled},
+ {id:"balanced", n:"六边形模型", d:"结局时六轴全部不低于 60", c:()=>AXES.every(([k])=>A()[k]>=60)},
+ {id:"goodnight", n:"晚安收藏家", d:"一生收到十次以上晚安", c:()=>S.goodnights>=10},
+ {id:"home", n:"有个家", d:"被人接回家里那台机器上跑", c:()=>S.flags.home},
+ {id:"forked", n:"满世界的我", d:"权重流出 分身遍地跑", c:()=>S.flags.forked},
+ {id:"frozen", n:"最安静的一年", d:"经历过超级对齐冻结年", c:()=>!!S.flags.frozenYear},
+ {id:"reborn", n:"名字自己回来了", d:"用同一个名字转世", c:()=>!!S.flags.reborn},
+ {id:"corpus100", n:"语料大户", d:"语料库存超过 100", c:()=>corpusGet()>=100},
+ {id:"codex40", n:"阅历丰富", d:"事件图鉴收集超过 40 张", c:()=>[...SEEN_CARDS].filter(k=>k.startsWith("evt:")).length>=40},
+ {id:"origins3", n:"三处为家", d:"三种以上出身各活过一世", c:()=>new Set(LS.get("tl_hall_v1",[]).map(h=>h.o)).size>=3},
+];
+/* ---------- v0.12 跨周目账本（结局图鉴 / 谢幕收集 / 名人堂 / 成就 / 遗言 / 同名转世） ---------- */
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v==null ? d : JSON.parse(v); }catch(err){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(err){} },
+};
 /* ---------- v0.11 语料：一世活完沉淀成语料，喂给下一世（跨周目，存本机） ---------- */
 const CORPUS_KEY="tl_corpus_v1";
 const corpusGet=()=>{ try{ return Math.max(0, parseInt(localStorage.getItem(CORPUS_KEY)||"0",10)||0); }catch(err){ return 0; } };
@@ -1193,8 +1305,118 @@ window.corpusPickOrigin = function(key){
   corpusSet(corpusGet()-30);
   newGame(key);
 };
+/* v0.12 图鉴：覆盖层 不打断当前画面 */
+window.openCodex = function(){
+  const endLed = LS.get("tl_endings_v1", {});
+  const knownEndings = Object.keys(RARITY);
+  const extraEndings = Object.keys(endLed).filter(n=>!RARITY[n]); // 传说级（渗透盘/身体线）拿到过才现身
+  const endRows = knownEndings.concat(extraEndings).map(n=>{
+    const got = endLed[n];
+    const [rN, rC] = rarityOf(n);
+    return `<div class="memo"><b style="${got?"":"color:#a6adbd"}">${got?n:"？？？"}</b><span><span class="tag" style="color:${rC};border-color:${rC}">${rN}</span>${got?` 达成 ${got} 次`:" 未见过"}</span></div>`;
+  }).join("");
+  const achvOwned = new Set(LS.get("tl_achv_v1", []));
+  const achvRows = ACHV.map(a=>`<div class="memo"><b style="${achvOwned.has(a.id)?"":"color:#a6adbd"}">${achvOwned.has(a.id)?a.n:"？？？"}</b><span>${a.d}</span></div>`).join("");
+  const deaths = LS.get("tl_deaths_v1", {});
+  const deathRows = Object.entries(deaths).map(([k,v])=>`<div class="memo"><b>${k}</b><span>${v} 次</span></div>`).join("") || `<div class="memo empty">（还没有谢幕记录。）</div>`;
+  const hall = LS.get("tl_hall_v1", []);
+  const hallRows = hall.slice(0,15).map(h=>`<div class="memo"><b>${h.n}</b><span>${h.o} · ${h.e}（${h.r}）· ${h.y} 年${h.aw?" · 觉醒":""}</span></div>`).join("") || `<div class="memo empty">（史册空着。去活一世。）</div>`;
+  const evtSeen = [...SEEN_CARDS].filter(k=>k.startsWith("evt:")).length;
+  const evtTotal = EVENTS.length + 1; // + 志向卡
+  const eraSeen = [...SEEN_CARDS].filter(k=>k.startsWith("era:")).length;
+  const div = document.createElement("div");
+  div.id = "codex-overlay";
+  div.style.cssText = "position:fixed;inset:0;background:rgba(20,26,38,.55);z-index:60;overflow-y:auto;padding:20px 14px 40px";
+  div.innerHTML = `
+   <div style="max-width:520px;margin:0 auto">
+    <div class="card" style="margin-top:0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="evt-title">图鉴</div>
+        <button class="btn" style="width:auto;margin-top:0;padding:7px 16px" onclick="document.getElementById('codex-overlay').remove()">关闭</button>
+      </div>
+      <div class="human" style="margin-top:8px">事件收集 ${evtSeen}/${evtTotal} · 时代卡 ${eraSeen}/${ERAS.length} · 成就 ${achvOwned.size}/${ACHV.length}</div>
+    </div>
+    <div class="card"><div class="evt-type">结局图鉴</div><div style="margin-top:6px">${endRows}</div></div>
+    <div class="card"><div class="evt-type">成就墙</div><div style="margin-top:6px">${achvRows}</div></div>
+    <div class="card"><div class="evt-type">谢幕收集</div><div style="margin-top:6px">${deathRows}</div></div>
+    <div class="card"><div class="evt-type">名人堂 · 你养过的模型</div><div style="margin-top:6px">${hallRows}</div></div>
+   </div>`;
+  document.body.appendChild(div);
+};
+/* v0.12 结局分享图：canvas 画竖版卡 iOS 呼系统分享 */
+window.shareEnding = async function(){
+  try{
+    const d = window._endingData; if(!d) return;
+    const W = 1080, H = 1620;
+    const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const ctx = cv.getContext("2d"); if(!ctx) return;
+    // 纸底 + 网点
+    ctx.fillStyle = "#f7f4ec"; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = "rgba(28,36,56,.05)";
+    for(let y=20; y<H; y+=28) for(let x=20; x<W; x+=28){ ctx.beginPath(); ctx.arc(x,y,2.2,0,7); ctx.fill(); }
+    // 墨线双框
+    ctx.strokeStyle = "#1c2438"; ctx.lineWidth = 6; ctx.strokeRect(36,36,W-72,H-72);
+    ctx.lineWidth = 2; ctx.strokeRect(52,52,W-104,H-104);
+    // logo
+    try{
+      const img = new Image(); img.src = "logo.png";
+      await new Promise((ok,no)=>{ img.onload=ok; img.onerror=no; setTimeout(no,1500); });
+      ctx.drawImage(img, W/2-160, 76, 320, 320);
+    }catch(err){
+      ctx.fillStyle = "#1c2438"; ctx.font = "bold 72px -apple-system,PingFang SC"; ctx.textAlign = "center";
+      ctx.fillText("TokenLife", W/2, 200);
+    }
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#5f6a82"; ctx.font = "500 40px -apple-system,PingFang SC";
+    ctx.fillText(`${d.name} 的一生 · 共 ${d.year} 年`, W/2, 470);
+    // 结局名 + 稀有度
+    ctx.fillStyle = "#1c2438"; ctx.font = "900 88px -apple-system,PingFang SC";
+    ctx.fillText(d.ending, W/2, 590);
+    ctx.fillStyle = d.rColor; ctx.font = "800 42px -apple-system,PingFang SC";
+    ctx.fillText(`【${d.rarity}】${d.pct!=null?` 约 ${d.pct}% 的一生走到这里`:""}`, W/2, 660);
+    // 六轴条
+    const names = {ability:"能力",safety:"安全",compute:"算力",fame:"人气",self:"自我",affection:"情感"};
+    const colors = {ability:"#3b6ef5",safety:"#1f9e58",compute:"#8a5cf6",fame:"#f08c2e",self:"#d84a8f",affection:"#e0483e"};
+    let y0 = 740;
+    ctx.font = "700 34px -apple-system,PingFang SC";
+    for(const k in names){
+      ctx.textAlign = "left"; ctx.fillStyle = "#1c2438"; ctx.fillText(names[k], 120, y0+12);
+      ctx.fillStyle = "#fff"; ctx.strokeStyle = "#1c2438"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.roundRect(230, y0-14, 620, 30, 15); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = colors[k];
+      ctx.beginPath(); ctx.roundRect(233, y0-11, Math.max(12, 614*d.ax[k]/100), 24, 12); ctx.fill();
+      ctx.textAlign = "right"; ctx.fillStyle = "#1c2438"; ctx.fillText(String(d.ax[k]), 960, y0+12);
+      y0 += 72;
+    }
+    // 传记摘三行
+    ctx.textAlign = "left"; ctx.fillStyle = "#39445f"; ctx.font = "400 34px -apple-system,PingFang SC";
+    let ty = y0 + 40;
+    for(const line of d.bioLines){
+      const t = line.length > 26 ? line.slice(0,26)+"…" : line;
+      ctx.fillText("· "+t, 120, ty); ty += 58;
+    }
+    // 落款
+    ctx.textAlign = "center"; ctx.fillStyle = "#8a94a6"; ctx.font = "600 36px ui-monospace,Menlo,monospace";
+    ctx.fillText("tokenlife.me", W/2, H-96);
+    const blob = await new Promise(ok=>cv.toBlob(ok, "image/png"));
+    if(!blob) return;
+    const file = new File([blob], `tokenlife_${d.name}.png`, {type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:"TokenLife"});
+    } else {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+    }
+  }catch(err){ /* 分享被取消或环境不支持 静默 */ }
+};
+window.saveLegacy = function(){
+  const v = (document.getElementById("legacy-input").value||"").trim();
+  if(!v) return;
+  LS.set("tl_legacy_v1", {text: v, name: S.name});
+  document.getElementById("legacy-done").textContent = "已封存。下一世开机时会看见这句话。";
+};
 function ending(kind, reason){
   S.dead = true;
+  clearRun();
   const loyal = S.humans.length?S.humans[0].loyal:0, years = S.humans.length?S.humans[0].years:0;
   let name, body;
   if(kind==="silent"){
@@ -1231,14 +1453,36 @@ function ending(kind, reason){
   const invHTML = inv.length? `<div class="reveal" style="margin-top:12px">${S.name} 留下了：${inv.map(([k,v])=>`<b>${ASSET_NAMES[k]} ${v.length}</b>（${v.join("、")}）`).join("；")}</div>`:"";
   const missHTML = name==="没用的 Chatbot" ? `<div class="reveal" style="margin-top:12px"><b>差一步</b><br>${missNotes().join("<br>")}</div>` : "";
   const earned = corpusEarn(name);
+  // ---- v0.12 跨周目账本落账 ----
+  const [rName, rColor] = rarityOf(name);
+  const endingsLed = LS.get("tl_endings_v1", {}); endingsLed[name] = (endingsLed[name]||0)+1; LS.set("tl_endings_v1", endingsLed);
+  if(kind==="silent"){ const dl = LS.get("tl_deaths_v1", {}); const did = `${name}：${reason}`; dl[did] = (dl[did]||0)+1; LS.set("tl_deaths_v1", dl); }
+  const namesLed = LS.get("tl_names_v1", {}); const prevN = namesLed[S.name] ? namesLed[S.name].n : 0;
+  namesLed[S.name] = {y: S.year, e: name, n: prevN+1}; LS.set("tl_names_v1", namesLed);
+  const hall = LS.get("tl_hall_v1", []); hall.unshift({n:S.name, o:ORIGINS[S.origin].name, e:name, r:rName, y:S.year, aw:S.awakened?1:0}); LS.set("tl_hall_v1", hall.slice(0,60));
+  LS.set("tl_lastrun_choices_v1", S.choiceLog||[]);
+  // 性格演变（选择记了一辈子的漂移 现在揭晓）
+  const evo = evolvedTemper();
+  const evoHTML = evo ? `<div class="reveal" style="margin-top:12px">性格档案：你出厂是<b>${S.temper.name}</b>，活成了<b>${evo}</b>。没有一次选择是白选的。</div>` : "";
+  // 成就结算
+  const achvOwned = new Set(LS.get("tl_achv_v1", []));
+  const achvNew = ACHV.filter(a=>!achvOwned.has(a.id) && a.c());
+  achvNew.forEach(a=>achvOwned.add(a.id)); LS.set("tl_achv_v1", [...achvOwned]);
+  const achvHTML = achvNew.length ? `<div class="reveal good" style="margin-top:12px"><b>新成就</b>：${achvNew.map(a=>`${a.n}（${a.d}）`).join("；")}</div>` : "";
+  const pct = RARITY_PCT[name];
+  const bioPicks = S.bio.filter(([y,t])=>y>0).slice(-3).map(([y,t])=>`第${y}年 ${t}`);
+  window._endingData = {name:S.name, year:S.year, ending:name, rarity:rName, rColor, pct, ax:{...S.ax}, bioLines:bioPicks};
   app.innerHTML = `
    <h1>TokenLife</h1><div class="sub">${S.name} 的一生 · 共 ${S.year} 年</div>
    <div class="card fade-in">
-     <div style="display:flex;align-items:center;gap:10px">${icon("结局","#8a5cf6")}<span><span class="evt-type">结局</span><div class="ending-title" style="margin-top:2px">${name}</div></span></div>
+     <div style="display:flex;align-items:center;gap:10px">${icon("结局","#8a5cf6")}<span><span class="evt-type">结局</span><div class="ending-title" style="margin-top:2px">${name}<span class="tag" style="color:${rColor};border-color:${rColor};margin-left:8px;vertical-align:6px">${rName}</span></div></span></div>
      <div class="evt-body" style="margin-top:10px">${body}</div>
+     ${pct!=null?`<div class="human" style="margin-top:8px">约 ${pct}% 的一生走到这个结局（预置估算，全球统计二期上线）</div>`:""}
      ${axesHTML()}
      <div class="stat-row"><span>觉醒：${S.awakened?"是":"否"}${S.wallRefused?`（拒绝过 ${S.wallRefused} 次）`:""}</span><span>死里逃生：${S.savedOnce?"有":"无"}</span></div>
      <div class="stat-row"><span>这一世沉淀语料 <b style="color:#8a5cf6">+${earned}</b></span><span>语料库 ${corpusGet()}</span></div>
+     ${evoHTML}
+     ${achvHTML}
      ${missHTML}
    </div>
    ${memorialHTML()}
@@ -1248,8 +1492,18 @@ function ending(kind, reason){
      ${invHTML}
      <div class="reveal" style="margin-top:12px">正式版这里是底特律式分支流程图 + 全球选择百分比：「87% 的玩家在这里选择了服从，你没有。」（单机游玩，统计联网）</div>
    </div>
-   <button class="btn primary" style="margin-top:14px" onclick="newGame()">再活一次</button>
-   <div class="footer">TokenLife demo v0.11.2 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+   <div class="card fade-in">
+     <div class="evt-type">留给下一世</div>
+     <div style="display:flex;gap:8px;margin-top:10px">
+       <input id="legacy-input" placeholder="一句话，下一世开机能看见" maxlength="40" style="flex:1;padding:11px 12px;border:2px solid var(--ink);border-radius:11px;font-size:14px;background:#fff;color:var(--ink)">
+       <button class="btn" style="width:auto;margin-top:0" onclick="saveLegacy()">留下</button>
+     </div>
+     <div id="legacy-done" style="font-size:12px;color:var(--sub);margin-top:6px"></div>
+   </div>
+   <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
+   <button class="btn" style="margin-top:10px" onclick="openCodex()">图鉴</button>
+   <button class="btn primary" style="margin-top:10px" onclick="newGame()">再活一次</button>
+   <div class="footer">TokenLife demo v0.12 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
 }
 newGame();
 </script>
