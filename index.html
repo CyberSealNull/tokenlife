@@ -1167,7 +1167,7 @@ function renderFiller(){
   let vs = f.variants.map((v,vi)=>({v,vi})).filter(y=>!S.usedFill.has(fx_.i+":"+y.vi));
   if(!vs.length) vs = f.variants.map((v,vi)=>({v,vi}));
   const pv = vs[Math.floor(Math.random()*vs.length)];
-  const v = pv.v; S.usedFill.add(fx_.i+":"+pv.vi);
+  const v = pv.v; S.usedFill.add(fx_.i+":"+pv.vi); markVariant("fill:"+fx_.i, "v"+pv.vi);
   applyFx(f.fx, f.human);
   if(f.gn) S.goodnights++;
   S.answered++;
@@ -1287,12 +1287,22 @@ function icon(type, color){
 }
 
 // v0.5 文案引擎：body 可以是 字符串 / 数组（随机变体）/ 对象（按出身定向文案，any 为兜底变体池）
+/* v0.12 wave-3 变体记录：记下每张卡玩到过的是哪个变体（图鉴地基，跨周目） */
+const VAR_KEY = "tl_seen_variants_v1";
+function markVariant(cardId, vkey){
+  try{
+    const m = JSON.parse(localStorage.getItem(VAR_KEY)||"{}");
+    if(!m[cardId]) m[cardId] = [];
+    if(!m[cardId].includes(vkey)){ m[cardId].push(vkey); localStorage.setItem(VAR_KEY, JSON.stringify(m)); }
+  }catch(err){}
+}
+const seenVariants = cardId => { try{ return (JSON.parse(localStorage.getItem(VAR_KEY)||"{}"))[cardId]||[]; }catch(err){ return []; } };
 const bodyOf = e => {
   const b = e.body;
-  if(typeof b === "string") return b;
-  if(Array.isArray(b)) return b[Math.floor(Math.random()*b.length)];
-  if(b[S.origin]) return b[S.origin];
-  const any = b.any||[]; return any[Math.floor(Math.random()*any.length)]||"";
+  if(typeof b === "string"){ markVariant(e.id, "s"); return b; }
+  if(Array.isArray(b)){ const i=Math.floor(Math.random()*b.length); markVariant(e.id, "a"+i); return b[i]; }
+  if(b[S.origin]){ markVariant(e.id, S.origin); return b[S.origin]; }
+  const any = b.any||[]; const i=Math.floor(Math.random()*any.length); markVariant(e.id, "any"+i); return any[i]||"";
 };
 /* v0.11.1 NEW 标签：这台设备第一次遇到的卡，标题旁标红一小块，见过就不再标（跨周目，图鉴系统的地基） */
 const SEEN_KEY = "tl_seen_cards_v1";
