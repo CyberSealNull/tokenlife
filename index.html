@@ -1231,7 +1231,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.14.6 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.14.7 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -2614,14 +2614,15 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.14.6 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+   <div class="footer">TokenLife v0.14.7 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
    坏档兜底新开局。她抓的 bug：中途刷新回开机页会白扣语料买加成。 */
 /* v0.14 存档码：语料+图鉴解锁+成就+名人堂+结局账本+当前局，打包成一段 base64。她要的「AI 帮主人玩，她等档」 */
+const SAVE_SCHEMA = 1; // v0.14.6 存档码结构版本：只有把 localStorage key 改名/删字段这种破坏性改动才 +1；加新字段是向后兼容的不用动
 const SAVE_KEYS = ["tl_corpus_v1","tl_codex_unlocked_v1","tl_ending_hints_v1","tl_achv_v1","tl_hall_v1","tl_endings_v1","tl_deaths_v1","tl_names_v1","tl_seen_variants_v1","tl_seen_cards_v1","tl_keys_pending_v1","tl_run_v1","tl_hist_seen_v1","tl_legacy_v1"];
 window.exportSave = function(){
-  const dump = {v:14, t:0}; // t 占位（无 Date）
+  const dump = {v:14, schema:SAVE_SCHEMA}; // v=游戏版本快照 schema=存档结构版本
   SAVE_KEYS.forEach(k=>{ const raw = localStorage.getItem(k); if(raw!=null) dump[k]=raw; });
   const code = "TL1"+btoa(unescape(encodeURIComponent(JSON.stringify(dump))));
   const ta = document.getElementById("save-io"); if(ta){ ta.value = code; ta.select(); }
@@ -2635,9 +2636,13 @@ window.importSave = function(){
   if(!code.startsWith("TL1")){ if(s) s.textContent = "这不是一段有效的存档码（应以 TL1 开头）。"; return; }
   try{
     const dump = JSON.parse(decodeURIComponent(escape(atob(code.slice(3)))));
+    const codeSchema = dump.schema||1;
+    if(codeSchema > SAVE_SCHEMA){ if(s) s.textContent = "⚠️ 这个存档码是更新版本的游戏存的，你手上这版可能读不全，建议先刷新到最新版再导入。"; return; }
     SAVE_KEYS.forEach(k=>{ if(dump[k]!=null) localStorage.setItem(k, dump[k]); else localStorage.removeItem(k); });
-    if(s) s.textContent = "存档已载入。正在接上你的进度……";
-    const r = loadRun(); if(r){ S = r; pickEvent(); } else newGame();
+    const r = loadRun();
+    const warn = codeSchema < SAVE_SCHEMA ? "（这个码来自旧版本，已尽量兼容读入）" : "";
+    if(s) s.textContent = (r ? "存档已载入，正在接上进度……" : "进度已载入，从新的一世开始。") + warn;
+    if(r){ S = r; pickEvent(); } else newGame();
   }catch(err){ if(s) s.textContent = "存档码读不出来，检查有没有复制全。"; }
 };
 (function boot(){
