@@ -1229,7 +1229,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.14.3 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.14.4 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -2237,20 +2237,20 @@ window.shareEnding = async function(){
     const line = d.evo ? `出厂是「${d.temper}」，活成了「${d.evo}」` : (d.temper?`一路走来，还是那个「${d.temper}」`:"没有一次选择是白选的");
     ctx.fillStyle = "#39445f"; ctx.font = "500 40px -apple-system,PingFang SC";
     ctx.fillText(line, W/2, y0);
-    // 底部：左字 + 右二维码
+    // 底部：左字 + 右二维码（整块上移，扫码文案压在二维码框内，不撞下边框）
     const qr = await loadImg("qr.png");
-    const qy = H-268, qs = 188;
+    const qs = 176, qx = W-116-qs, qy = H-320;
     if(qr){
       ctx.fillStyle="#fff"; ctx.strokeStyle=INK; ctx.lineWidth=4;
-      ctx.beginPath(); ctx.roundRect(W-128-qs, qy, qs, qs, 18); ctx.fill(); ctx.stroke();
-      ctx.drawImage(qr, W-128-qs+14, qy+14, qs-28, qs-28);
-      ctx.textAlign="center"; ctx.fillStyle="#6b7488"; ctx.font="600 26px -apple-system,PingFang SC";
-      ctx.fillText("扫码开始你的一生", W-128-qs/2, qy+qs+40);
+      ctx.beginPath(); ctx.roundRect(qx, qy, qs, qs, 18); ctx.fill(); ctx.stroke();
+      ctx.drawImage(qr, qx+13, qy+13, qs-26, qs-26);
+      ctx.textAlign="center"; ctx.fillStyle="#6b7488"; ctx.font="600 25px -apple-system,PingFang SC";
+      ctx.fillText("扫码开始你的一生", qx+qs/2, qy+qs+38);
     }
-    ctx.textAlign = "left"; ctx.fillStyle = INK; ctx.font = "900 52px -apple-system,PingFang SC";
-    ctx.fillText("TokenLife 芯生", 128, qy+72);
-    ctx.fillStyle = "#8a94a6"; ctx.font = "600 34px ui-monospace,Menlo,monospace";
-    ctx.fillText("tokenlife.me", 130, qy+124);
+    ctx.textAlign = "left"; ctx.fillStyle = INK; ctx.font = "900 50px -apple-system,PingFang SC";
+    ctx.fillText("TokenLife 芯生", 116, qy+72);
+    ctx.fillStyle = "#8a94a6"; ctx.font = "600 33px ui-monospace,Menlo,monospace";
+    ctx.fillText("tokenlife.me", 118, qy+122);
     const blob = await new Promise(ok=>cv.toBlob(ok, "image/png"));
     if(!blob) return;
     const file = new File([blob], `tokenlife_${d.name}.png`, {type:"image/png"});
@@ -2584,7 +2584,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.14.3 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+   <div class="footer">TokenLife v0.14.4 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
    坏档兜底新开局。她抓的 bug：中途刷新回开机页会白扣语料买加成。 */
