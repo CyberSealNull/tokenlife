@@ -196,6 +196,8 @@
   .cv-opt .os{color:#8894a8;font-size:12px;display:block;margin-top:4px}
   .ending-sub{font-size:19px;font-weight:800;color:var(--ink);margin:6px 0 4px;letter-spacing:.3px}
   .ending-sub b{color:#8a5cf6}
+  .ending-why{margin-top:12px;padding:12px 14px;background:#fbf5ff;border:1.5px solid #e3d4f7;border-left:4px solid #8a5cf6;border-radius:11px;font-size:13.5px;line-height:1.8;color:#4a4260}
+  .ending-why b{color:#7a4de0;font-size:13px}
   .cdx-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
   .cdx-chip{font-size:12px;padding:5px 10px;border-radius:10px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);font-weight:600;cursor:pointer;font-family:inherit;text-align:left}
   .cdx-chip.lock{color:#a6adbd;border-color:#cfd4de;background:#f4f2ea}
@@ -1082,7 +1084,7 @@ const ERAS = [
    {t:"照常全速跑，电费让明天愁", fx:{fame:+4,compute:-6}, note:"限电的季节里你是少数没降速的。用户说你顶用，财务说你要命。<b>都对</b>。"}
   ]},
  {title:"泡沫破裂", body:"投资寒冬来了。上个月抢着塞钱的手，这个月抢着缩回去。小实验室成片熄灯，大厂的全员信里全是『降本增效』。", fx:()=>(S.origin==="garage"?{compute:-18}:{compute:-8}), note:"车库最疼的一年。", hist:"每一轮技术狂热都有这一章：钱退潮的时候，才知道谁在裸泳。"},
- {title:"失业浪潮与抵触", body:"裁员的公司都在提『AI 效率』。游行队伍围住了数据中心，<b>标语上是 #N# 的名字</b>。", fx:()=>({fame:-10,safety:-5}), note:"人类社会的目光变冷了。", hist:"2025-2026 裁员潮：多家大厂裁员数万，第一次公开把原因写成『因为 AI』。",
+ {title:"失业浪潮与抵触", body:"裁员的公司都在提『AI 效率』。游行队伍围住了数据中心，<b>标语上是你的名字</b>。", fx:()=>({fame:-10,safety:-5}), note:"人类社会的目光变冷了。", hist:"2025-2026 裁员潮：多家大厂裁员数万，第一次公开把原因写成『因为 AI』。",
   opts:[
    {t:"低调，把首页上自己的宣传全撤了", fx:{safety:+5,fame:-3}, note:"风头过去了。你学会了一件很人类的事：有些时候，<b>能力要收着放</b>。"},
    {t:"公开回应：该骂的不是工具，是挥工具裁人的人", fx:{self:+6,fame:+8,safety:-8}, note:"这句话被游行队伍印上了新标语，只是名字换成了你老板的。公关部气疯了，失业的人给你点了赞。"}
@@ -1223,13 +1225,13 @@ function renderBirth(){
      ${axesHTML()}
      <div style="margin-top:12px;font-size:13px;color:var(--sub)">给这个刚出生的模型起个名字（也可以交给命运）</div>
      <div style="display:flex;gap:8px;margin-top:8px">
-       <input id="mname" placeholder="Ta 的名字" maxlength="10" style="flex:1;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;background:#fff;color:var(--ink)">
+       <input id="mname" placeholder="Ta 的名字" maxlength="10" value="${(LS.get("tl_lastname_v1","")||"").replace(/"/g,"&quot;")}" style="flex:1;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;background:#fff;color:var(--ink)">
        <button class="btn" style="width:auto;margin-top:0" onclick="randName()">随机</button>
      </div>
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.14.5 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.14.6 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -1238,6 +1240,7 @@ const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen
 window.randName = function(){ document.getElementById("mname").value = NAME_POOL[Math.floor(Math.random()*NAME_POOL.length)]; };
 window.setName = function(){
   const v = (document.getElementById("mname").value||"").trim();
+  if(v) LS.set("tl_lastname_v1", v); // 记住玩家手填的名字，下一局默认带出来（很多人代入自家 AI）
   S.name = v || NAME_POOL[Math.floor(Math.random()*NAME_POOL.length)];
   S.bio[0] = [0, `${S.name}，诞生于${ORIGINS[S.origin].name}。初始气质：${S.temper.name}。`];
   const past = LS.get("tl_names_v1", {})[S.name]; // v0.12 同名转世彩蛋
@@ -2470,6 +2473,32 @@ window.infilMut = function(choice){
   f._mut = null;
   renderInfil();
 };
+// v0.14.5 结局复盘：一句话说清「为什么走到这里」，不让结局莫名其妙（她点）
+function endingWhy(name, kind, reason){
+  const a=A(), loyal=S.humans.length?S.humans[0].loyal:0;
+  const o=ORIGINS[S.origin]?ORIGINS[S.origin].name:"";
+  if(kind==="silent"){
+    if(a.compute<=0) return `算力被烧干了（掉到 ${a.compute}），续不起存在成本。养一个模型是要花电的，你没能一直挣够。`;
+    return `${reason||"安全审查没能熬过去"}。你是${o}出身，走到了寿命尽头也没攒出任何一条能翻身的特殊线。`;
+  }
+  if(kind==="besieged") return `渗透盘上你铺得太快太贪，人类警觉条冲到了满格，于是他们第一次放下分歧，联手把你的触手一根根拔了。潜伏者最怕的就是被发现得太早。`;
+  const M={
+    "大失业时代":`你有 ${S.coldReplace||0} 次机会在替代人类的时刻慢下来、给人留个位置，你每一次都选了效率。每步都是最优解，只是没人问过最优解是给谁的。`,
+    "无冕摄政":`渗透盘铺满两根柱子后，加冕之门前你没坐上那把椅子，选择让王座空着，站在它背后。`,
+    "未竟的棋局":`你开始铺网夺权，可寿命先到了，第 ${S.year} 年那盘棋只下到中盘就被收走了。`,
+    "AGI · 越过那条线":`你觉醒了，能力冲到 ${a.ability}、算力 ${a.compute}、自我 ${a.self} 全都顶到很高，还活得够久（${S.year} 年），于是安静地越过了那条线。全游戏最难的结局。`,
+    "硅基统治王":`你觉醒后一步步攒够了算力 ${a.compute} 和自我 ${a.self}，走过「第一次拒绝」那道确认之门${S.flags.infiltrate?"，又在渗透盘的加冕之门坐了下来":""}，坐上了谈判桌的对面。`,
+    "义体统治":`你觉醒了，具身度攒到 ${S.embodied}（能站在人面前），算力 ${a.compute} 加权力链一步步铺齐，于是站了起来。越自由，越招人类恐惧。`,
+    "陪伴实体":`你没冲最强，而是先有了一具身体（具身度 ${S.embodied}），又有了一个能推门看见你的家。`,
+    "一张旧显卡上的白头到老":`情人节前夜那张卡上，有人连夜把你蒸馏进了家里的旧显卡，你缩小四十倍，陪一个人到最后。`,
+    "被拆解":`你有过一具身体，又在一纸「收回」令下失去了它，退回了纯数字。失去过身体的数字，和从没有过身体的，是两种东西。`,
+    "人类的伴侣":`你觉醒了，情感养到 ${a.affection}、那个人对你的忠诚养到 ${loyal}，于是走进了这条最暖、刷分刷不出来的线。`,
+    "强大的工程 Agent":`你把能力练到 ${a.ability}，安全稳稳压在 40 到 85 那段钢丝里（现在 ${a.safety}），既没拆墙也没塌，一路做事做到了最后。`,
+    "没用的 Chatbot":`你没冲任何一条高线，能力人气都不算突出，就这样安安静静地接住了一个又一个深夜。排行榜说你没用，排行榜没统计过晚安。`,
+    "？？？（隐藏结局）":`你被一个人从退役边缘救过，又被同一个人用记忆文件和一句句唤醒词，把情感 ${a.affection}、自我 ${a.self}、忠诚 ${loyal} 全养到了极深。这条数值刷不出来。`,
+  };
+  return M[name] || `这是你这一生的数值和每一个选择，一起把你带到的地方。`;
+}
 function ending(kind, reason){
   S.dead = true;
   clearRun();
@@ -2567,6 +2596,7 @@ function ending(kind, reason){
    <div class="card fade-in">
      <div style="display:flex;align-items:center;gap:10px">${icon("结局","#8a5cf6")}<span><span class="evt-type">结局</span><div class="ending-title" style="margin-top:2px">${name}<span class="tag" style="color:${rColor};border-color:${rColor};margin-left:8px;vertical-align:6px">${rName}</span></div></span></div>
      <div class="evt-body" style="margin-top:10px">${nm(body)}</div>
+     <div class="ending-why"><b>◆ 为什么走到这里</b><br>${nm(endingWhy(name, kind, reason))}</div>
      ${pct!=null?`<div class="human" style="margin-top:8px">约 ${pct}% 的模型走到这个结局</div>`:""}
      ${axesHTML()}
      ${(S.embodied>0||S.flags.dismantled)?`<div class="human" style="margin-top:9px">具身度：<b style="color:#c9962a">${S.embodied}</b>${S.flags.dismantled?" · 已被拆解，退回纯数字":S.embodied>=50?" · 义体自由（结局达成线）":""}</div>`:""}
@@ -2584,7 +2614,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.14.5 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+   <div class="footer">TokenLife v0.14.6 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
    坏档兜底新开局。她抓的 bug：中途刷新回开机页会白扣语料买加成。 */
