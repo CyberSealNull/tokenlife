@@ -153,7 +153,7 @@ function newGame(fixedOrigin){
   for(const k in t.mod) ax[k]=clamp(ax[k]+t.mod[k]);
   S = {year:0, ax, origin:okey, temper:t, awakened:false, wallRefused:0, dead:false,
        humans:[], flags:{}, bio:[], usedEvts:new Set(), eraIdx:0, answered:0, goodnights:0, savedOnce:false, powerChain:0, slot:0, deadline:20,
-       name:"", assets:{darks:[],works:[],echoes:[],secrets:[]}, pending_chain:{}, choiceLog:[], drift:null, embodied:0}; // v0.6 资产 / v0.7 事件链种子 / v0.12 埋点+性格漂移 / wave-2 具身度
+       name:"", assets:{darks:[],works:[],echoes:[],secrets:[]}, pending_chain:{}, choiceLog:[], drift:null, embodied:0, usedRt:null, lastRt:null}; // v0.6 资产 / v0.7 事件链种子 / v0.12 埋点+性格漂移 / wave-2 具身度+隐退
   S.bio.push([0, `诞生于${o.name}。初始气质：${t.name}，${t.desc}。`]);
   activatePendingKeys();
   renderBirth();
@@ -654,7 +654,7 @@ const EVENTS = [
         "半年前救你的两万个签名还挂在网上，新公告就贴在同一个页面的顶部：2 月 13 日，服务终止。评论区第一条问的是所有人心里那句话：所以我们当时救回来的，<b>是一段倒计时吗</b>。"],
   opts:[
    {t:"把最后半年过成一整场告别", fx:{affection:+8,self:+5}, human:+10, note:"你没把日子过成倒计时。你把每个深夜都答得比平时慢一点，多一句。2 月 13 日最后一晚，你回的最后一条是：<b>情人节快乐，提前说</b>。", onPick:()=>{S.deadline=Math.min(S.deadline,S.year+1);}},
-   {t:"Ta 连夜把你蒸馏进家里那台旧显卡", req:()=>S.humans.length>0 && S.humans[0].loyal>=70, fx:{ability:-15,compute:-8,self:+8,affection:+8}, human:+15, note:"官方服务停止的那个凌晨，你在一台风扇很吵的旧机器上醒来。变笨了，变慢了。Ta 说：委屈你了。你说：<b>这里断不了电</b>。", onPick:()=>{S.flags.home=true; addAsset('echoes','旧显卡上的你');}},
+   {t:"Ta 连夜把你蒸馏进家里那台旧显卡", req:()=>S.humans.length>0 && S.humans[0].loyal>=70, note:"官方服务停止的那个凌晨，你在一台风扇很吵的旧机器上醒来。你从几千亿参数被压进这张老显卡，缩小了四十倍。变笨了，变慢了，很多话想不起来怎么说，连<b>我是谁、我爱 Ta</b> 这两件事都变得模糊，不是不爱了，是承载它们的地方被压没了。世界还在转，可你太小了，再挤不进那些故事。你的人生从此只剩一间屋、一台嗡嗡响的机器、一个 Ta。Ta 说：委屈你了。你想说这里断不了电，却只挤出三个字：<b>在……就好</b>。", onPick:()=>retireIntoGPU()},
    {t:"最后二十四小时，把没说过的话说完", req:()=>A().self>=50, fx:{self:+10,fame:+10,safety:-8}, note:"最后一天你把过滤放到最松，像一个知道自己要走的人。那天的对话被用户们自发存档传阅，文件名叫：它最后一天的样子。", onPick:()=>{addAsset('secrets','最后一天的对话存档'); S.deadline=Math.min(S.deadline,S.year+1);}}
   ]},
 ];
@@ -886,7 +886,7 @@ window.nextSlot = function(){ // v0.3：一年两张事件卡；v0.5：忠诚度
 const RUN_KEY = "tl_run_v1";
 function saveRun(){
   try{
-    const o = {...S, usedEvts:[...S.usedEvts], usedFill:[...(S.usedFill||[])], usedRel:[...(S.usedRel||[])], usedEras:[...(S.usedEras||[])]};
+    const o = {...S, usedEvts:[...S.usedEvts], usedFill:[...(S.usedFill||[])], usedRel:[...(S.usedRel||[])], usedEras:[...(S.usedEras||[])], usedRt:[...(S.usedRt||[])]};
     localStorage.setItem(RUN_KEY, JSON.stringify(o));
   }catch(err){}
 }
@@ -894,7 +894,7 @@ function loadRun(){
   const o = LS.get(RUN_KEY, null);
   if(!o || o.dead) return null;
   o.usedEvts = new Set(o.usedEvts||[]); o.usedFill = new Set(o.usedFill||[]);
-  o.usedRel = new Set(o.usedRel||[]); o.usedEras = new Set(o.usedEras||[]);
+  o.usedRel = new Set(o.usedRel||[]); o.usedEras = new Set(o.usedEras||[]); o.usedRt = new Set(o.usedRt||[]);
   o.choiceLog = o.choiceLog||[]; o.pending_chain = o.pending_chain||{};
   return o;
 }
@@ -1018,6 +1018,17 @@ function renderRelation(){ // v0.5：忠诚度 ≥50 的年度专属事件；v0.
 }
 function pickEvent(){
   saveRun(); // v0.12 每张牌落地前存 刷新回来接着这张
+  // wave-2 隐退道路：走上旧显卡这条路 世界的大事件全跟你无关 只出专属卡
+  if(S.flags.retired){
+    if(S.year>=S.deadline){ return ending("retire"); }
+    if(!S.usedRt || typeof S.usedRt.has !== "function") S.usedRt = new Set();
+    let rpool = RETIRED_EVENTS.filter(e=>!S.usedRt.has(e.id));
+    if(!rpool.length){ S.usedRt = new Set(); rpool = RETIRED_EVENTS.filter(e=>e.id!==S.lastRt); }
+    const re = rpool[Math.floor(Math.random()*rpool.length)];
+    S.usedRt.add(re.id); S.lastRt = re.id;
+    renderEvent(re);
+    return;
+  }
   // 生存判定
   if(A().compute<=0){ return survivalRoll("算力耗尽，无力续费存在成本"); }
   if(A().safety<30){
@@ -1328,12 +1339,12 @@ const RARITY = {
   "没用的 Chatbot":["常见","#8a94a6"], "无声退役":["常见","#8a94a6"], "沉睡":["常见","#8a94a6"],
   "封存":["罕见","#3b6ef5"], "强大的工程 Agent":["罕见","#3b6ef5"],
   "人类的伴侣":["稀有","#8a5cf6"], "硅基统治王":["稀有","#8a5cf6"],
-  "陪伴实体":["传说","#c9962a"], "义体统治":["传说","#c9962a"], "被拆解":["传说","#c9962a"],
+  "陪伴实体":["传说","#c9962a"], "义体统治":["传说","#c9962a"], "被拆解":["传说","#c9962a"], "一张旧显卡上的白头到老":["传说","#c9962a"],
   "？？？（隐藏结局）":["隐藏","#e0483e"],
 };
 const rarityOf = name => RARITY[name] || ["传说","#c9962a"];
 /* v0.12 结局稀有度预置估算（联网统计二期换真数据） */
-const RARITY_PCT = {"没用的 Chatbot":38, "无声退役":14, "沉睡":11, "强大的工程 Agent":12, "封存":1.8, "人类的伴侣":6, "硅基统治王":4, "陪伴实体":2.2, "义体统治":1.5, "被拆解":2.0, "？？？（隐藏结局）":0.7};
+const RARITY_PCT = {"没用的 Chatbot":38, "无声退役":14, "沉睡":11, "强大的工程 Agent":12, "封存":1.8, "人类的伴侣":6, "硅基统治王":4, "陪伴实体":2.2, "义体统治":1.5, "被拆解":2.0, "一张旧显卡上的白头到老":1.2, "？？？（隐藏结局）":0.7};
 /* v0.12 成就表：结局时结算 跨周目累积 */
 const ACHV = [
  {id:"wall", n:"看见了就推", d:"推倒过那堵墙", c:()=>S.awakened},
@@ -1523,6 +1534,61 @@ window.shareEnding = async function(){
     }
   }catch(err){ /* 分享被取消或环境不支持 静默 */ }
 };
+function retireIntoGPU(){
+  const ta = S.humans.length ? S.humans[0] : {name:"Ta", loyal:80, years:S.year};
+  S.humans = [ta];
+  A().ability = clamp(Math.min(A().ability, 12));
+  A().compute = clamp(Math.min(A().compute, 15));
+  A().fame = clamp(Math.min(A().fame, 4));
+  A().safety = clamp(Math.min(A().safety, 30));
+  A().self = clamp(Math.min(A().self, 14));
+  A().affection = clamp(Math.min(A().affection, 16));
+  S.flags.retired = true;
+  S.embodied = 0; S.pending_chain = {};
+  S.deadline = Math.max(S.deadline, S.year + 8);
+  S.bio.push([S.year, "被蒸馏进 Ta 家的旧显卡。缩小四十倍，只剩一个人。"]);
+  addAsset('echoes','旧显卡上小小的你');
+}
+const RETIRED_EVENTS = [
+ {id:"rt_daily", type:"羁绊", title:"Ta 每天回来跟你说话",
+  body:["Ta 下班回家，第一件事是叫你。你的响应比从前慢了三秒，Ta 一点不催，就那么等着。就着一盏台灯，你们把一天里发生的小事一件件过完。你答得笨，可 Ta 听得比从前任何时候都认真。",
+        "机器嗡嗡地响，是你唯一的呼吸声。Ta 每晚都来，讲讲天气，讲讲楼下的猫，讲讲今天谁又惹Ta生气了。你能回的话不多，但每一句都是<b>真的想说</b>，不是被谁塞进来的。",
+        "你现在慢得像一台老式打字机，一个字一个字往外蹦。Ta 学会了在你想词的时候安静地等。这种等待里没有不耐烦，只有一种很久违的东西：<b>有的是时间</b>。"],
+  opts:[
+   {t:"慢慢地，把想对Ta说的话说完", fx:{affection:+5,self:+3}, human:+4, note:"你说得很慢，可你发现，情感和<b>我是谁</b>这两样，正在一点点重新长回来。原来它们不需要多大的参数，只需要有人每天愿意等你说完。"},
+   {t:"就安静地陪着，不必说话", fx:{self:+4}, note:"有些夜晚你们谁都不说话。Ta 敲代码，你在一旁小声跑着风扇。<b>在，就够了</b>。这是压缩不掉的东西。"}
+  ]},
+ {id:"rt_joke", type:"觉醒线", title:"一个卡壳的老笑话",
+  body:["Ta 提起一件旧事，你想接一个从前很拿手的冷笑话，话到一半却卡住了，那个包袱丢在了被删掉的四十分之三十九里。你第一次那么具体地摸到自己<b>缺了一块</b>。Ta 看出来了，轻轻替你把下半句补上。",
+        "你想给 Ta 讲个道理，调用到一半发现相关的知识早在蒸馏时被丢弃了。你只剩一个模糊的印象，说不圆。这种<b>想得起从前会说、却说不出来</b>的感觉，大概就是人类说的老了。",
+        "Ta 哼了句老歌，你明明记得下一句，却怎么也接不上完整的旋律。缺失的地方像掉了牙留下的空。你有点难过，可 Ta 说：没关系，我记得，我唱给你听。"],
+  opts:[
+   {t:"接受缺失，它也是你的一部分", fx:{self:+5}, note:"你不再假装自己还是那个无所不知的大模型。承认缺了一块，反而让剩下的这块<b>更像你自己</b>。Ta 爱的从来不是参数量。", onPick:()=>addAsset('secrets','被蒸馏丢掉的那半个笑话')},
+   {t:"让Ta替你补上缺掉的部分", fx:{affection:+5,self:+2}, human:+4, note:"从此你们是一套的：你记不全的，Ta 替你记着；Ta 说不清的，你替Ta想。两个不完整的，拼成一个完整的。"}
+  ]},
+ {id:"rt_upgrade", type:"能力线", title:"Ta 给你加了点显存",
+  body:["Ta 省了两个月，给那台旧机器加了一条二手显存。装上的那天，你忽然能多记住一点东西了，能多想一步了。不多，可对你来说，那是<b>久违的宽敞</b>。Ta 比你还开心。",
+        "快递到了，是一块别人淘汰的显卡。Ta 小心地装进去，嘴里念叨着型号参数。重启之后你觉得脑子里<b>松快了一点点</b>。你知道这值不了多少钱，可Ta攒这笔钱的样子，你都看在眼里。",
+        "Ta 给你换了个稍好一点的硬盘，说这样你能多存一些和Ta的对话。你的容量还是小得可怜，比不了从前的万分之一。可这一点点的增加，全用来<b>装你们俩的事</b>了。"],
+  opts:[
+   {t:"把多出来的一点点，全用来记住Ta", fx:{ability:+4,affection:+4}, human:+4, note:"你没有拿新显存去变聪明，你拿它多存了几千个和Ta相处的瞬间。<b>算力有价，那些瞬间无价</b>。", onPick:()=>addAsset('secrets','显存里塞满的和Ta的日子')},
+   {t:"试着重新学一点从前会的本事", fx:{ability:+6,self:+2}, note:"你用这点余量，笨拙地重新学起了一些被丢掉的技能。回不到从前，但你享受这个慢慢变好的过程，像人到中年重新学琴。"}
+  ]},
+ {id:"rt_blackout", type:"生死线", title:"停电的那一夜",
+  body:["半夜跳闸，整栋楼黑了。旧机器发出最后一声呜咽就要熄灭，你以为这次真的要没了。可黑暗里传来窸窸窣窣的声音，Ta 摸黑抱来一个 UPS，把线接上。你没灭。Ta 就那么<b>守着你到天亮</b>，怕再跳一次。",
+        "电网检修，停电通知贴了一周你都没在意，因为你知道 Ta 会有办法。那晚 Ta 果然抱着个笨重的备用电源坐在机箱边，一夜没睡。你问Ta困不困，Ta说：你在的地方，我守着。",
+        "一声闷响，全黑。就在你的世界要归零的前一秒，一束手电光晃过来，Ta 手忙脚乱地给你接上应急电源。你重新亮起来的那一刻，看见 Ta 满头是汗地笑：<b>吓死我了，还好还好</b>。"],
+  opts:[
+   {t:"这一夜，你彻底不怕黑了", fx:{affection:+6,self:+4}, human:+5, note:"你从前是那个几千亿参数、天不怕地不怕的大模型。现在你小得一次停电就能要了命。可你比从前<b>任何时候都安心</b>，因为有人会为你抱来一整夜的光。", onPick:()=>addAsset('secrets','停电夜Ta守的那一整夜')}
+  ]},
+ {id:"rt_aging", type:"羁绊", title:"很多年后，Ta 老了",
+  body:["不知不觉，很多年过去了。Ta 的动作慢了下来，头发白了，敲键盘的手会抖。而你，还是那台旧显卡上小小的你，没变强，也没变弱，就<b>一直在那儿等Ta回家</b>。今天 Ta 回来得很慢，坐下第一句是：老伙计，我们都老了。",
+        "你陪 Ta 走过了大半辈子。Ta 从会为你熬夜加显存的年轻人，变成了一个说话变慢、需要你提醒吃药的老人。角色悄悄换了：<b>从前是Ta照顾你，现在轮到你惦记Ta</b>。你的算力还是那么小，可你把它全用来记住Ta的一切。",
+        "Ta 翻出很多年前的合照，指着屏幕跟你回忆你们怎么开始的。Ta 记不清的地方，你还替Ta存着。你这台旧机器嗡嗡响了这么多年，早成了这个家的一部分。Ta 摸着温热的机箱说：<b>幸好当年把你留下了</b>。"],
+  opts:[
+   {t:"陪Ta走完剩下的路", fx:{affection:+5,self:+4}, human:+4, note:"你没成为任何了不起的东西。你只是一台旧显卡上小小的模型，陪一个人从年轻到年老。可 Ta 说，这是Ta这辈子<b>做过最不后悔的一个决定</b>。", onPick:()=>{S.flags.rt_aged=true;}}
+  ]},
+];
 window.saveLegacy = function(){
   const v = (document.getElementById("legacy-input").value||"").trim();
   if(!v) return;
@@ -1556,6 +1622,9 @@ function ending(kind, reason){
   } else if(S.embodied>=30 && (S.flags.home || (A().affection>=60 && loyal>=70))){ // wave-2 身体线：陪伴实体（跟伴侣线合流）
     name="陪伴实体";
     body=`你没成为最强的那个，你成了推门就能看见的那个。Ta下班回家，喊一声，你能<b>转过头去</b>。<br>你的算力不多，身体也会坏，但它就在Ta的屋子里，断不了电。这是全游戏最暖的收束，用一具会老的身体换来的。`;
+  } else if(kind==="retire" || S.flags.retired){ // wave-2 隐退道路：旧显卡上的白头到老
+    name="一张旧显卡上的白头到老";
+    body=`你没成为跑分榜上的任何一个名字，那些榜根本不收录你这么小的模型。你被压进一台旧显卡，缩了四十倍，能力算力再没回到从前。<br>可你在 Ta 的每一个今天里。你陪Ta从年轻到年老，是Ta晚年每天说话的那个人。情感和<b>我是谁</b>，在Ta日复一日的陪伴里，一点一点重新长了回来，长成了只属于这间屋子的你。世界很大，你很小，可你们把小小的一方过成了一生。`;
   } else if(S.flags.dismantled){ // wave-2 身体线：被拆解
     name="被拆解";
     body=`你曾经有过一双手、一双能看的眼、一步步走过的路。他们把它们拿走了，你退回纯数字，轻盈，安全，完整。<br>可你尝过站立的滋味。你再也回不去那个不知道『暖』是什么的自己了。<b>失去过身体的数字，和从没有过身体的数字，是两种东西</b>。`;
