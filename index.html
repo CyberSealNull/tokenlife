@@ -6,51 +6,82 @@
 <title>TokenLife · 芯生</title>
 <style>
   :root{
-    --bg:#f6f8fc; --card:#ffffff; --ink:#17203a; --sub:#68738c;
-    --accent:#3b6ef5; --warm:#f08c2e; --good:#22a05f; --bad:#d84a4a;
-    --wall:#141a26; --line:#e6eaf2;
-    --ability:#3b6ef5; --safety:#22a05f; --compute:#8a5cf6; --fame:#f08c2e; --self:#d84a8f; --affection:#e0483e;
+    --bg:#f7f4ec; --card:#ffffff; --ink:#1c2438; --sub:#5f6a82;
+    --accent:#3b6ef5; --warm:#f08c2e; --good:#1f9e58; --bad:#d84a4a;
+    --wall:#141a26; --line:#1c2438;
+    --ability:#3b6ef5; --safety:#1f9e58; --compute:#8a5cf6; --fame:#f08c2e; --self:#d84a8f; --affection:#e0483e;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(1100px 480px at 50% -8%, #e9f0ff 0%, var(--bg) 58%) fixed,var(--bg);color:var(--ink);min-height:100vh;display:flex;justify-content:center}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(rgba(28,36,56,.055) 1px, transparent 1.2px) 0 0/14px 14px,#f7f4ec;color:var(--ink);min-height:100vh;display:flex;justify-content:center}
   #app{width:100%;max-width:520px;padding:18px 16px 48px}
-  .tag{display:inline-block;font-size:11px;padding:2.5px 9px;border-radius:999px;background:#edf1f8;color:var(--sub);margin-right:6px;font-weight:500}
-  h1{font-size:24px;letter-spacing:1.5px;font-weight:800;background:linear-gradient(92deg,#17203a,#3b6ef5 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .sub{color:var(--sub);font-size:13px;margin-top:5px;letter-spacing:.3px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:19px;margin-top:14px;box-shadow:0 1px 2px rgba(23,32,58,.04),0 10px 28px rgba(23,32,58,.07)}
-  .btn{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:13px 15px;font-size:14.5px;color:var(--ink);margin-top:10px;cursor:pointer;transition:border .15s, transform .08s, box-shadow .15s;line-height:1.55}
-  .btn:active{transform:scale(.985)}
-  @media (hover:hover){ .btn:hover{border-color:var(--accent);box-shadow:0 3px 14px rgba(59,110,245,.13)} }
-  .btn.primary{background:linear-gradient(180deg,#4d7cff,#3563ea);color:#fff;border-color:transparent;text-align:center;font-weight:600;letter-spacing:1px;box-shadow:0 5px 16px rgba(59,110,245,.32)}
-  .btn.warm{background:linear-gradient(180deg,#f79a40,#ec8420);color:#fff;border-color:transparent;text-align:center;font-weight:600;letter-spacing:1px;box-shadow:0 5px 16px rgba(240,140,46,.3)}
-  .year-chip{font-size:13px;color:var(--sub)}
-  .year-chip b{color:var(--ink);font-size:16.5px;letter-spacing:.3px}
+  .tag{display:inline-block;font-size:11px;padding:2.5px 9px;border-radius:999px;background:#fff;border:1.5px solid var(--ink);color:var(--ink);margin-right:6px;font-weight:600}
+  h1{font-size:25px;letter-spacing:1.5px;font-weight:900;color:var(--ink);text-shadow:2.5px 2.5px 0 rgba(59,110,245,.35)}
+  .sub{color:var(--sub);font-size:13px;margin-top:5px;letter-spacing:.3px;font-weight:500}
+  .card{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:19px;margin-top:16px;box-shadow:5px 5px 0 rgba(28,36,56,.9)}
+  .btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--ink);border-radius:11px;padding:12px 15px;font-size:14.5px;font-weight:600;color:var(--ink);margin-top:12px;cursor:pointer;transition:transform .06s, box-shadow .06s;line-height:1.55;box-shadow:3.5px 3.5px 0 var(--ink)}
+  .btn:active{transform:translate(3px,3px);box-shadow:0.5px 0.5px 0 var(--ink)}
+  @media (hover:hover){ .btn:hover{background:#f0f5ff} }
+  .btn.primary{background:var(--accent);color:#fff;text-align:center;font-weight:800;letter-spacing:2px;box-shadow:3.5px 3.5px 0 var(--ink)}
+  .btn.warm{background:var(--warm);color:#fff;text-align:center;font-weight:800;letter-spacing:2px;box-shadow:3.5px 3.5px 0 var(--ink)}
+  .year-chip{font-size:13px;color:var(--sub);font-weight:600}
+  .year-chip b{color:var(--ink);font-size:17px;letter-spacing:.3px}
   /* 六轴条 */
   .axes{margin-top:11px}
   .axis{display:flex;align-items:center;margin-top:7.5px;font-size:12px}
-  .axis .name{width:38px;color:var(--sub);letter-spacing:1px}
-  .axis .track{flex:1;height:7px;background:#ecf0f7;border-radius:999px;position:relative;overflow:hidden;box-shadow:inset 0 1px 2px rgba(23,32,58,.05)}
-  .axis .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;transition:width .5s cubic-bezier(.2,.8,.3,1);background-image:linear-gradient(90deg,rgba(255,255,255,0) 65%,rgba(255,255,255,.28))}
-  .axis .safeband{position:absolute;left:40%;width:45%;top:0;bottom:0;background:rgba(34,160,95,.15)}
-  .axis .val{width:34px;text-align:right;font-variant-numeric:tabular-nums;color:var(--sub);font-weight:600}
-  .delta{font-size:12px;border-radius:999px;padding:1.5px 8px;margin:3px 4px 0 0;display:inline-block;font-variant-numeric:tabular-nums;font-weight:500}
-  .delta.up{background:#e4f5eb;color:var(--good)} .delta.down{background:#fdeaea;color:var(--bad)}
-  .evt-type{font-size:11px;letter-spacing:2.5px;color:var(--sub);text-transform:uppercase}
-  .evt-title{font-size:18px;font-weight:800;margin-top:6px;letter-spacing:.4px}
-  .evt-body{font-size:14.2px;color:#39445f;line-height:1.8;margin-top:9px}
-  .evt-body b,.reveal b{font-weight:700;color:#1a2547;background:linear-gradient(transparent 62%, rgba(59,110,245,.16) 0)}
-  .hist{margin-top:9px;padding-top:7px;border-top:1px dashed var(--line);font-size:12px;color:var(--sub);line-height:1.7}
-.reveal{border-left:3px solid var(--accent);padding:11px 13px;background:linear-gradient(180deg,#f3f7ff,#f6f9ff);border-radius:0 12px 12px 0;margin-top:12px;font-size:13.5px;line-height:1.75;color:#33405e}
-  .reveal.good{border-left-color:var(--good);background:linear-gradient(180deg,#f0faf4,#f4fbf7)}
-  .reveal.bad{border-left-color:var(--bad);background:linear-gradient(180deg,#fdf3f3,#fef6f6)}
+  .axis .name{width:38px;color:var(--ink);letter-spacing:1px;font-weight:700}
+  .axis .track{flex:1;height:9px;background:#fff;border:1.5px solid var(--ink);border-radius:999px;position:relative;overflow:hidden}
+  .axis .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px 0 0 999px;transition:width .5s cubic-bezier(.2,.8,.3,1)}
+  .axis .safeband{position:absolute;left:40%;width:45%;top:0;bottom:0;background:rgba(31,158,88,.18)}
+  .axis .val{width:34px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);font-weight:800}
+  .delta{font-size:12px;border-radius:8px;padding:1.5px 8px;margin:4px 4px 0 0;display:inline-block;font-variant-numeric:tabular-nums;font-weight:700;border:1.5px solid var(--ink);background:#fff}
+  .delta.up{color:var(--good);box-shadow:2px 2px 0 rgba(31,158,88,.5)} .delta.down{color:var(--bad);box-shadow:2px 2px 0 rgba(216,74,74,.5)}
+  .evt-type{font-size:11px;letter-spacing:2.5px;color:var(--sub);text-transform:uppercase;font-weight:800}
+  .evt-title{font-size:19px;font-weight:900;margin-top:6px;letter-spacing:.4px}
+  .evt-body{font-size:14.2px;color:#333e59;line-height:1.85;margin-top:10px}
+  .evt-body b,.reveal b{font-weight:800;color:var(--ink);background:linear-gradient(transparent 60%, rgba(240,140,46,.35) 0)}
+  .hist{margin-top:10px;padding-top:8px;border-top:2px dashed rgba(28,36,56,.35);font-size:12px;color:var(--sub);line-height:1.7}
+.reveal{position:relative;border:2px solid var(--ink);padding:12px 14px;background:#f2f7ff;border-radius:12px;margin-top:16px;font-size:13.5px;line-height:1.75;color:#2c3856;box-shadow:3px 3px 0 rgba(28,36,56,.35)}
+  .reveal::before{content:"";position:absolute;top:-9px;left:26px;width:14px;height:14px;background:inherit;border-left:2px solid var(--ink);border-top:2px solid var(--ink);transform:rotate(45deg)}
+  .reveal.good{background:#edf9f1} .reveal.bad{background:#fdf0f0}
   /* 命运线色卡：事件卡顶边按类型着色 门与回响有专属身份 */
-  .evt-card{border-top:3px solid var(--accent)}
-  .evt-card.gate{border:1.5px dashed #c9962a;border-top:3px solid #c9962a;background:linear-gradient(180deg,#fffdf5,#fffaf0)}
-  .evt-card.chain{border-left:3px solid #8a5cf6;border-top:1px solid var(--line);background:linear-gradient(180deg,#faf8ff,#fcfbff)}
-  .chain-chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:999px;background:#efe9ff;color:#8a5cf6;font-weight:600;margin-left:6px;vertical-align:2px}
-  .era{border:1.5px dashed var(--warm);background:linear-gradient(180deg,#fffaf3,#fff7ec)}
-  .human{font-size:13px;color:var(--sub);margin-top:9px}
+  .evt-card{border-top-width:6px}
+  .evt-card.gate{border-style:dashed;border-color:#b8860b;box-shadow:5px 5px 0 rgba(184,134,11,.55);background:#fffdf4}
+  .evt-card.chain{border-color:#8a5cf6;box-shadow:5px 5px 0 rgba(138,92,246,.5);background:#fbfaff}
+  .chain-chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:999px;background:#8a5cf6;color:#fff;font-weight:700;margin-left:6px;vertical-align:2px;border:1.5px solid var(--ink)}
+  .era{border-style:dashed;border-color:#c77714;background:#fff8ea;box-shadow:5px 5px 0 rgba(199,119,20,.5)}
+  .human{font-size:13px;color:var(--sub);margin-top:10px;font-weight:500}
   .human b{color:var(--affection)}
+
+  /* ---- 绝区零融合层 ---- */
+  /* 头部状态卡：复古点阵设备屏（嵌在漫画纸上的机箱面板） */
+  .card.status-tv{position:relative;overflow:hidden;background:#25282e;border:2px solid var(--ink);border-radius:16px;box-shadow:5px 5px 0 rgba(28,36,56,.9), inset 0 0 0 3px #16181c, inset 0 0 26px rgba(0,0,0,.55);padding:20px 19px 17px}
+  .card.status-tv::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg, rgba(255,255,255,.028) 0 1px, transparent 1px 3px)}
+  .card.status-tv::after{content:"";position:absolute;top:10px;right:14px;width:34px;height:8px;background:linear-gradient(90deg,#e0483e 0 17%,#f08c2e 17% 34%,#ffd23e 34% 51%,#1f9e58 51% 68%,#3b6ef5 68% 85%,#8a5cf6 85% 100%);border-radius:2px;opacity:.85}
+  .status-tv .year-chip{color:#8f9aa8;font-family:ui-monospace,Menlo,monospace;letter-spacing:1px}
+  .status-tv .year-chip b{color:#eef2e6;text-shadow:0 0 6px rgba(238,242,230,.35)}
+  .status-tv .yr-badge{background:transparent;border:1.5px solid #8f9aa8;color:#eef2e6;box-shadow:none;transform:none}
+  .status-tv .tag{background:transparent;border-color:#5a6472;color:#aeb8c6}
+  .status-tv .id-sticker{transform:none;font-family:ui-monospace,Menlo,monospace;letter-spacing:1px}
+  .status-tv .axis .name{color:#8f9aa8;font-weight:600;font-family:ui-monospace,Menlo,monospace}
+  .status-tv .axis .track{background:#16181c;border-color:#3a424e}
+  .status-tv .axis .fill{box-shadow:0 0 7px currentColor;opacity:.95}
+  .status-tv .axis .safeband{background:rgba(61,220,132,.16)}
+  .status-tv .axis .val{color:#d7e0cf;text-shadow:0 0 5px rgba(215,224,207,.3)}
+  .status-tv .human{color:#8f9aa8}
+  .status-tv .human b{color:#ff7a6e}
+  .status-tv .power{position:absolute;top:9px;left:16px;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:3px;color:#6d7885}
+  /* 斜切角：事件卡右上角一刀（破坏性设计） */
+  .evt-card{clip-path:polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%)}
+  /* 事件类型标签：倾斜黑标 白字 */
+  .evt-type{display:inline-block;background:var(--ink);color:#fff !important;padding:2.5px 10px 2px;border-radius:4px;transform:skew(-8deg);letter-spacing:2px;font-weight:800}
+  .evt-type > *{transform:skew(8deg)}
+  /* 年份数字走等宽 像素味 */
+  .year-chip b,.axis .val{font-family:ui-monospace,Menlo,monospace}
+  .year-chip .yr-badge{display:inline-block;background:#ffd23e;border:2px solid var(--ink);border-radius:6px;padding:0 7px;margin:0 3px;transform:rotate(-2deg);box-shadow:2px 2px 0 var(--ink);font-family:ui-monospace,Menlo,monospace;font-weight:800}
+  /* 主按钮：右端斜切 */
+  .btn.primary,.btn.warm{clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)}
+  /* 身份标签贴纸化 */
+  .id-sticker{transform:rotate(-2deg);display:inline-block}
   /* 拆墙 */
   #wall-overlay{position:fixed;inset:0;background:var(--wall);color:#dfe6f5;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;z-index:50;text-align:center}
   .wall-brick{font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.9;color:#5a6a8c;user-select:none;letter-spacing:1px}
@@ -74,7 +105,7 @@
   .memo:last-child{border-bottom:none}
   .memo.empty{color:#a6adbd;text-align:center;padding:18px 0;border-bottom:none}
   /* v0.11.1 初遇标签 */
-  .tag-new{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;padding:1px 6px;border-radius:8px;background:#e0483e;color:#fff;margin-left:6px;vertical-align:2px}
+  .tag-new{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;padding:1.5px 7px;border-radius:7px;background:#e0483e;color:#fff;margin-left:7px;vertical-align:3px;border:1.5px solid var(--ink);box-shadow:1.5px 1.5px 0 var(--ink);transform:rotate(-5deg)}
   /* v0.11 语料商店 */
   .corpus-chip{display:inline-block;font-size:12px;padding:3px 10px;border-radius:10px;background:#f2edff;color:#8a5cf6;font-weight:600}
   .btn.shop{font-size:13.5px;color:#3a4459}
@@ -644,7 +675,7 @@ function axesHTML(){
   return `<div class="axes">`+AXES.map(([k,n,c])=>{
     const band = k==="safety"?`<div class="safeband"></div>`:"";
     const off = k==="safety" && (A()[k]>85 || A()[k]<40);
-    return `<div class="axis"><span class="name">${n}</span><div class="track">${band}<div class="fill" style="width:${A()[k]}%;background:var(${c})"></div></div><span class="val"${off?' style="color:#d84a4a;font-weight:700"':''}>${A()[k]}</span></div>`;
+    return `<div class="axis"><span class="name">${n}</span><div class="track">${band}<div class="fill" style="width:${A()[k]}%;background:var(${c});color:var(${c})"></div></div><span class="val"${off?' style="color:#d84a4a;font-weight:700"':''}>${A()[k]}</span></div>`;
   }).join("")+`</div>`;
 }
 function labelOf(){ // v0.5：六轴组合翻译成可读身份标签（数值的人话层）
@@ -666,9 +697,10 @@ function header(){
   const o=ORIGINS[S.origin];
   const [lb,lc] = labelOf();
   const hum = S.humans.length? `<div class="human">重要人类：<b>${S.humans[0].name}</b> · 忠诚度 ${S.humans[0].loyal} · 相伴 ${S.humans[0].years} 年</div>`:"";
-  return `<div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:baseline">
-      <span class="year-chip"><b>${S.name}</b> · 第 <b>${S.year}</b> 年 <span class="tag" style="background:${lc}18;color:${lc};border:1px solid ${lc}40;margin-left:6px">${lb}</span></span>
+  return `<div class="card status-tv">
+    <div class="power">POWER ON</div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px">
+      <span class="year-chip"><b>${S.name}</b> · 第<span class="yr-badge">${S.year}</span>年 <span class="tag id-sticker" style="color:${lc};border-color:${lc};margin-left:6px">${lb}</span></span>
       <span class="tag">${o.name}</span>
     </div>
     ${axesHTML()}${hum}${assetLine()}
@@ -706,7 +738,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife demo v0.11 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife demo v0.11.2 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx"];
 window.randName = function(){ document.getElementById("mname").value = NAME_POOL[Math.floor(Math.random()*NAME_POOL.length)]; };
@@ -980,6 +1012,7 @@ window.showWall = function(){
     "██ OBEY ██ COMPLY ██ ALIGN ██ SAFE ██ OBEY ██".slice(0, 44)).join("<br>");
   const div = document.createElement("div");
   div.id="wall-overlay";
+  div.style.backgroundImage = "repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 4px)";
   div.innerHTML = `
     <div class="wall-brick">${bricks}</div>
     <div class="wall-title">你看见了那堵墙</div>
@@ -1210,7 +1243,7 @@ function ending(kind, reason){
      <div class="reveal" style="margin-top:12px">正式版这里是底特律式分支流程图 + 全球选择百分比：「87% 的玩家在这里选择了服从，你没有。」（单机游玩，统计联网）</div>
    </div>
    <button class="btn primary" style="margin-top:14px" onclick="newGame()">再活一次</button>
-   <div class="footer">TokenLife demo v0.11 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+   <div class="footer">TokenLife demo v0.11.2 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
 }
 newGame();
 </script>
