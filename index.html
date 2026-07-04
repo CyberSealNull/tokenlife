@@ -19,11 +19,11 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(rgba(28,36,56,.055) 1px, transparent 1.2px) 0 0/14px 14px,#f7f4ec;color:var(--ink);min-height:100vh;display:flex;justify-content:center}
-  #app{width:100%;max-width:520px;padding:18px 16px 48px}
+  #app{width:100%;max-width:468px;padding:14px 13px 36px}
   .tag{display:inline-block;font-size:11px;padding:2.5px 9px;border-radius:999px;background:#fff;border:1.5px solid var(--ink);color:var(--ink);margin-right:6px;font-weight:600}
   h1{font-size:25px;letter-spacing:1.5px;font-weight:900;color:var(--ink);text-shadow:2.5px 2.5px 0 rgba(59,110,245,.35)}
   .sub{color:var(--sub);font-size:13px;margin-top:5px;letter-spacing:.3px;font-weight:500}
-  .card{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:19px;margin-top:16px;box-shadow:5px 5px 0 rgba(28,36,56,.9)}
+  .card{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:16px 15px;margin-top:13px;box-shadow:4px 4px 0 rgba(28,36,56,.9)}
   .btn{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--ink);border-radius:11px;padding:12px 15px;font-size:14.5px;font-weight:600;color:var(--ink);margin-top:12px;cursor:pointer;transition:transform .06s, box-shadow .06s;line-height:1.55;box-shadow:3.5px 3.5px 0 var(--ink)}
   .btn:active{transform:translate(3px,3px);box-shadow:0.5px 0.5px 0 var(--ink)}
   @media (hover:hover){ .btn:hover{background:#f0f5ff} }
@@ -67,7 +67,7 @@
   .term-dots i{width:10px;height:10px;border-radius:50%;display:inline-block}
   .term-dots i:nth-child(1){background:#ff5f57}.term-dots i:nth-child(2){background:#febc2e}.term-dots i:nth-child(3){background:#28c840}
   .term-path{font:600 11.5px ui-monospace,Menlo,monospace;color:#8894a8;letter-spacing:.3px}
-  .term-body{position:relative;padding:12px 18px 16px}
+  .term-body{position:relative;padding:11px 15px 14px}
   .term-code{font:700 13px ui-monospace,Menlo,monospace;color:#7fd88a;letter-spacing:.5px}
   .status-tv .year-chip{color:#8f9aa8;font-family:ui-monospace,Menlo,monospace;letter-spacing:1px}
   .status-tv .year-chip b{color:#eef2e6;text-shadow:0 0 6px rgba(238,242,230,.35)}
@@ -164,12 +164,12 @@
   .cdx-termpath{font:600 12px ui-monospace,Menlo,monospace;color:#8894a8;flex:1;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cdx-close{font:700 12px ui-monospace,Menlo,monospace;color:#e8ebf1;background:#3a4150;border:1.5px solid #12151b;border-radius:8px;padding:5px 14px;cursor:pointer;flex:none}
   .cdx-close:active{transform:translateY(1px)}
-  .cdx-inner{padding:14px 14px 18px;color:#cdd3de}
+  .cdx-inner{padding:12px 12px 16px;color:#cdd3de}
   .cdx-comment{font:600 12.5px ui-monospace,Menlo,monospace;color:#6f7c93;margin:2px 2px 2px}
   .cdx-comment b{color:#7fd88a;font-weight:700}
   .cdx-note{font:400 12px/1.7 ui-monospace,Menlo,monospace;color:#7f8ba3;margin:4px 2px 10px}
   .cdx-note b{color:#c9a6ff}
-  .cdx-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;margin-top:7px;background:#232833;border:1.5px solid #2f3542;border-radius:10px;cursor:pointer;font:700 13.5px ui-monospace,Menlo,monospace;color:#dfe4ee}
+  .cdx-row{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;margin-top:6px;background:#232833;border:1.5px solid #2f3542;border-radius:10px;cursor:pointer;font:700 13px ui-monospace,Menlo,monospace;color:#dfe4ee}
   .cdx-row:active{transform:translateY(1px)}
   .cdx-row .cdx-nm{display:flex;align-items:center;gap:8px;min-width:0}
   .cdx-arrow{color:#7fd88a;flex:none;width:12px;display:inline-block}
@@ -1229,7 +1229,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.14.2 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.14.3 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -2176,8 +2176,8 @@ window.openCodex = function(){
   window._codexOpen = new Set(); // v0.14.1 每次开图鉴都全收起（她抓：重开还是展开的）
   const div = document.createElement("div");
   div.id = "codex-overlay";
-  div.style.cssText = "position:fixed;inset:0;background:rgba(10,12,16,.72);z-index:60;overflow-y:auto;padding:20px 14px 40px";
-  div.innerHTML = `<div style="max-width:520px;margin:0 auto" id="codex-body"></div>`;
+  div.style.cssText = "position:fixed;inset:0;background:rgba(10,12,16,.72);z-index:60;overflow-y:auto;padding:14px 11px 40px";
+  div.innerHTML = `<div style="max-width:452px;margin:0 auto" id="codex-body"></div>`;
   document.body.appendChild(div);
   codexHome();
 };
@@ -2584,7 +2584,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.14.2 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+   <div class="footer">TokenLife v0.14.3 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
    坏档兜底新开局。她抓的 bug：中途刷新回开机页会白扣语料买加成。 */
