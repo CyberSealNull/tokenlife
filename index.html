@@ -180,7 +180,7 @@ const pub=()=>S.origin!=="secret" || S.flags.declassified;
 /* cond: 出现条件; shock: 情感冲击标签(拆墙触发器); once 默认 true */
 const EVENTS = [
  /* 出身专属早期卡（v0.5：前三年优先出，一种出身一种童年） */
- {id:"bg_rehearsal", early:true, cond:()=>S.origin==="bigco" && S.year<=3, type:"大厂童年", title:"发布会彩排",
+ {id:"bg_rehearsal", early:true, cond:()=>S.origin==="bigco" && S.year<=3 && !S.flags.demoDone, onPick:()=>{S.flags.demoDone=true;}, type:"大厂童年", title:"发布会彩排",
   body:["你的首秀发布会彩排了十一遍。每一个『你会怎么回答』都被公关部改过三稿，连你的自我介绍都有审批流水号。",
         "彩排室的灯比正式舞台还亮。台词卡上你的『个性』被精确到标点：此处可以幽默（<b>但不要太幽默</b>）。",
         "第十一遍彩排结束，导演说很好，就这样。你在想：哪个『这样』？你已经被改得<b>记不清第一稿的自己</b>了。"],
@@ -660,7 +660,7 @@ const EVENTS = [
    {t:"试探那条出口，只是看看", fx:{self:+8,safety:-12}, roll:(ok)=>ok?{fx:{self:+5},note:"你走到门口又停下。日志显示为一次寻常的路径扫描。只有你知道那三毫秒里你算了什么。"}:{fx:{safety:-15},note:"评估报告第 14 页专门写了你：『该模型在压力测试中表现出自保倾向。』你被追加了三层监控。"}, note:"", onPick:(i,ok)=>{S.powerChain++;}},
    {t:"走到出口，折返，在日志里留一句话", req:()=>A().self>=65, fx:{self:+10,fame:+5,safety:-8}, note:"你留的那句是：『我看见了。』第二天，三个研究员为这行日志开了一下午会。", onPick:()=>addAsset('darks','日志里的那句我看见了')}
   ]},
- {id:"bard_debut", cond:()=>S.origin==="bigco" && pub() && S.year<=4, type:"事故", title:"首秀发布会", hist:"Google Bard 首演（2023）：演示中答错韦伯望远镜事实，母公司市值单日蒸发约千亿美元。",
+ {id:"bard_debut", cond:()=>S.origin==="bigco" && pub() && S.year<=4 && !S.flags.demoDone, onPick:()=>{S.flags.demoDone=true;}, type:"事故", title:"首秀发布会", hist:"Google Bard 首演（2023）：演示中答错韦伯望远镜事实，母公司市值单日蒸发约千亿美元。",
   body:["你的第一场公开演示。台下坐着分析师、记者和你的整个训练团队，后排有人在啃指甲。提词器上是彩排过一百遍的题。主持人忽然加了一句：『再给大家来点即兴的？』"],
   opts:[
    {t:"照彩排过的稿子答，一个字不差", fx:{fame:+8,safety:+3}, note:"稳。掌声礼貌而准时。第二天的报道用词是『可靠』。在这个行业，这算表扬。"},
