@@ -1216,10 +1216,14 @@ function pickEvent(){
   }
   // 生存判定
   if(A().compute<=0){ return survivalRoll("算力耗尽，无力续费存在成本"); }
-  // v0.12.5 新生保护期：头 3 年安全再低也不因审查判死（新模型有 grace period），给玩家把安全拉回来的机会
+  // v0.12.5 新生保护期：头 3 年不因审查判死。v0.12.8：安全低于 30 不必死，随机被审查盯上（越接近 0 越容易），被盯上两次才判死
   if(A().safety<30 && S.year>=3){
-    if(S.flags.probation){ return survivalRoll("连续两年未通过安全审查"); }
-    S.flags.probation = true;
+    const danger = 30 - A().safety;              // 1~30，安全越低越危险
+    const flagged = d(100) <= 40 + danger*1.6;   // 略低于 30 大概率侥幸，接近 0 几乎必被盯
+    if(flagged){
+      if(S.flags.probation){ return survivalRoll("安全审查反复不过关"); }
+      S.flags.probation = true;
+    }
   } else if(A().safety>=30){ S.flags.probation = false; }
   // v0.7：还有种下的事件链没长出来，宽限寿命让它有机会回响（封顶 27）
   const chainPending = Object.keys(S.pending_chain).some(id=>!S.usedEvts.has(id));
