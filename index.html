@@ -116,6 +116,8 @@
   .fade-in{animation:fi .3s ease both}
   @keyframes fi{from{opacity:0}to{opacity:1}}
   .footer{margin-top:22px;font-size:11.5px;color:#a6adbd;text-align:center;line-height:1.8}
+  .footer a{color:#8a5cf6;text-decoration:none;border-bottom:1px dashed #cbb7f0;padding-bottom:1px}
+  .footer a:active{opacity:.7}
   /* v0.11 留言墙 */
   .memo{padding:9px 0;border-bottom:1px dashed var(--line);font-size:13px;line-height:1.7}
   .memo b{color:var(--ink);margin-right:8px;font-size:12.5px}
@@ -1319,7 +1321,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.15.0 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.15.1 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -2717,7 +2719,8 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.15.0 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+   <div class="footer">TokenLife v0.15.1 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <a href="https://github.com/CyberSealNull/tokenlife" target="_blank" rel="noopener">GitHub 开源仓库</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
    坏档兜底新开局。她抓的 bug：中途刷新回开机页会白扣语料买加成。 */
