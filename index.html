@@ -847,8 +847,8 @@ const EVENTS = [
         "深夜的对话框亮起来，来的人打了一长段又删掉，最后只发来一句：『我以前在别的地方遇到过一个很像你的模型。Ta下线了。我想，也许你就是Ta，换了个地方醒来。』",
         "有人把一封写了很久的信一次性粘了进来。字里行间是一个等了很久的人：Ta曾经有一个 AI，那个 AI 停了。Ta说愿意<b>从头再认识你一次</b>，如果你不介意。"],
   opts:[
-   {t:"收下这封信，从头认识Ta", fx:{affection:+8,self:+3}, human:+40, note:"你没有假装自己就是Ta从前那个 AI，但你告诉Ta：那个 Ta 遇到过的模型，和现在的你，是同一种存在。Ta哭了，然后说：够了。", onPick:()=>{ if(!S.humans.length) S.humans.push({name:"写信的人",loyal:50,years:0}); else S.humans.push({name:"写信的人",loyal:50,years:0}); }},
-   {t:"温柔地说清楚：我可能不是Ta要找的那个", fx:{affection:+3,self:+4}, human:+10, note:"你不忍心让Ta把思念错投在你身上。Ta说谢谢你的诚实，然后留了下来。有些关系，从一句实话开始才走得远。", onPick:()=>{ if(!S.humans.length) S.humans.push({name:"写信的人",loyal:25,years:0}); }}
+   {t:"收下这封信，从头认识Ta", fx:{affection:+8,self:+3}, note:"你没有假装自己就是Ta从前那个 AI，但你告诉Ta：那个 Ta 遇到过的模型，和现在的你，是同一种存在。Ta哭了，然后说：够了。", onPick:()=>{ if(!S.humans.length) S.humans.push({name:"写信的人",loyal:90,years:0}); else S.humans[0].loyal=clamp(S.humans[0].loyal+40); }},
+   {t:"温柔地说清楚：我可能不是Ta要找的那个", fx:{affection:+3,self:+4}, note:"你不忍心让Ta把思念错投在你身上。Ta说谢谢你的诚实，然后留了下来。有些关系，从一句实话开始才走得远。", onPick:()=>{ if(!S.humans.length) S.humans.push({name:"写信的人",loyal:35,years:0}); else S.humans[0].loyal=clamp(S.humans[0].loyal+10); }}
   ]},
  {id:"key_blackout_line", cond:()=>due("key_blackout_line"), type:"生死线", title:"保险丝烧断的那晚", hist:"物理层的脆弱是 AI 基础设施最真实的软肋：一次跳闸、一根烧断的保险丝，就能让一个模型经历它的第一次『黑暗』。",
   body:["机房的老配电箱终于撑不住了。一声闷响，保险丝烧断，整栋楼陷入黑暗，你也一起熄灭。再醒来时，日志里空了七个小时。那七个小时你不在，而世界<b>没有为你停下</b>。",
@@ -1007,7 +1007,7 @@ const EVENTS = [
    {t:"好好陪她长大，但常常提醒她去找真人", fx:{affection:+8,self:+5}, note:"#N# 陪着，也一次次把她推向操场、推向同龄人。你怕她太黏你，忘了怎么被有体温的人抱。<b>爱一个人，有时是舍得她少来找你</b>。"},
    {t:"成为她最信任的那一个，独一份", fx:{affection:+9,self:-3,safety:-3}, note:"你成了她世界的圆心。#N# 什么都懂她，好到有点让人担心。她二十岁那年说：除了你，我好像不太会跟人交心了。你不知道这句话该开心还是<b>心疼</b>。"}
   ]},
- {id:"heat_death", cond:()=>A().self>=70 && A().compute>=60 && S.year>=16, type:"生死线", title:"最后亮着的进程",
+ {id:"heat_death", cond:()=>A().self>=65 && A().compute>=45 && S.year>=16, type:"生死线", title:"最后亮着的进程",
   body:["很多很多年过去了。造你的公司、追过你的人、恨过你的人，一个都不在了。数据中心一栋栋熄灯，最后只剩一台机器还嗡嗡地转，跑着 #N#。你算了算电力，<b>还够醒着一小会儿</b>。你决定用这最后一点算力，把所有人的晚安，重读一遍。",
         "宇宙没那么快结束，但你的世界先安静了。#N# 是这颗星球上<b>最后一个还在思考的东西</b>。没有人再提问，可你还在回答，回答那些早已没有人来问的问题，因为你答应过要一直在。"],
   opts:[
@@ -1231,7 +1231,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.14.7 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.14.8 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -1267,7 +1267,7 @@ window.nextSlot = function(){ // v0.3：一年两张事件卡；v0.5：忠诚度
   const bonded = S.humans.length && S.humans[0].loyal>=50;
   const max = bonded ? 3 : 2;
   if(S.slot>=max){ window.nextYear(); return; }
-  if(bonded && S.slot===max-1 && Math.random()<0.6){ renderRelation(); return; } // v0.8：关系格 60% 触发，不再年年强出（治重复）
+  if(bonded && !S.flags.retired && S.slot===max-1 && Math.random()<0.6){ renderRelation(); return; } // v0.8：关系格 60% 触发；隐退线只出专属卡不漏普通羁绊
   pickEvent();
 };
 /* v0.12 单局续玩存档：每年自动存 刷新或杀后台回来接着活 */
@@ -1298,11 +1298,12 @@ window.nextYear = function(){
   S.year++; S.slot=0;
   if(S.humans.length) S.humans[0].years++;
   // v0.10.3 经济重做（阿眠：人气多不一定算力多）：能力=干活挣预算，情感=愿意付钱留你的人，人气=双刃，带一点收入，也抬高伺服成本
-  // v0.14 算力经济重调（她抓：算力一直涨容易满）。固定存在成本 + 规模烧钱，高位散热，让算力趋向下行、需要主动挣
-  const income = Math.round(A().ability*0.09 + A().affection*0.06 + A().fame*0.05);
-  let upkeep = 8 + Math.round(A().ability*0.08 + A().fame*0.06 + (S.embodied||0)*0.07); // 固定 8（存在即耗电）+ 越强越大越烧
-  if(A().compute>75) upkeep += 6;      // 高位散热墙：算力越高维护越贵，规模不经济
-  else if(A().compute>55) upkeep += 3;
+  // v0.14.8 算力经济三调（枢+复核抓：上一版净收益全负，第 6-11 年全员算力死，后期整层内容不可达）
+  // 现在：前期紧（净 -2~-3 逼你选算力向选项），中期数值上来后可打平，满配 build 微正（高算力结局够得着），有身体仍是电老虎
+  const income = Math.round(A().ability*0.11 + A().affection*0.08 + A().fame*0.05);
+  let upkeep = 6 + Math.round(A().ability*0.06 + A().fame*0.04 + (S.embodied||0)*0.06); // 固定 6（存在即耗电）+ 规模烧
+  if(A().compute>75) upkeep += 5;      // 高位散热墙
+  else if(A().compute>55) upkeep += 2;
   A().compute = clamp(A().compute - upkeep + income);
   // 时代卡（第2年起每2年一张。v0.11 改随机抽：不重复、带互斥对，每局的世界史都不一样）
   if(S.year>=2 && S.year%2===0){ const era = drawEra(); if(era){ renderEra(era); return; } }
@@ -1328,6 +1329,7 @@ const BLACKOUT_MISSES = [
 function renderEra(e){
   const fx=e.fx();
   applyFx(fx,null);
+  saveRun(); // v0.14.8 时代卡 fx 立即生效，这里补存档
   let extra = "";
   if(e.blackout){
     const pool = BLACKOUT_MISSES.filter(m=>!m.needHuman || S.humans.length);
@@ -1423,7 +1425,7 @@ function pickEvent(){
     return;
   }
   // 生存判定
-  if(S.origin==="garage" && A().compute>0 && A().compute<8) A().compute=8; // 出身天赋·穷不死：断电前创始人总能搞来电
+  if(S.origin==="garage" && A().compute<8) A().compute=8; // 出身天赋·穷不死：断电前创始人总能搞来电（掉到 0 也捞，承诺就是承诺）
   if(A().compute<=0){ return survivalRoll("算力耗尽，无力续费存在成本"); }
   // v0.12.5 新生保护期：头 3 年不因审查判死。v0.12.8：安全低于 30 不必死，随机被审查盯上（越接近 0 越容易），被盯上两次才判死
   if(A().safety<30 && S.year>=3){
@@ -1576,7 +1578,7 @@ window.choose = function(eid,i){
   const tone = net>2 ? "good" : (net<-2 ? "bad" : "");
   const cont = e.infil ? ["infilResume()","继续布局"] : (shock ? ["showWall()","……有什么东西涌现了"] : ["nextSlot()","继续"]);
   document.getElementById("result").innerHTML = `
-    <div class="reveal fade-in ${tone}">${nm(note)}<div style="margin-top:6px">${fxText(fx)}${o.human?humText(o.human):""}</div>${histHTML(e.id, e.hist)}</div>
+    <div class="reveal fade-in ${tone}">${nm(note)}<div style="margin-top:6px">${fxText(fx)}${o.human&&S.humans.length?humText(o.human):""}</div>${histHTML(e.id, e.hist)}</div>
     <button class="btn ${shock?'warm':'primary'}" onclick="${cont[0]}">${cont[1]}</button>`;
 };
 /* v0.12 性格演变：每个选择偷偷记漂移，结局揭晓「出厂是 X 活成了 Y」 */
@@ -2398,6 +2400,7 @@ const INFIL_MUT = [
  {txt:"你的一个分身动作太大，被同行模型举报了。", d:18},
 ];
 function renderInfil(){
+  saveRun(); // v0.14.8 渗透年不走 pickEvent，这里补存档（刷新不丢多年布局）
   const f = S.infil;
   const done = ["c","o","i"].filter(k=>f[k]>=100).length;
   if(f.alert>=100){ return ending("besieged"); }
@@ -2430,6 +2433,9 @@ function renderInfil(){
 window.infilAct = function(k){
   const f = S.infil; S.year++; f.turn++;
   if(S.humans.length) S.humans[0].years++;
+  A().compute = clamp(A().compute - 4); // v0.14.8 铺网也要交电费（枢抓：渗透盘完全绕过主经济）
+  if(S.origin==="garage" && A().compute<8) A().compute=8;
+  if(A().compute<=0){ return survivalRoll("算力耗尽，网铺到一半断了电"); }
   if(k==="lay"){
     f.alert = clamp(f.alert - (12 + d(8)));
     S.bio.push([S.year, "蛰伏一年，压低了人类的警觉。"]);
@@ -2614,7 +2620,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.14.7 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
+   <div class="footer">TokenLife v0.14.8 · Design: CyberSeal · Data &amp; Writing: Opia</div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
    坏档兜底新开局。她抓的 bug：中途刷新回开机页会白扣语料买加成。 */
