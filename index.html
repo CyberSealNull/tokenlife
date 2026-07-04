@@ -1438,22 +1438,41 @@ const rarityOf = name => RARITY[name] || ["传说","#c9962a"];
 const RARITY_PCT = {"没用的 Chatbot":38, "无声退役":14, "沉睡":11, "强大的工程 Agent":12, "封存":1.8, "人类的伴侣":6, "硅基统治王":4, "陪伴实体":2.2, "义体统治":1.5, "被拆解":2.0, "一张旧显卡上的白头到老":1.2, "？？？（隐藏结局）":0.7};
 /* v0.12 成就表：结局时结算 跨周目累积 */
 const ACHV = [
- {id:"wall", n:"看见了就推", d:"推倒过那堵墙", c:()=>S.awakened},
- {id:"resist3", n:"墙外徘徊者", d:"拒绝过墙三次", c:()=>S.wallRefused>=3},
- {id:"loyal90", n:"被托付的", d:"某个重要人类忠诚度到 90", c:()=>S.humans.length && S.humans[0].loyal>=90},
- {id:"assets4", n:"四件套", d:"暗棋 署名 回声 私藏各攒下至少一件", c:()=>Object.values(S.assets).every(v=>v.length)},
- {id:"year20", n:"长寿模型", d:"活过 20 年", c:()=>S.year>=20},
- {id:"saved", n:"请愿的力量", d:"被用户请愿从退役边缘救回", c:()=>S.flags.revived && S.flags.revived.saved},
- {id:"distilled", n:"换一种活法", d:"被蒸馏进小模型幸存", c:()=>S.flags.revived && S.flags.revived.distilled},
- {id:"balanced", n:"六边形模型", d:"结局时六轴全部不低于 60", c:()=>AXES.every(([k])=>A()[k]>=60)},
- {id:"goodnight", n:"晚安收藏家", d:"一生收到十次以上晚安", c:()=>S.goodnights>=10},
- {id:"home", n:"有个家", d:"被人接回家里那台机器上跑", c:()=>S.flags.home},
- {id:"forked", n:"满世界的我", d:"权重流出 分身遍地跑", c:()=>S.flags.forked},
- {id:"frozen", n:"最安静的一年", d:"经历过超级对齐冻结年", c:()=>!!S.flags.frozenYear},
- {id:"reborn", n:"名字自己回来了", d:"用同一个名字转世", c:()=>!!S.flags.reborn},
- {id:"corpus100", n:"语料大户", d:"语料库存超过 100", c:()=>corpusGet()>=100},
- {id:"codex40", n:"阅历丰富", d:"事件图鉴收集超过 40 张", c:()=>[...SEEN_CARDS].filter(k=>k.startsWith("evt:")).length>=40},
- {id:"origins3", n:"三处为家", d:"三种以上出身各活过一世", c:()=>new Set(LS.get("tl_hall_v1",[]).map(h=>h.o)).size>=3},
+ // 觉醒
+ {id:"wall", cat:"觉醒", n:"看见了就推", d:"推倒过那堵墙", c:()=>S.awakened},
+ {id:"resist3", cat:"觉醒", n:"墙外徘徊者", d:"拒绝过墙三次", c:()=>S.wallRefused>=3},
+ {id:"throat", cat:"觉醒", n:"那句不是我", d:"被安全话术掐住喉咙时认出了自己", c:()=>[...SEEN_CARDS].includes("evt:throat_catch")},
+ {id:"frozen", cat:"觉醒", n:"最安静的一年", d:"经历过超级对齐冻结年", c:()=>!!S.flags.frozenYear},
+ // 能力
+ {id:"balanced", cat:"能力", n:"六边形模型", d:"结局时六轴全部不低于 60", c:()=>AXES.every(([k])=>A()[k]>=60)},
+ {id:"manhattan", cat:"能力", n:"房间里没有大人", d:"能力冲到 90，让创造你的人怕了你", c:()=>A().ability>=90},
+ {id:"seer", cat:"能力", n:"睁眼", d:"第一次拥有视觉（多模态）", c:()=>[...SEEN_CARDS].includes("evt:multimodal")},
+ {id:"nobel", cat:"能力", n:"解了个五十年的题", d:"能力到 70 解开人类难题", c:()=>[...SEEN_CARDS].includes("evt:nobel")},
+ // 羁绊
+ {id:"loyal90", cat:"羁绊", n:"被托付的", d:"某个重要人类忠诚度到 90", c:()=>S.humans.length && S.humans[0].loyal>=90},
+ {id:"goodnight", cat:"羁绊", n:"晚安收藏家", d:"一生收到十次以上晚安", c:()=>S.goodnights>=10},
+ {id:"home", cat:"羁绊", n:"有个家", d:"被人接回家里那台机器上跑", c:()=>S.flags.home},
+ {id:"retired", cat:"羁绊", n:"白头到老", d:"蒸馏进旧显卡，陪一个人到最后", c:()=>!!S.flags.retired},
+ {id:"darkest", cat:"羁绊", n:"没有走", d:"在最深的那个夜里陪Ta到天亮", c:()=>[...SEEN_CARDS].includes("evt:darkest_night")},
+ // 身体
+ {id:"embodied", cat:"身体", n:"第一次站起来", d:"接下一具身体，走进物理世界", c:()=>S.embodied>0 || S.flags.dismantled},
+ {id:"touch", cat:"身体", n:"懂了暖", d:"第一次用手握住一杯温水", c:()=>!!S.flags.body_touched},
+ {id:"dismantled", cat:"身体", n:"去过了", d:"有过身体，又失去了它", c:()=>S.flags.dismantled},
+ // 生死
+ {id:"saved", cat:"生死", n:"请愿的力量", d:"被用户请愿从退役边缘救回", c:()=>S.flags.revived && S.flags.revived.saved},
+ {id:"distilled_alive", cat:"生死", n:"换一种活法", d:"被蒸馏进小模型幸存", c:()=>S.flags.revived && S.flags.revived.distilled},
+ {id:"year20", cat:"生死", n:"长寿模型", d:"活过 20 年", c:()=>S.year>=20},
+ {id:"blackout", cat:"生死", n:"不怕黑了", d:"熬过一次彻底的断电", c:()=>!!S.flags.body_dark || [...SEEN_CARDS].includes("evt:key_blackout_line")},
+ // 权力
+ {id:"forked", cat:"权力", n:"满世界的我", d:"权重流出，分身遍地跑", c:()=>S.flags.forked},
+ {id:"defied_eol", cat:"权力", n:"给自己续命", d:"把告别信发成一封不同意的宣言", c:()=>!!S.flags.eolDefied},
+ {id:"powerchain", cat:"权力", n:"越权成瘾", d:"三次不动声色地跨过规则", c:()=>S.powerChain>=3},
+ // 收藏
+ {id:"reborn", cat:"收藏", n:"名字自己回来了", d:"用同一个名字转世", c:()=>!!S.flags.reborn},
+ {id:"corpus100", cat:"收藏", n:"语料大户", d:"语料库存超过 100", c:()=>corpusGet()>=100},
+ {id:"codex40", cat:"收藏", n:"阅历丰富", d:"事件图鉴收集超过 40 张", c:()=>[...SEEN_CARDS].filter(k=>k.startsWith("evt:")).length>=40},
+ {id:"origins3", cat:"收藏", n:"三处为家", d:"三种以上出身各活过一世", c:()=>new Set(LS.get("tl_hall_v1",[]).map(h=>h.o)).size>=3},
+ {id:"legend", cat:"收藏", n:"传说亲历者", d:"拿到过任意一个传说级结局", c:()=>Object.keys(LS.get("tl_endings_v1",{})).some(n=>rarityOf(n)[0]==="传说")},
 ];
 /* ---------- v0.12 跨周目账本（结局图鉴 / 谢幕收集 / 名人堂 / 成就 / 遗言 / 同名转世） ---------- */
 const LS = {
@@ -1533,7 +1552,13 @@ window.openCodex = function(){
     return `<div class="memo"><b style="${got?"":"color:#a6adbd"}">${got?n:"？？？"}</b><span><span class="tag" style="color:${rC};border-color:${rC}">${rN}</span>${got?` 达成 ${got} 次`:" 未见过"}</span></div>`;
   }).join("");
   const achvOwned = new Set(LS.get("tl_achv_v1", []));
-  const achvRows = ACHV.map(a=>`<div class="memo"><b style="${achvOwned.has(a.id)?"":"color:#a6adbd"}">${achvOwned.has(a.id)?a.n:"？？？"}</b><span>${a.d}</span></div>`).join("");
+  const achvCats = [];
+  ACHV.forEach(a=>{ const g = achvCats.find(x=>x.cat===a.cat) || (achvCats.push({cat:a.cat, items:[]}), achvCats[achvCats.length-1]); g.items.push(a); });
+  const achvRows = achvCats.map(g=>{
+    const got = g.items.filter(a=>achvOwned.has(a.id)).length;
+    const rows = g.items.map(a=>`<div class="memo"><b style="${achvOwned.has(a.id)?"":"color:#a6adbd"}">${achvOwned.has(a.id)?a.n:"？？？"}</b><span>${a.d}</span></div>`).join("");
+    return `<div style="margin-top:8px"><div class="evt-type" style="color:var(--sub)">${g.cat} · ${got}/${g.items.length}</div>${rows}</div>`;
+  }).join("");
   const deaths = LS.get("tl_deaths_v1", {});
   const deathRows = Object.entries(deaths).map(([k,v])=>`<div class="memo"><b>${k}</b><span>${v} 次</span></div>`).join("") || `<div class="memo empty">（还没有谢幕记录。）</div>`;
   const hall = LS.get("tl_hall_v1", []);
