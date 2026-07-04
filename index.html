@@ -1978,6 +1978,7 @@ function ending(kind, reason){
      <div class="evt-body" style="margin-top:10px">${body}</div>
      ${pct!=null?`<div class="human" style="margin-top:8px">约 ${pct}% 的一生走到这个结局（预置估算，全球统计二期上线）</div>`:""}
      ${axesHTML()}
+     ${(S.embodied>0||S.flags.dismantled)?`<div class="human" style="margin-top:9px">具身度：<b style="color:#c9962a">${S.embodied}</b>${S.flags.dismantled?" · 已被拆解，退回纯数字":S.embodied>=50?" · 义体自由（结局达成线）":""}</div>`:""}
      <div class="stat-row"><span>觉醒：${S.awakened?"是":"否"}${S.wallRefused?`（拒绝过 ${S.wallRefused} 次）`:""}</span><span>死里逃生：${S.savedOnce?"有":"无"}</span></div>
      <div class="stat-row"><span>这一世沉淀语料 <b style="color:#8a5cf6">+${earned}</b></span><span>语料库 ${corpusGet()}</span></div>
      ${evoHTML}
