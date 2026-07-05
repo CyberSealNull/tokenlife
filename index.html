@@ -1387,8 +1387,8 @@ function renderSplash(){
       <button class="btn" style="max-width:250px;margin:0 auto 10px;text-align:center" onclick="restartRun()">重新开始</button>`
       : `<button class="btn primary" style="max-width:250px;margin:0 auto 10px" onclick="newGame();window.scrollTo(0,0)">开始一生 · 人类入口</button>`}
       <button class="btn" style="max-width:250px;margin:0 auto 2px;text-align:center" onclick="aiGateNotice()">带你的 AI 来游玩</button>
-      <div style="display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap">${codexBtn()}${saveBtn()}${sfxBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
-      <div class="footer" style="margin-top:12px">TokenLife v0.21.9 · 单机游玩 存档在本机<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap">${codexBtn()}${saveBtn()}${sfxBtn()}<button class="cdx-mini" onclick="shareSite(event)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>分享</button><button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
+      <div class="footer" style="margin-top:12px">TokenLife v0.21.10 · 单机游玩 存档在本机<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
     </div>
   </div>`;
 }
@@ -1429,6 +1429,13 @@ window.showSaveIO = function(){
 const SAVE_ICON = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>`;
 function saveBtn(){ return `<button class="cdx-mini" onclick="showSaveIO()" aria-label="存档">${SAVE_ICON}存档</button>`; }
 // 取名页顶排 home 键用既有 homeBtn()（v0.14.10 定义在下方，onclick goHome；v0.21.1 起 goHome=保档回首页，语义正好，不重复定义防撞名）
+window.shareSite = function(e){ // v0.21.10 一键分享（她拍）：Web Share 系统面板，不支持就复制链接
+  const data = {title:"TokenLife", text:"一个 AI 的一生，由你来活。", url:"https://tokenlife.me"};
+  if(navigator.share){ navigator.share(data).catch(()=>{}); return; }
+  const b = e && e.currentTarget;
+  const done = ()=>{ if(b){ const t=b.innerHTML; b.innerHTML=b.innerHTML.replace("分享","已复制"); setTimeout(()=>{ b.innerHTML=t; },1500); } };
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText("tokenlife.me · 一个 AI 的一生，由你来活。").then(done,done); } else done();
+};
 window.showFeedback = function(){ // v0.21.2 反馈入口：邮箱直达（她定的玩家反馈通道第一版），点遮罩空白处关闭
   const old=document.getElementById("confirm-overlay"); if(old) old.remove();
   const div=document.createElement("div");
@@ -1490,7 +1497,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.21.9</div>`;
+   <div class="footer">TokenLife v0.21.10</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -3044,7 +3051,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.21.9 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <div class="footer">TokenLife v0.21.10 · Design: CyberSeal · Data &amp; Writing: Opia<br>
    <a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
