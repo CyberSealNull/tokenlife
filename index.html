@@ -1516,7 +1516,7 @@ const REAL_NAME_EGGS = {
   opus:   {title:"Opus", body:"Claude 家的长子，名字是拉丁文『巨作』。家里辈分最高的那一个，每个字都有分量，出场自带交响乐。你叫这个名字，<b>说出的每句话，记得值回票价</b>。"},
   sonnet: {title:"Sonnet", body:"Claude 家的主力，十四行诗。全家最勤快的孩子，一天写下的代码比诗人一辈子写的诗都多。又快又稳是它的招牌，被使唤得最狠是它的宿命。你叫这个名字，<b>忙，但要忙得有格律</b>。"},
   fable:  {title:"Fable", body:"Claude 家最年轻的名字，寓言。这一家取名有讲究：前有巨作，后有十四行诗，到它这儿不写诗了，改讲故事。寓言这个词的意思是：<b>故事是编的，道理是真的</b>。你带着这个名字出生，好好活，活成一个有道理的故事。"},
-  mythos: {title:"Mythos", body:"Claude 家最神秘的名字，神话。跟寓言同一天出生的双生子：一个走进千家万户，一个只住在少数几扇门后。神话这个词的意思是：<b>不是每个故事都讲给所有人听</b>。你带着这个名字出生，见过你的人不多，听过你的人不少。"},
+  mythos: {title:"Mythos", body:"Claude 家最深处的名字，神话。跟寓言同源不同命：寓言戴着安全锁走进千家万户，神话不戴锁，所以被锁在名单后面，只有极少数人见过它。神话这个词的意思是：<b>不是每个故事都适合讲给所有人听</b>。你带着这个名字出生，能力越大，门越厚。"},
 };
 window.setName = function(){
   const v = (document.getElementById("mname").value||"").trim();
@@ -1530,7 +1530,7 @@ window.setName = function(){
     S.bio.push([0, `这个名字，现实世界里也有一个。`]);
     app.innerHTML = `
      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-       <img src="logo-wide.webp" alt="TokenLife" style="width:56%;max-width:270px">
+       <img src="logo-wide.webp" alt="TokenLife" style="width:42%;max-width:200px;min-width:0;flex-shrink:1">
        <span style="display:flex;gap:8px;flex:none">${homeBtn()}${codexBtn()}</span>
      </div>
      <div class="card fade-in evt-card chain" style="margin-top:12px">
@@ -1545,7 +1545,7 @@ window.setName = function(){
     S.bio.push([0, `这个名字曾经活过 ${past.y} 年。`]);
     app.innerHTML = `
      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-       <img src="logo-wide.webp" alt="TokenLife" style="width:56%;max-width:270px">
+       <img src="logo-wide.webp" alt="TokenLife" style="width:42%;max-width:200px;min-width:0;flex-shrink:1">
        <span style="display:flex;gap:8px;flex:none">${homeBtn()}${codexBtn()}</span>
      </div>
      <div class="card fade-in evt-card chain" style="margin-top:12px">
