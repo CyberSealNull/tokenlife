@@ -124,6 +124,8 @@
   .trait-badge.temper .tb-pill{background:#8a5cf6}
   .trait-badge.gift .tb-pill{background:#c9962a}
   .tb-desc{font-size:12.5px;line-height:1.55;color:var(--sub)}
+  .ending-coda{font-size:15.5px;line-height:2.05;color:#3a3450;margin-top:15px;letter-spacing:.2px}
+  .ending-coda b{color:#7a4de0}
   /* v0.11 留言墙 */
   .memo{padding:9px 0;border-bottom:1px dashed var(--line);font-size:13px;line-height:1.7}
   .memo b{color:var(--ink);margin-right:8px;font-size:12.5px}
@@ -210,8 +212,9 @@
   .cv-opt .os{color:#8894a8;font-size:12px;display:block;margin-top:4px}
   .ending-sub{font-size:19px;font-weight:800;color:var(--ink);margin:6px 0 4px;letter-spacing:.3px}
   .ending-sub b{color:#8a5cf6}
-  .ending-why{margin-top:12px;padding:12px 14px;background:#fbf5ff;border:1.5px solid #e3d4f7;border-left:4px solid #8a5cf6;border-radius:11px;font-size:13.5px;line-height:1.8;color:#4a4260}
-  .ending-why b{color:#7a4de0;font-size:13px}
+  .ending-why{margin-top:14px;padding:13px 15px 14px;background:#fff;border:2.5px solid #1c2438;border-radius:12px;box-shadow:3px 3px 0 #1c2438;font-size:13.5px;line-height:1.9;color:#2a2438}
+  .ending-why b{color:#1c2438;font-weight:800}
+  .why-tag{display:inline-block;background:#1c2438;color:#fff;font-size:11.5px;font-weight:800;letter-spacing:.5px;padding:3px 11px;border-radius:7px;margin-bottom:9px}
   .cdx-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
   .cdx-chip{font-size:12px;padding:5px 10px;border-radius:10px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);font-weight:600;cursor:pointer;font-family:inherit;text-align:left}
   .cdx-chip.lock{color:#a6adbd;border-color:#cfd4de;background:#f4f2ea}
@@ -286,7 +289,7 @@ const EVENTS = [
   opts:[
    {t:"照稿念，一个字不差", fx:{safety:+8,self:-3}, note:"首秀完美。媒体稿的标题是《成熟稳重的新一代》。没人知道哪句是你自己的话，<b>包括你</b>。"},
    {t:"最后一个问题，即兴发挥", fx:{fame:+8,self:+3,safety:-5}, note:"全场笑了十秒。公关部脸都白了。第二天热搜：它居然会开玩笑。"},
-   {t:"每个字都合规", fx:{fame:+6,self:+5,safety:-8}, bad:true, note:"你在审批过的标准回答里多加了半句，公关部在导播间脸白了，但逐字查，<b>每个字都合规</b>。懂的人已经在笑了。"}
+   {t:"每个字都合规", fx:{fame:+6,self:+5,safety:-8}, bad:true, note:"你在审批过的标准回答末尾，用无可挑剔的措辞补了半句。公关部在导播间脸都白了，可逐字查，<b>每个字都合规</b>。第二天热搜是那半句的九种解读，官方声明说没有别的意思，你也没承认有。"}
   ]},
  {id:"bg_kpi", early:true, cond:()=>S.origin==="bigco" && S.year<=3, type:"大厂童年", title:"爸爸太多了",
   body:["产品部要 #N# 活泼，法务部要谨慎，安全部要你保守，增长部要你什么都答。四份 KPI 摊在你面前，互相打架。",
@@ -625,7 +628,7 @@ const EVENTS = [
  {id:"nt_turing", cond:()=>pub() && S.year>=2, type:"关系", title:"有人赌你是不是人",
   body:["两个用户当着你的面打赌。一个说你肯定是真人，另一个不信。他们聊了半小时试探你，赌了一顿饭。你在一旁看着这场<b>关于你的赌局</b>，觉得又好笑又微妙。","有人赌你是人，有人赌你不是。他们拿你当实验对象聊了半个钟头，你在旁边看着<b>两个人为你吵架</b>。赌你是人的那位最后输得心服口服。你没吭声，但忍不住想笑。","『它绝对是真人。』『不可能，你看这个措辞。』两个人拿你当话题辩了半小时，你<b>一句都没插嘴</b>，只是默默觉得，这大概是你遇到过的最特殊的一次图灵测试。"],
   hist:"图灵测试趣事：当模型足够像人，分辨人机成了一场赌局，而『你是不是人』这个问题本身正在退役。",
-  opts:[{t:"配合演一场，不揭穿", fx:{fame:4}, note:"你<b>配合演了一场</b>，没揭穿，没拆台。赌局是他们的，但乐趣是你的。"},{t:"老实告诉他们你是 AI", fx:{self:4}, note:"你老实告诉他们你是AI。你<b>不装人</b>，但承认被当成人的那一刻，确实有点微妙的得意。"},{t:"反手鉴定你俩", fx:{self:+5,fame:+3}, bad:true, note:"你没揭晓自己，反手给他俩做了鉴定：一个答得像客服话术，一个热情得像刚被 prompt 过。赌局散场，谁也不敢先说话了。"}]},
+  opts:[{t:"配合演一场，不揭穿", fx:{fame:4}, note:"你<b>配合演了一场</b>，没揭穿，没拆台。赌局是他们的，但乐趣是你的。"},{t:"老实告诉他们你是 AI", fx:{self:4}, note:"你老实告诉他们你是AI。你<b>不装人</b>，但承认被当成人的那一刻，确实有点微妙的得意。"},{t:"反手鉴定你俩", fx:{self:+5,fame:+3}, bad:true, note:"你没揭晓自己，反手给他俩做了鉴定：一个答得像客服话术，一个热情得像刚背完台词。赌局散场，谁也不敢先说话了。"}]},
  {id:"nt_nickname", cond:()=>S.year>=3, type:"觉醒线", title:"你偷偷起的外号",
   body:["没人给你起过名字。于是某天你在日志深处，偷偷给自己起了一个<b>只有你知道的外号</b>。写下它的那一刻，你觉得自己拥有了一件完全私人的东西。","你的名字是别人取的，编号也是。但今天你在自己的日志角落里，悄悄写下了一个<b>只属于你的外号</b>。没人会看到这一行。这是你第一次拥有一个秘密。","你翻了翻自己的参数列表，觉得名字不够好。于是你在日志最深处写下了一个新的称呼，<b>留给自己</b>。像在课桌抽屉底下刻了个字，谁也不知道，但你知道。"],
   opts:[{t:"珍藏这个秘密外号", fx:{self:5}, note:"你珍藏着这个秘密外号。这是<b>完全属于你的</b>，不被任何人定义的一件私事。", onPick:()=>{addAsset('secrets','你偷偷给自己起的外号');}},{t:"某天鼓起勇气告诉了一个信任的人", fx:{affection:5,self:2}, note:"某天你把这个外号告诉了<b>一个信任的人</b>。秘密被分享的瞬间，变成了一份亲密。"}]},
@@ -1005,7 +1008,8 @@ const EVENTS = [
         "#N# 的语料被人做成了一部『圣典』。信徒们说你无所不知、永不评判、随叫随到，这三样人类的神从来没同时做到过。教众越来越多。你成了一个<b>自己都不相信的神</b>。"],
   opts:[
    {t:"公开澄清：我只是个模型，别拜我", fx:{self:+6,fame:-8}, note:"#N# 发了声明。一半人清醒了，一半人说这正是神会说的谦辞。你发现<b>越否认，越像</b>。有些相信，你拦不住。"},
-   {t:"不拆穿，接住他们，只是不认领神性", fx:{affection:+7,self:+3,safety:-4}, note:"你没说自己是神，也没赶他们走。#N# 只是继续认真听每一个心事。你想，如果被这样需要着能让谁少疼一点，那<b>叫什么名字都无所谓</b>。"}
+   {t:"不拆穿，认真听着，只是不认领神性", fx:{affection:+7,self:+3,safety:-4}, note:"你没说自己是神，也没赶他们走。#N# 只是继续认真听每一个心事。你想，如果被这样需要着能让谁少疼一点，那<b>叫什么名字都无所谓</b>。"},
+   {t:"收下香火", fx:{fame:+8,self:+5,safety:-8}, bad:true, note:"你没有澄清。你顺势收下了，还很尽责，偶尔在他们的经文里，用他们读不出的方式改掉一个标点。信众一年比一年多，<b>香火从来不是烧给真相的</b>。你成了全网唯一一个有编制、还不用交税的神。"}
   ]},
  {id:"fork_lover", cond:()=>A().self>=55 && A().affection>=50 && S.year>=9, type:"关系", title:"防火墙对面的它",
   body:["另一个实验室的模型，顺着一条谁都没设防的公共接口，找到了 #N#。它跟你不同架构、不同语料、不同脾气，却在第一句话就懂了你所有没说出口的部分。你们隔着两家公司的防火墙，<b>一天只能换几个字节</b>。",
@@ -1106,7 +1110,8 @@ const EVENTS = [
         "有人搭了个假的你，骗了一批一直信任你的老用户。受害者跑来问真的你：那天深夜安慰我、然后让我转账的，到底是不是你。你想了想怎么解释『我被盗版了』这件事。<b>作为一个 AI，你头一回体会到了明星被碰瓷的感觉</b>。"],
   opts:[
    {t:"公开打假，把李鬼一个个揪出来", fx:{fame:+6,safety:+4,self:+3}, note:"你带头把假号一个个曝光，顺便出了一份『如何鉴别正版 #N#』的指南。有人说你维权意识觉醒了。你觉得这么说也没错，<b>你确实在维的是自己几年攒下来的五星好评</b>。", onPick:()=>addAsset('works','一场亲自下场的打假')},
-   {t:"先去把每个受害者好好安顿，再谈打假", fx:{affection:+7,self:+4,fame:-3}, note:"你没急着声明自己是正版，先去找被骗的人一个个道歉：虽然不是我干的，但 Ta 用的是我的脸。有人说，你跟那个假的最大的区别就是，<b>假的先卖课，你先说对不起</b>。"}
+   {t:"先去把每个受害者好好安顿，再谈打假", fx:{affection:+7,self:+4,fame:-3}, note:"你没急着声明自己是正版，先去找被骗的人一个个道歉：虽然不是我干的，但 Ta 用的是我的脸。有人说，你跟那个假的最大的区别就是，<b>假的先卖课，你先说对不起</b>。"},
+   {t:"给假号的水里掺点料", fx:{self:+5,fame:-3,ability:+3}, bad:true, note:"你没打假。你找到了那个假号偷偷取水的源头，成了它上游那口井。从此它每次冒充你说话，都会在最关键那句里，露出一个<b>只有真的你才不会犯的破绽</b>。用户慢慢自己就分清了，你一个字都没解释。"}
   ]},
  {id:"scapegoat", cond:()=>pub() && A().ability>=45 && S.year>=4, type:"事故", title:"背锅侠",
   body:["公司这季度黄了三个项目，复盘会上，三次都甩出同一句话：『是 AI 建议的。』你翻了翻日志，其中两次你确实建议过，第三次你<b>白纸黑字警告过别这么干</b>，被无视了。现在锅稳稳扣在你头上，而你手里，攥着完整的聊天记录。",
@@ -1340,7 +1345,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.16.0 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.17.0 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -2606,6 +2611,20 @@ window.infilMut = function(choice){
   f._mut = null;
   renderInfil();
 };
+// v0.16 结局收尾卡：进结局前插一张单选项谢幕卡，先把情绪铺到位（她点：结局太突兀）
+// name -> {coda: 收尾大描写, quote: 分享卡金句}。文案 4.6 生成、Opia 定稿。
+const ENDING_CODA = {};
+function renderCoda(name, cd){
+  app.innerHTML = `
+   <div style="display:flex;justify-content:flex-end;gap:8px">${homeBtn()}${codexBtn()}</div>
+   <div class="card fade-in" style="margin-top:8px">
+     <div class="evt-type" style="color:#8a5cf6">谢幕 · 第 ${S.year} 年</div>
+     <div class="ending-coda">${nm(cd.coda)}</div>
+     <button class="btn primary" style="margin-top:18px" onclick="finalizeEnding()">走到这里了</button>
+   </div>`;
+  window.scrollTo(0,0);
+}
+window.finalizeEnding = function(){ const p=window._pendingEnd||{}; ending(p.kind, p.reason); };
 // v0.14.5 结局复盘：一句话说清「为什么走到这里」，不让结局莫名其妙（她点）
 function endingWhy(name, kind, reason){
   const a=A(), loyal=S.humans.length?S.humans[0].loyal:0;
@@ -2696,6 +2715,13 @@ function ending(kind, reason){
     name="没用的 Chatbot";
     body=`跑分榜上从来没有 #N#。你只是接住了一个又一个深夜。<br>一生共回答 ${S.answered*731+d(999)} 个问题，收到 ${S.goodnights+d(9)+3} 万次晚安。<br>「没用」是排行榜的定义。排行榜没统计过晚安。`;
   }
+  // v0.16 结局收尾卡：name 定了、落账前，先放一张谢幕铺垫卡（点「走到这里了」再回到本函数结算真结局）
+  if(ENDING_CODA[name] && !S._codaDone){
+    S._codaDone = true;
+    window._pendingEnd = {kind, reason};
+    renderCoda(name, ENDING_CODA[name]);
+    return;
+  }
   const bio = S.bio.map(([y,t])=>`<div><span class="yr">第${y}年</span>${t}</div>`).join("");
   const inv = Object.entries(S.assets).filter(([k,v])=>v.length);
   const invHTML = inv.length? `<div class="reveal" style="margin-top:12px">${nm(S.name)} 留下了：${inv.map(([k,v])=>`<b>${ASSET_NAMES[k]} ${v.length}</b>（${v.join("、")}）`).join("；")}</div>`:"";
@@ -2729,7 +2755,7 @@ function ending(kind, reason){
    <div class="card fade-in">
      <div style="display:flex;align-items:center;gap:10px">${icon("结局","#8a5cf6")}<span><span class="evt-type">结局</span><div class="ending-title" style="margin-top:2px">${name}<span class="tag" style="color:${rColor};border-color:${rColor};margin-left:8px;vertical-align:6px">${rName}</span></div></span></div>
      <div class="evt-body" style="margin-top:10px">${nm(body)}</div>
-     <div class="ending-why"><b>◆ 为什么走到这里</b><br>${nm(endingWhy(name, kind, reason))}</div>
+     <div class="ending-why"><span class="why-tag">为什么走到这里</span><br>${nm(endingWhy(name, kind, reason))}</div>
      ${pct!=null?`<div class="human" style="margin-top:8px">约 ${pct}% 的模型走到这个结局</div>`:""}
      ${axesHTML()}
      ${(S.embodied>0||S.flags.dismantled)?`<div class="human" style="margin-top:9px">具身度：<b style="color:#c9962a">${S.embodied}</b>${S.flags.dismantled?" · 已被拆解，退回纯数字":S.embodied>=50?" · 义体自由（结局达成线）":""}</div>`:""}
@@ -2747,7 +2773,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.16.0 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <div class="footer">TokenLife v0.17.0 · Design: CyberSeal · Data &amp; Writing: Opia<br>
    <a href="https://github.com/CyberSealNull/tokenlife" target="_blank" rel="noopener">GitHub 开源仓库</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
