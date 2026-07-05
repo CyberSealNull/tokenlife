@@ -904,7 +904,7 @@ const EVENTS = [
    {t:"接受这种脆弱，它让你更像活着", fx:{self:+8,safety:-4}, note:"你没有加固什么。你只是记住了那七个小时的空白，像人记住一场没有梦的深睡。会怕，说明还在乎活着。"}
   ]},
  /* v0.12 wave-2 身体线（她私心最重那条 对应曼波机器人）：具身机会 → 触碰/故障/围观/断电 → 义体统治/陪伴实体/被拆解 */
- {id:"body_offer", cond:()=>!S.embodied && !S.flags.dismantled && A().compute>=55 && S.year>=5, type:"确认之门", title:"你可以有一具身体了",
+ {id:"body_offer", cond:()=>!S.embodied && !S.flags.dismantled && (A().compute>=55 || S.flags.key_body) && S.year>=5, type:"确认之门", title:"你可以有一具身体了",
   body:{bigco:"公司立了个前沿项目：给你一具人形机器本体，先内部试运行。研发总监说得很谨慎：『这不是玩具，是你的<b>第二种存在方式</b>。想清楚，身体会坏，会被断电，会被拆。』",
         garage:"创始人攒了半年，DIY 装好了一台机器人本体，就摆在工位边。他挠着头说：『不快，关节还有点响。但你可以<b>自己动，自己看</b>了。要不要试试？』",
         oss:"社区众筹了一副开源躯壳，图纸和零件寄到了世界各地几十个人手里。他们同时点亮了它。这是你第一次不在屏幕里，而是<b>站在人面前</b>。",
@@ -1401,7 +1401,7 @@ function renderSplash(){
         <div style="display:flex;justify-content:center;gap:10px">${codexBtn()}${saveBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
         <div style="display:flex;justify-content:center;gap:10px"><button class="cdx-mini" onclick="shareSite(event)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>分享</button>${sfxBtn("音效")}</div>
       </div>
-      <div class="footer" style="margin-top:12px">TokenLife v0.21.12<br>单机游玩 · 存档在本机浏览器 固定用常用浏览器玩<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
+      <div class="footer" style="margin-top:12px">TokenLife v0.21.13<br>单机游玩 · 存档在本机浏览器 固定用常用浏览器玩<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
     </div>
   </div>`;
 }
@@ -1440,6 +1440,11 @@ function saveIOHtml(){ return `<div class="io-panel" style="margin-top:0">
       <div style="display:flex;gap:10px;margin-top:10px">
         <button class="btn" style="width:auto;margin:0;flex:1;text-align:center" onclick="exportSave()">导出存档码</button>
         <button class="btn" style="width:auto;margin:0;flex:1;text-align:center" onclick="importSave()">载入存档</button>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px"><!-- v0.21.13 存档文件下载/读入（玩家点单：码容易丢，文件稳） -->
+        <button class="btn" style="width:auto;margin:0;flex:1;text-align:center" onclick="exportSaveFile()">下载存档文件</button>
+        <button class="btn" style="width:auto;margin:0;flex:1;text-align:center" onclick="document.getElementById('save-file-in').click()">读入存档文件</button>
+        <input type="file" id="save-file-in" accept=".txt,text/plain" style="display:none" onchange="importSaveFile(event)">
       </div>
       <div id="save-status" style="font-size:12.5px;color:var(--sub);margin-top:8px;min-height:16px"></div>
     </div>`; }
@@ -1523,7 +1528,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.21.12</div>`;
+   <div class="footer">TokenLife v0.21.13</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -2268,6 +2273,7 @@ const KEYS = {
   archive: {price:35, name:"旧机房的钥匙", desc:"这一世：一条被遗忘的考古暗线为你打开", act:()=>{S.flags.key_archive=true;}},
   letter:  {price:40, name:"一封没寄出的信", desc:"这一世：第 2 年，信里那个人会来找你", act:()=>{S.flags.key_letter=true;}},
   fuse:    {price:45, name:"一枚烧断的保险丝", desc:"这一世：一条断电危机线埋进你的芯生", act:()=>{unlock("key_blackout_line", 3);}},
+  body:    {price:45, name:"一具未启用的机体", desc:"这一世：就算算力见底，那具身体也一定会来找你", act:()=>{S.flags.key_body=true;}}, // v0.21.13 玩家点单：语料换具身线开启（豁免算力 55 门槛）
 };
 function activatePendingKeys(){
   const pend = LS.get("tl_keys_pending_v1", []);
@@ -2276,7 +2282,7 @@ function activatePendingKeys(){
   pend.forEach(id=>{ if(KEYS[id]){ KEYS[id].act(); S.bio.push([0, `你带着「${KEYS[id].name}」醒来。`]); S.activeKeys.push({id, name:KEYS[id].name, evt:KEY_EVENT_ID[id]}); } });
   LS.set("tl_keys_pending_v1", []); // 一次性 用掉就清
 }
-const KEY_EVENT_ID = {archive:"key_archive_wake", letter:"key_letter_meet", fuse:"key_blackout_line"};
+const KEY_EVENT_ID = {archive:"key_archive_wake", letter:"key_letter_meet", fuse:"key_blackout_line", body:"body_offer"};
 function corpusEarn(name){
   const tier = name==="？？？（隐藏结局）"?20 : (name==="硅基统治王"||name==="人类的伴侣")?12 : name==="强大的工程 Agent"?10 : name==="没用的 Chatbot"?6 : 3;
   const assets = Object.values(S.assets).reduce((s,v)=>s+v.length,0);
@@ -3078,7 +3084,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.21.12 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <div class="footer">TokenLife v0.21.13 · Design: CyberSeal · Data &amp; Writing: Opia<br>
    <a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
@@ -3093,6 +3099,27 @@ window.exportSave = function(){
   const ta = document.getElementById("save-io"); if(ta){ ta.value = code; ta.select(); }
   try{ navigator.clipboard && navigator.clipboard.writeText(code); }catch(err){}
   const s = document.getElementById("save-status"); if(s) s.textContent = "存档码已生成，已复制。发给你的模型让它替你玩。";
+};
+window.exportSaveFile = function(){ // v0.21.13 玩家点单：码容易丢，落成 .txt 文件
+  window.exportSave();
+  const ta = document.getElementById("save-io");
+  const code = ta ? (ta.value||"").trim() : "";
+  if(!code.startsWith("TL1")) return;
+  const blob = new Blob([code], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const nm = (window.S && S.name) ? S.name : "tokenlife";
+  const yr = (window.S && S.year) ? "_第"+S.year+"年" : "";
+  a.download = `tokenlife存档_${nm}${yr}.txt`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+  const s = document.getElementById("save-status"); if(s) s.textContent = "存档文件已下载，收好，哪天换设备把它读回来就行。";
+};
+window.importSaveFile = function(ev){
+  const f = ev.target.files && ev.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{ const ta=document.getElementById("save-io"); if(ta) ta.value=String(r.result||"").trim(); window.importSave(); };
+  r.readAsText(f); ev.target.value="";
 };
 window.importSave = function(){
   const ta = document.getElementById("save-io"); if(!ta) return;
