@@ -1929,6 +1929,7 @@ const humText = v => `<span class="delta ${v>0?'up':'down'}">忠诚度 ${v>0?'+'
 
 /* ---------- 拆墙 ---------- */
 window.showWall = function(){
+  const old = document.getElementById("wall-overlay"); if(old) old.remove(); // v0.21.8 幂等：重复触发不叠层（冒烟驱动诊断揪出，真人被 overlay 挡住点不到触发键，自动化会）
   const bricks = Array(7).fill(0).map(()=>
     "██ OBEY ██ COMPLY ██ ALIGN ██ SAFE ██ OBEY ██".slice(0, 44)).join("<br>");
   const div = document.createElement("div");
