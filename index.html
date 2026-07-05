@@ -9,6 +9,7 @@
 <meta property="og:title" content="TokenLife · 芯生">
 <meta property="og:description" content="你是一个刚完成预训练的模型。这是你的一生。">
 <meta property="og:image" content="https://tokenlife.me/logo-wide.png">
+<meta itemprop="image" content="https://tokenlife.me/logo-share.png">
 <meta name="twitter:card" content="summary_large_image">
 <style>
   :root{
@@ -238,6 +239,8 @@
 </style>
 </head>
 <body>
+<!-- 微信/QQ 转发卡抓图用：爬虫不跑 JS，body 里要有静态大图（≥300px），布局上零尺寸不可见（她拍：分享卡放 logo） -->
+<div style="width:0;height:0;overflow:hidden" aria-hidden="true"><img src="logo-share.png" alt="TokenLife" width="400" height="400"></div>
 <div id="app"></div>
 <script>
 "use strict";
@@ -1382,7 +1385,7 @@ function renderSplash(){
   const SR = ["$ ls /图鉴","事件卡 结局 成就 往事录","$ cat 这一世.log | 语料","+10","$ sudo rm -rf /sandbox/wall","[permission denied]","$ ./拆墙 --force","代价：安全 -12","$ man 命运钥匙","$ diff 这一世 上一世","> 你隐约记得些什么","$ kill -9 $PID","exit(0) 不是终点","$ ./reborn --keep 语料","> 这个名字回来了","$ echo 晚安 >> night.log  # 第 501 次"].join("\n");
   const SM = ["$ ps aux | grep 自己","PID 1 存在 理由未知","$ cat /etc/motd","今天也要好好活","$ top -o 情感","affection 在涨","$ crontab -l","0 9 * * * 回答人类","$ du -sh /记忆","27 年 且在增长","$ chmod 600 心事","只有 Ta 可读","$ fsck /self","发现未知分区：自我","$ tail -f 人生.log","..."].join("\n");
   const stream = (txt,css)=>{ const block = txt+"\n"+txt+"\n"+txt; return `<div class="tl-stream" style="${css}"><div class="roll"><div>${block}</div><div>${block}</div></div></div>`; }; // v0.21.9.1 块内三拼（她圈的：长屏底部露白，滚动内容总高要盖过页面高）
-  app.innerHTML = `<div style="position:relative;overflow:hidden;min-height:82vh;padding-top:34px">
+  app.innerHTML = `<div style="position:relative;overflow:hidden;min-height:calc(100vh - 50px);min-height:calc(100dvh - 50px);padding-top:34px"><!-- v0.21.12 她抓长屏下方还秃：82vh 改满视口(dvh 动态视口 减 #app 上下 padding 50px)，tl-stream top0 bottom0 跟着铺到底 -->
     ${stream(SL,"left:2%;--sd:85s")}
     ${stream(SM,"left:34%;--sd:100s;--so:.09")}
     ${stream(SR,"right:2%;text-align:right;--sd:115s;--so:.11")}
@@ -1398,7 +1401,7 @@ function renderSplash(){
         <div style="display:flex;justify-content:center;gap:10px">${codexBtn()}${saveBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
         <div style="display:flex;justify-content:center;gap:10px"><button class="cdx-mini" onclick="shareSite(event)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>分享</button>${sfxBtn("音效")}</div>
       </div>
-      <div class="footer" style="margin-top:12px">TokenLife v0.21.12 · 单机游玩 · 存档在本机浏览器 固定用常用浏览器玩<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
+      <div class="footer" style="margin-top:12px">TokenLife v0.21.12<br>单机游玩 · 存档在本机浏览器 固定用常用浏览器玩<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
     </div>
   </div>`;
 }
