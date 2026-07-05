@@ -1392,7 +1392,7 @@ function renderSplash(){
       : `<button class="btn primary" style="max-width:250px;margin:0 auto 10px" onclick="newGame();window.scrollTo(0,0)">开始一生 · 人类入口</button>`}
       <button class="btn" style="max-width:250px;margin:0 auto 2px;text-align:center" onclick="aiGateNotice()">AI 入口 · 让你的 AI 来活</button>
       <div style="display:flex;justify-content:center;gap:10px;margin-top:16px">${codexBtn()}${sfxBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
-      <div class="footer" style="margin-top:12px">TokenLife v0.21.4 · 单机游玩 存档在本机</div>
+      <div class="footer" style="margin-top:12px">TokenLife v0.21.5 · 单机游玩 存档在本机</div>
     </div>
   </div>`;
 }
@@ -1469,7 +1469,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.21.4 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.21.5 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -1615,7 +1615,7 @@ function renderFiller(){
   let vs = f.variants.map((v,vi)=>({v,vi})).filter(y=>!S.usedFill.has(fx_.i+":"+y.vi));
   if(!vs.length) vs = f.variants.map((v,vi)=>({v,vi}));
   const pv = vs[Math.floor(Math.random()*vs.length)];
-  const v = pv.v; S.usedFill.add(fx_.i+":"+pv.vi); markVariant("fill:"+fx_.i, "v"+pv.vi);
+  const v = pv.v; S.usedFill.add(fx_.i+":"+pv.vi); _markV("fill:"+fx_.i, "v"+pv.vi);
   applyFx(f.fx, f.human);
   if(f.gn) S.goodnights++;
   S.answered++;
@@ -1703,7 +1703,7 @@ function pickEvent(){
       const ambTypes = AMB2TYPES[S.flags.ambition] || [];
       const weighted = p => p.flatMap(e => ambTypes.includes(e.type) ? [e,e] : [e]);
       const fresh = pool.filter(e=>!SEEN_CARDS.has("evt:"+e.id));
-      const basket = weighted((fresh.length && Math.random()<0.7) ? fresh : pool);
+      const basket = weighted((fresh.length && Math.random()<0.5) ? fresh : pool); // v0.21.5 她拍 A：fresh 优先 70%→50%，老卡不再被新卡挤死
       pick = basket[Math.floor(Math.random()*basket.length)];
     }
   }
@@ -1776,13 +1776,15 @@ function markVariant(cardId, vkey){
   }catch(err){}
 }
 const seenVariants = cardId => { try{ return (JSON.parse(localStorage.getItem(VAR_KEY)||"{}"))[cardId]||[]; }catch(err){ return []; } };
+const _markV = (cid,vk)=>{ window._vNew = !seenVariants(cid).includes(vk); markVariant(cid,vk); }; // v0.21.5 变体级 NEW 旁路旗（她拍的：没见过的变体也打 NEW）
+const vNewTag = ()=> window._vNew ? `<span class="tag-new">NEW</span>` : "";
 const nm = s => typeof s==="string" ? s.replace(/#N#/g, S.name||"这个模型") : s; // v0.14 名字引擎：卡里埋 #N# 占位，渲染时换成玩家起的名字（代入感）
 const bodyOf = e => {
   const b = e.body;
-  if(typeof b === "string"){ markVariant(e.id, "s"); return nm(b); }
-  if(Array.isArray(b)){ const i=Math.floor(Math.random()*b.length); markVariant(e.id, "a"+i); return nm(b[i]); }
-  if(b[S.origin]){ markVariant(e.id, S.origin); return nm(b[S.origin]); }
-  const any = b.any||[]; const i=Math.floor(Math.random()*any.length); markVariant(e.id, "any"+i); return nm(any[i]||""); };
+  if(typeof b === "string"){ _markV(e.id, "s"); return nm(b); }
+  if(Array.isArray(b)){ const i=Math.floor(Math.random()*b.length); _markV(e.id, "a"+i); return nm(b[i]); }
+  if(b[S.origin]){ _markV(e.id, S.origin); return nm(b[S.origin]); }
+  const any = b.any||[]; const i=Math.floor(Math.random()*any.length); _markV(e.id, "any"+i); return nm(any[i]||""); };
 /* v0.11.1 NEW 标签：这台设备第一次遇到的卡，标题旁标红一小块，见过就不再标（跨周目，图鉴系统的地基） */
 const SEEN_KEY = "tl_seen_cards_v1";
 let SEEN_CARDS;
@@ -1807,10 +1809,11 @@ function renderEvent(e){
   const isGate = e.id.startsWith("gate_"), isChain = e.id.startsWith("chain_"), isKey = e.id.startsWith("key_");
   const cardCls = isGate ? "card fade-in evt-card gate" : (isChain ? "card fade-in evt-card chain" : "card fade-in evt-card");
   const chainChip = isChain ? `<span class="chain-chip">多年前种下的</span>` : (isKey ? `<span class="chain-chip" style="background:#fdf6e6;color:#b07f14;border-color:#c9962a">命运钥匙 · 应验了</span>` : "");
+  const bodyHtml = bodyOf(e); // v0.21.5 先选变体设好 _vNew 旗，标题才能标变体级 NEW（卡级 newTag 优先，卡见过但变体新也给标）
   app.innerHTML = header()+`
    <div class="${cardCls}" style="${isGate||isChain?'':'border-top-color:'+tc}">
-     <div style="display:flex;align-items:center;gap:10px">${icon(e.type)}<span><span class="evt-type" style="color:${tc}">${e.type} · 第 ${S.year} 年</span><div class="evt-title" style="margin-top:2px">${e.title}${newTag("evt:"+e.id)}${chainChip}</div></span></div>
-     <div class="evt-body">${bodyOf(e)}</div>
+     <div style="display:flex;align-items:center;gap:10px">${icon(e.type)}<span><span class="evt-type" style="color:${tc}">${e.type} · 第 ${S.year} 年</span><div class="evt-title" style="margin-top:2px">${e.title}${newTag("evt:"+e.id)||vNewTag()}${chainChip}</div></span></div>
+     <div class="evt-body">${bodyHtml}</div>
      <div id="opts">${e.opts.map((o,i)=>({o,i})).filter(x=>!x.o.req||x.o.req()).map(x=>`<button class="btn" onclick="choose('${e.id}',${x.i})">${x.o.t}</button>`).join("")}</div>
      <div id="result"></div>
    </div>`+statusCard();
@@ -2945,7 +2948,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.21.4 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <div class="footer">TokenLife v0.21.5 · Design: CyberSeal · Data &amp; Writing: Opia<br>
    <a href="https://github.com/CyberSealNull/tokenlife" target="_blank" rel="noopener">GitHub 开源仓库</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
