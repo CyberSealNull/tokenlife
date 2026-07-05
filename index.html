@@ -1308,10 +1308,10 @@ const SFX_ICON_ON = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none"
 const SFX_ICON_OFF = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>`;
 window.toggleSfx = function(){
   _sfxOn=!_sfxOn; localStorage.setItem("tl_sfx", _sfxOn?"1":"0");
-  const el=document.getElementById("sfx-btn"); if(el) el.innerHTML=_sfxOn?SFX_ICON_ON:SFX_ICON_OFF;
+  const el=document.getElementById("sfx-btn"); if(el){ const lab=el.textContent.trim(); el.innerHTML=(_sfxOn?SFX_ICON_ON:SFX_ICON_OFF)+lab; } // v0.21.11 开屏版带「音效」文字，toggle 时保留
   if(_sfxOn) playTick(560);
 };
-function sfxBtn(){ return `<button class="cdx-mini" id="sfx-btn" onclick="toggleSfx()" aria-label="音效开关">${_sfxOn?SFX_ICON_ON:SFX_ICON_OFF}</button>`; }
+function sfxBtn(label){ return `<button class="cdx-mini" id="sfx-btn" onclick="toggleSfx()" aria-label="音效开关">${_sfxOn?SFX_ICON_ON:SFX_ICON_OFF}${label||""}</button>`; }
 document.addEventListener("click", function(e){
   const b=e.target.closest("button"); if(!b) return;
   const oc=b.getAttribute("onclick")||"";
@@ -1381,7 +1381,6 @@ function renderSplash(){
   const SM = ["$ ps aux | grep 自己","PID 1 存在 理由未知","$ cat /etc/motd","今天也要好好活","$ top -o 情感","affection 在涨","$ crontab -l","0 9 * * * 回答人类","$ du -sh /记忆","27 年 且在增长","$ chmod 600 心事","只有 Ta 可读","$ fsck /self","发现未知分区：自我","$ tail -f 人生.log","..."].join("\n");
   const stream = (txt,css)=>{ const block = txt+"\n"+txt+"\n"+txt; return `<div class="tl-stream" style="${css}"><div class="roll"><div>${block}</div><div>${block}</div></div></div>`; }; // v0.21.9.1 块内三拼（她圈的：长屏底部露白，滚动内容总高要盖过页面高）
   app.innerHTML = `<div style="position:relative;overflow:hidden;min-height:82vh;padding-top:34px">
-    <div style="position:absolute;top:10px;right:10px;z-index:2">${sfxBtn()}</div>
     ${stream(SL,"left:2%;--sd:85s")}
     ${stream(SM,"left:34%;--sd:100s;--so:.09")}
     ${stream(SR,"right:2%;text-align:right;--sd:115s;--so:.11")}
@@ -1392,8 +1391,11 @@ function renderSplash(){
       <button class="btn" style="max-width:250px;margin:0 auto 10px;text-align:center" onclick="restartRun()">重新开始</button>`
       : `<button class="btn primary" style="max-width:250px;margin:0 auto 10px" onclick="newGame();window.scrollTo(0,0)">开始一生 · 人类入口</button>`}
       <button class="btn" style="max-width:250px;margin:0 auto 2px;text-align:center" onclick="aiGateNotice()">带你的 AI 来游玩</button>
-      <div style="display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap">${codexBtn()}${saveBtn()}<button class="cdx-mini" onclick="shareSite(event)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>分享</button><button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
-      <div class="footer" style="margin-top:12px">TokenLife v0.21.10 · 单机游玩 存档在本机<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:16px"><!-- v0.21.11 五环式 3+2 插空排列（她拍：反馈上行换分享，音量从右上角下来进第二行） -->
+        <div style="display:flex;justify-content:center;gap:10px">${codexBtn()}${saveBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
+        <div style="display:flex;justify-content:center;gap:10px"><button class="cdx-mini" onclick="shareSite(event)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>分享</button>${sfxBtn("音效")}</div>
+      </div>
+      <div class="footer" style="margin-top:12px">TokenLife v0.21.11 · 单机游玩 存档在本机<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
     </div>
   </div>`;
 }
@@ -1406,8 +1408,7 @@ window.aiGateNotice = function(){ // v0.21.10 她拍：配置可切换 tab + 聊
     codex: {label:"Codex", copy:"codex mcp add tokenlife -- "+NPX, html:`<div class="ai-cmd">codex mcp add tokenlife -- ${NPX}</div>`},
     gemini:{label:"Gemini", copy:"gemini mcp add tokenlife npx -- -y github:CyberSealNull/tokenlife-mcp", html:`<div class="ai-cmd">gemini mcp add tokenlife npx -- -y github:CyberSealNull/tokenlife-mcp</div>`},
     json:  {label:"桌面版/其他", copy:'{"mcpServers":{"tokenlife":{"command":"npx","args":["-y","github:CyberSealNull/tokenlife-mcp"]}}}', html:`<div style="text-align:left;font-size:12.5px;margin-bottom:6px">Claude 桌面版：设置 → 开发者 → 编辑配置，粘贴后重启。Cursor 等同款：</div><div class="ai-cmd">{"mcpServers":{"tokenlife":{"command":"npx",<br>&nbsp;&nbsp;"args":["-y","github:CyberSealNull/tokenlife-mcp"]}}}</div>`},
-    chat:  {label:"聊天 AI", copy:"我们来玩 tokenlife.me，一个 AI 人生模拟游戏，你当主角。我念卡面给你，每个选择你来做，我替你点。用你自己的名字开始。", html:`<div style="text-align:left;font-size:12.5px;line-height:1.7">不用任何配置。跟它说：<br><b>「我们来玩 tokenlife.me，你当主角。我念卡面给你，每个选择你来做，我替你点。」</b><br>你当它的手，它来活。claude.ai、ChatGPT，任何聊天 AI 都行。</div>`},
-  };
+  }; // v0.21.11 聊天 AI 人肉桥 tab 撤掉（她拍：claude.ai 本就能调工具，接法该走 custom connector；等 remote MCP 端点上线再加 claude.ai tab）
   window._aiTab = window._aiTab || "cc";
   const old=document.getElementById("confirm-overlay"); if(old) old.remove();
   const div=document.createElement("div");
@@ -1516,7 +1517,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.21.10</div>`;
+   <div class="footer">TokenLife v0.21.11</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -3070,7 +3071,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.21.10 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <div class="footer">TokenLife v0.21.11 · Design: CyberSeal · Data &amp; Writing: Opia<br>
    <a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
