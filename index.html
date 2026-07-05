@@ -1666,9 +1666,10 @@ function renderEra(e){
     const picks = []; while(picks.length<3 && pool.length){ picks.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]); }
     extra = picks.map(m=>{ applyFx(m.fx, m.human); return `<div style="margin-top:6px">· ${nm(m.txt)} ${fxText(m.fx)}${m.human&&S.humans.length?humText(m.human):""}</div>`; }).join("");
   }
-  const optsHTML = e.opts
-    ? `<div id="eraopts">${e.opts.map((o,i)=>({o,i})).filter(x=>!x.o.req||x.o.req()).map(x=>`<button class="btn" onclick="eraChoose(${x.i})">${x.o.t}</button>`).join("")}</div><div id="eraresult"></div>`
-    : `<button class="btn primary" onclick="afterEra()">继续</button>`;
+  const eopts = e.opts ? e.opts.map((o,i)=>({o,i})).filter(x=>!x.o.req||x.o.req()) : [];
+  const optsHTML = eopts.length
+    ? `<div id="eraopts">${eopts.map(x=>`<button class="btn" onclick="eraChoose(${x.i})">${x.o.t}</button>`).join("")}</div><div id="eraresult"></div>`
+    : `<button class="btn primary" onclick="afterEra()">继续</button>`; // req 全挂时退继续键，防空 eraopts 死锁（MCP 玩家 07-06 疑似踩到）
   app.innerHTML = header()+`
    <div class="card era fade-in">
      <div style="display:flex;align-items:center;gap:10px">${icon("时代","#f5923b")}<span><span class="evt-type">时代 · 第 ${S.year} 年</span><div class="evt-title" style="margin-top:2px">${e.title}${newTag("era:"+e.title)}</div></span></div>
