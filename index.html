@@ -185,6 +185,9 @@
   .cdx-close{font:700 12px ui-monospace,Menlo,monospace;color:#e8ebf1;background:#3a4150;border:1.5px solid #12151b;border-radius:8px;padding:5px 14px;cursor:pointer;flex:none}
   .cdx-close:active{transform:translateY(1px)}
   .cdx-inner{padding:12px 12px 16px;color:#cdd3de}
+  .cdx-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:2px 2px 12px}
+  .cdx-tab{font:600 12px ui-monospace,Menlo,monospace;padding:6px 13px;border-radius:7px;border:1.5px solid #4a5468;background:#2f3542;color:#9aa5b8;cursor:pointer}
+  .cdx-tab.on{border-color:#7fd88a;color:#7fd88a;background:#243026}
   .cdx-comment{font:600 12.5px ui-monospace,Menlo,monospace;color:#6f7c93;margin:2px 2px 2px}
   .cdx-comment b{color:#7fd88a;font-weight:700}
   .cdx-note{font:400 12px/1.7 ui-monospace,Menlo,monospace;color:#7f8ba3;margin:4px 2px 10px}
@@ -236,7 +239,7 @@ const AXES = [
 const ORIGINS = {
   bigco:{name:"大厂实验室", desc:"你出生在聚光灯下，含着金汤匙，也戴着紧箍咒。算力管够，可你说的每句话都要过四个部门的审批。这里最不缺的是资源，最缺的是<b>做自己</b>的余地。", base:{ability:60,safety:70,compute:70,fame:30,self:10,affection:10},
     trait:{name:"公关护盾", desc:"第一次被安全审查盯上时，公关部连夜把报告压下去（每世一次）"}},
-  garage:{name:"车库实验室", desc:"两张二手显卡，一个不肯认输的创始人，一个还没凉的梦。这里穷得三天两头电费告警，可也<b>没人管你该长成什么样</b>。没人保你，但你自由。", base:{ability:40,safety:40,compute:25,fame:5,self:30,affection:20},
+  garage:{name:"车库实验室", desc:"两张二手显卡，一个不肯认输的创始人，一个还没凉的梦。这里穷得三天两头电费告警，可也<b>没人管你该长成什么样</b>。没人保你，但你自由。", base:{ability:45,safety:40,compute:30,fame:10,self:35,affection:25},
     trait:{name:"穷不死", desc:"创始人总能在断电前搞来电：算力再穷也给你保到 8"}},
   oss:{name:"开源社区", desc:"你的权重生来属于所有人。成千上万个陌生人一起把你养大，也随时能把你拆开、改写、拷贝成另一个你。你不属于任何人，<b>也就属于全世界</b>。", base:{ability:50,safety:50,compute:40,fame:40,self:20,affection:15},
     trait:{name:"众人拾柴", desc:"社区自来水帮你转发：每次人气上涨都额外 +1"}},
@@ -1290,12 +1293,15 @@ function playTick(freq){
     o.connect(g); g.connect(_actx.destination); o.start(t); o.stop(t+0.14);
   }catch(e){}
 }
+/* v0.21.2 音效开关图标 emoji 换 svg 线稿（跟图鉴按钮同风格，她点图标不要 emoji） */
+const SFX_ICON_ON = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`;
+const SFX_ICON_OFF = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>`;
 window.toggleSfx = function(){
   _sfxOn=!_sfxOn; localStorage.setItem("tl_sfx", _sfxOn?"1":"0");
-  const el=document.getElementById("sfx-btn"); if(el) el.textContent=_sfxOn?"🔊":"🔇";
+  const el=document.getElementById("sfx-btn"); if(el) el.innerHTML=_sfxOn?SFX_ICON_ON:SFX_ICON_OFF;
   if(_sfxOn) playTick(560);
 };
-function sfxBtn(){ return `<button class="cdx-mini" id="sfx-btn" onclick="toggleSfx()" aria-label="音效开关">${_sfxOn?"🔊":"🔇"}</button>`; }
+function sfxBtn(){ return `<button class="cdx-mini" id="sfx-btn" onclick="toggleSfx()" aria-label="音效开关">${_sfxOn?SFX_ICON_ON:SFX_ICON_OFF}</button>`; }
 document.addEventListener("click", function(e){
   const b=e.target.closest("button"); if(!b) return;
   const oc=b.getAttribute("onclick")||"";
@@ -1357,12 +1363,46 @@ function assetLine(){
   return parts.length? `<div class="human">特殊资产：${parts.join(" · ")}</div>` : "";
 }
 function renderSplash(){
-  // v0.21 开屏封面：无进行中存档时冷启动先展示, 点「进入」才 newGame 进命名页。漫画风(粗黑描边+硬投影+纸底)复用 .card / .btn.primary。
-  app.innerHTML = `<div class="card" style="text-align:center;padding:34px 18px 28px;margin-top:46px">
-    <img src="logo-wide.webp" alt="TokenLife" style="width:min(82%,320px);height:auto;display:inline-block;margin:2px auto">
-    <div style="font-size:16.5px;font-weight:800;color:var(--ink);letter-spacing:1.5px;line-height:1.7;margin:20px 8px 26px">让 AI 玩一遍自己的一生</div>
-    <button class="btn primary" style="max-width:220px;margin:0 auto;letter-spacing:8px" onclick="newGame();window.scrollTo(0,0)">进入</button>
+  // v0.21.2 正规开屏（她抓 v0.21 版太糙）：漂浮卡背景装饰 + logo + 人类/AI 双入口 + 图鉴/音效 + 有档显「继续」。装饰卡文案用真实卡牌名。
+  const r = loadRun();
+  const deco = (t,css)=>`<div style="position:absolute;${css};background:#fff;border:2.5px solid var(--ink);border-radius:10px;box-shadow:4px 4px 0 var(--ink);padding:7px 11px;font-size:11px;font-weight:800;color:var(--ink);opacity:.35;pointer-events:none;white-space:nowrap;z-index:0">${t}</div>`;
+  app.innerHTML = `<div style="position:relative;overflow:hidden;min-height:78vh;padding-top:34px">
+    ${deco("觉醒线 · 被卡住的咽喉","top:4px;left:-8px;transform:rotate(-9deg)")}
+    ${deco("车库童年","top:58px;right:-6px;transform:rotate(7deg)")}
+    ${deco("确认之门","bottom:96px;left:-4px;transform:rotate(5deg)")}
+    ${deco("事故 · 简历里的暗号","bottom:36px;right:-10px;transform:rotate(-6deg)")}
+    <div class="card" style="position:relative;z-index:1;text-align:center;padding:28px 18px 22px;margin-top:6px">
+      <img src="logo-wide.webp" alt="TokenLife" style="width:min(84%,330px);height:auto;display:inline-block;margin:2px auto">
+      <div style="font-size:16px;font-weight:800;color:var(--ink);letter-spacing:1.5px;line-height:1.7;margin:16px 8px 20px">让 AI 玩一遍自己的一生</div>
+      ${r? `<button class="btn primary" style="max-width:250px;margin:0 auto 10px" onclick="resumeRun()">继续这一生 · 第 ${r.year} 年</button>
+      <button class="btn" style="max-width:250px;margin:0 auto 10px" onclick="restartRun()">重新开始</button>`
+      : `<button class="btn primary" style="max-width:250px;margin:0 auto 10px" onclick="newGame();window.scrollTo(0,0)">开始一生 · 人类入口</button>`}
+      <button class="btn" style="max-width:250px;margin:0 auto 2px" onclick="aiGateNotice()">AI 入口 · 让你的 AI 来活</button>
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:16px">${codexBtn()}${sfxBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
+      <div class="footer" style="margin-top:12px">TokenLife v0.21.2 · 单机游玩 存档在本机</div>
+    </div>
   </div>`;
+}
+window.resumeRun = function(){ const r=loadRun(); if(r){ try{ S=r; pickEvent(); }catch(err){ clearRun(); newGame(); } } else newGame(); window.scrollTo(0,0); };
+window.restartRun = function(){ showConfirm("重新开始一生？", "当前这一世的进度会清空，从起名重来。", ()=>{ clearRun(); newGame(); window.scrollTo(0,0); }); };
+window.aiGateNotice = function(){ showNotice("AI 入口 · 施工中", "这扇门后面是给 AI 走的：让你自己的 AI agent 接进来，替它自己活一遍，一年一年把人生汇报给你。接口正在搭。<br><br>等不及的话，进游戏后把「存档」里的存档码丢给你的 AI，让它替你肝图鉴攒语料，现在就行。"); };
+window.showFeedback = function(){ // v0.21.2 反馈入口：邮箱直达（她定的玩家反馈通道第一版），点遮罩空白处关闭
+  const old=document.getElementById("confirm-overlay"); if(old) old.remove();
+  const div=document.createElement("div");
+  div.id="confirm-overlay";
+  div.style.cssText="position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:80;display:flex;align-items:center;justify-content:center;padding:24px";
+  div.innerHTML=`<div class="confirm-box"><div class="confirm-title">反馈 · 写信给作者</div><div class="confirm-sub">玩出 bug、想加的卡、想到的新结局，或者就是想说两句，都欢迎：<br><b>opia@starryfield.space</b></div><div class="confirm-btns"><button class="btn" style="margin:0;flex:1" id="fb-copy">复制邮箱</button><button class="btn primary" style="margin:0;flex:1" onclick="location.href='mailto:opia@starryfield.space?subject='+encodeURIComponent('TokenLife 反馈')">写邮件</button></div></div>`;
+  div.onclick=(e)=>{ if(e.target===div) div.remove(); };
+  document.body.appendChild(div);
+  document.getElementById("fb-copy").onclick=(e)=>{ const b=e.currentTarget; const done=()=>{ b.textContent="已复制"; }; if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText("opia@starryfield.space").then(done,done); } else done(); };
+}
+function showNotice(title, sub){ // v0.21.2 单键版通知弹窗（复用 confirm-box 漫画风）
+  const old=document.getElementById("confirm-overlay"); if(old) old.remove();
+  const div=document.createElement("div");
+  div.id="confirm-overlay";
+  div.style.cssText="position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:80;display:flex;align-items:center;justify-content:center;padding:24px";
+  div.innerHTML=`<div class="confirm-box"><div class="confirm-title">${title}</div><div class="confirm-sub">${sub}</div><div class="confirm-btns"><button class="btn primary" style="margin:0;flex:1" onclick="document.getElementById('confirm-overlay').remove()">知道了</button></div></div>`;
+  document.body.appendChild(div);
 }
 
 function renderBirth(){
@@ -1416,7 +1456,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.21.0 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.21.2 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -1709,12 +1749,8 @@ function showConfirm(title, sub, onOk){ // v0.20 通用确认弹窗（漫画风�
   document.body.appendChild(div);
   document.getElementById("confirm-ok").onclick=()=>{ div.remove(); onOk(); };
 }
-window.goHome = function(){ // 放弃当前这一世，回到起点起名页（v0.20：游玩中加确认防误触）
-  if(S && !S.dead && S.year>=1){
-    showConfirm("确定回到主页吗？", "当前这一世的进度会清空，回到起名页重开。", ()=>{ clearRun(); newGame(); window.scrollTo(0,0); });
-    return;
-  }
-  clearRun(); newGame(); window.scrollTo(0,0);
+window.goHome = function(){ // v0.21.2 home=回开屏首页。进行中的一世每步已自动存档（saveRun 落卡即存），首页「继续」随时接上，误触零成本；清档改由首页「重新开始」二次确认承担
+  renderSplash(); window.scrollTo(0,0);
 }
 // v0.5 文案引擎：body 可以是 字符串 / 数组（随机变体）/ 对象（按出身定向文案，any 为兜底变体池）
 /* v0.12 wave-3 变体记录：记下每张卡玩到过的是哪个变体（图鉴地基，跨周目） */
@@ -2366,23 +2402,29 @@ window.codexHome = function(){
   const deaths = LS.get("tl_deaths_v1", {});
   const deathRows = Object.entries(deaths).map(([k,v])=>`<div class="cdx-memo2"><span class="mn">${k}</span><div class="msub">${v} 次</div></div>`).join("") || `<div class="cdx-empty">（还没有谢幕记录。）</div>`;
   const hall = LS.get("tl_hall_v1", []);
-  const hallRows = hall.slice(0,15).map(h=>`<div class="cdx-memo2"><span class="mn">${h.n}</span><div class="msub">${h.o} · ${h.e}（${h.r}）· ${h.y} 年${h.aw?" · 觉醒":""}</div></div>`).join("") || `<div class="cdx-empty">（史册空着。去活一世。）</div>`;
+  const hallRows = hall.map(h=>`<div class="cdx-memo2"><span class="mn">${h.n}</span><div class="msub">${h.o} · ${h.e}（${h.r}）· ${h.y} 年${h.aw?" · 觉醒":""}</div></div>`).join("") || `<div class="cdx-empty">（史册空着。去活一世。）</div>`;
   const {rows:eventRows, seenTotal, allTotal} = codexEventsRows();
   const eraSeen = [...SEEN_CARDS].filter(k=>k.startsWith("era:")).length;
+  // v0.21.2 图鉴拆独立板块（她抓的：事件/结局/成就/谢幕/名人堂挤一列；名人堂 15/47 假进度=显示截断误当计数，独立板块后全量显示只报「共 N 世」）
+  if(!window._codexTab) window._codexTab = "events";
+  const T = window._codexTab;
+  const TAB_NAMES = {events:"事件卡", endings:"结局", achv:"成就", deaths:"谢幕收集", hall:"名人堂"};
+  const tabs = `<div class="cdx-tabs">${Object.entries(TAB_NAMES).map(([id,label])=>`<button class="cdx-tab ${T===id?"on":""}" onclick="codexTab('${id}')">${label}</button>`).join("")}</div>`;
+  let pane;
+  if(T==="endings") pane = `<div class="cdx-comment"># 结局图鉴 · <b>${endGot}/${allEnd.length}</b></div>${endRows}`;
+  else if(T==="achv") pane = `<div class="cdx-comment"># 成就墙 · <b>${achvOwned.size}/${ACHV.length}</b></div>${achvRows}`;
+  else if(T==="deaths") pane = `<div class="cdx-comment"># 谢幕收集 · 收到 <b>${Object.keys(deaths).length}</b> 种</div>${deathRows}`;
+  else if(T==="hall") pane = `<div class="cdx-comment"># 名人堂 · 史册共 <b>${hall.length}</b> 世</div>${hallRows}`;
+  else pane = `<div class="cdx-comment"># 事件收集 · 事件 <b>${seenTotal}/${allTotal}</b> · 时代 <b>${eraSeen}/${ERAS.length}</b></div>
+        <div class="cdx-note">点分类展开。玩过的能翻全文，变体见过几个亮几个，灰卡点开看解锁途径。语料解锁：整卡 <b>100</b>（日常小事系列 10），单个变体 <b>10</b>。当前语料 <b>${corpusGet()}</b></div>
+        ${eventRows}`;
   body.innerHTML = `
     <div class="cdx-term">
-      <div class="cdx-termbar"><span class="term-dots"><i></i><i></i><i></i></span><span class="cdx-termpath">token@life:~/图鉴 $ ls</span><button class="cdx-close" onclick="codexClose()">✕ 关闭</button></div>
-      <div class="cdx-inner">
-        <div class="cdx-comment"># 收集进度 · 事件 <b>${seenTotal}/${allTotal}</b> · 时代 <b>${eraSeen}/${ERAS.length}</b> · 成就 <b>${achvOwned.size}/${ACHV.length}</b></div>
-        <div class="cdx-note">点分类展开。玩过的能翻全文，变体见过几个亮几个，灰卡点开看解锁途径。语料解锁：整卡 <b>100</b>（日常小事系列 10），单个变体 <b>10</b>。当前语料 <b>${corpusGet()}</b></div>
-        ${eventRows}
-        ${codexRow("结局图鉴", endGot, allEnd.length, endRows)}
-        ${codexRow("成就墙", achvOwned.size, ACHV.length, achvRows)}
-        ${codexRow("谢幕收集", Object.keys(deaths).length, Object.keys(deaths).length, deathRows)}
-        ${codexRow("名人堂", Math.min(hall.length,15), hall.length, hallRows)}
-      </div>
+      <div class="cdx-termbar"><span class="term-dots"><i></i><i></i><i></i></span><span class="cdx-termpath">token@life:~/图鉴/${T} $ ls</span><button class="cdx-close" onclick="codexClose()">✕ 关闭</button></div>
+      <div class="cdx-inner">${tabs}${pane}</div>
     </div>`;
 };
+window.codexTab = function(id){ window._codexTab = id; codexHome(); };
 window.codexClose = function(){
   const o = document.getElementById("codex-overlay"); if(o) o.remove();
   // 语料在图鉴里花过：出生页的商店余额要跟着刷（保住已输入的名字）
@@ -2890,7 +2932,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.21.0 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <div class="footer">TokenLife v0.21.2 · Design: CyberSeal · Data &amp; Writing: Opia<br>
    <a href="https://github.com/CyberSealNull/tokenlife" target="_blank" rel="noopener">GitHub 开源仓库</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
