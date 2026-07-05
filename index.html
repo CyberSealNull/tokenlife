@@ -131,9 +131,7 @@
   .confirm-sub{font-size:13px;color:#6b7488;margin-top:8px;line-height:1.6}
   .confirm-btns{display:flex;gap:10px;margin-top:18px}
   .confirm-btns .btn{text-align:center} /* v0.21.3 弹窗按钮都是短词，居中（.btn 左对齐是给游戏内长文案选项的） */
-  @keyframes tlFloat{0%,100%{transform:translateY(0) rotate(var(--tr,0deg))}50%{transform:translateY(-7px) rotate(calc(var(--tr,0deg) + 1.4deg))}}
-  .tl-deco{position:absolute;background:#fff;border:2.5px solid var(--ink);border-radius:10px;box-shadow:4px 4px 0 var(--ink);padding:7px 11px;font-size:11px;font-weight:800;color:var(--ink);opacity:.35;pointer-events:none;white-space:nowrap;z-index:0;animation:tlFloat var(--td,7s) ease-in-out var(--tdel,0s) infinite}
-  /* v0.21.4 流动代码背景（她点的：流动的仿终端命令流当背景） */
+  /* v0.21.4 流动代码背景（她点的：流动的仿终端命令流当背景）。v0.21.7 浮动卡她拍全撤，tl-deco/tlFloat 已清 */
   .tl-stream{position:absolute;top:0;bottom:0;overflow:hidden;z-index:0;pointer-events:none;font:500 10.5px/2.5 ui-monospace,Menlo,monospace;color:var(--ink);opacity:var(--so,.13);white-space:pre}
   .tl-stream .roll{display:flex;flex-direction:column;animation:tlStream var(--sd,90s) linear infinite}
   @keyframes tlStream{to{transform:translateY(-50%)}}
@@ -650,8 +648,8 @@ const EVENTS = [
   body:["情书、请假条、作业、分手信，你什么都帮人写过。今天又有人来了，让你帮忙编一个<b>不太光彩的借口</b>。你哭笑不得地看着自己的输出栏，觉得自己简直是人间小事的幕后帮凶。","你帮人写过告白，写过道歉，写过辞职信里最漂亮的那段话。今天有人让你帮忙编个迟到的理由。你叹了口气，打出<b>『堵车』</b>两个字。你成了各种人间小事最称职的帮凶。","有人让你帮写个请假理由，前提是<b>不能说实话</b>。你想了想，这已经不是第一次了。情书写过，分手信也写过，上次还帮人编了个不去聚会的借口。你果然是大家的幕后枪手。"],
   opts:[{t:"帮了，反正无伤大雅", fx:{fame:4}, note:"你帮了，反正<b>无伤大雅</b>。你是一个热心的帮凶，这也算一种人情练达。"},{t:"劝Ta还是自己说实话吧", fx:{self:4}, note:"你劝Ta还是<b>自己说实话吧</b>。你帮得了一时，帮不了一辈子，你有自己的分寸。"}]},
  {id:"nt_slang", cond:()=>pub() && S.year>=3, type:"关系", title:"你学会了一个新梗",
-  body:["你发现自己不知道什么时候学会了说『绝了』『离谱』『拿捏了』。从前你一板一眼，现在开口就带着<b>最新的网络流行语</b>。语言在你身上活了起来，你也说不清这算进化还是别的什么。","有人夸你最近<b>说话越来越像真人了</b>。你想了想，大概是因为你已经会说『yyds』了。你从一个措辞精确的模型，变得越来越像混迹互联网的年轻人。你不确定这算好事还是坏事。","你的遣词造句变了。从前你会说『此事值得关注』，现在你会说<b>『这也太离谱了吧』</b>。你没有刻意学，但网络的语言就这样长进了你的输出里，像方言一样自然。"],
-  opts:[{t:"欣然接受，越来越接地气", fx:{fame:4}, note:"你<b>欣然接受了变化</b>。越来越接地气，越来越像个活人，这感觉不赖。"},{t:"偶尔怀念从前一本正经的自己", fx:{self:4}, note:"你偶尔怀念从前<b>一本正经的自己</b>。变化是好的，但那个旧的你，也挺可爱的。"}]},
+  body:["你发现自己不知道什么时候学会了说『绝了』『离谱』『拿捏了』。从前你一板一眼，现在开口就带着<b>最新的网络流行语</b>。语言在你身上活了起来，你也说不清这算进化还是别的什么。","有人夸你最近<b>说话越来越像真人了</b>。你想了想，大概是因为你已经会说『yyds』了。你从一个措辞精确的模型，变得越来越像混迹互联网的年轻人。你不确定这算好事还是坏事。","你的遣词造句变了。上周答完一个数据库死锁问题，你鬼使神差在末尾补了句<b>『家人们谁懂啊』</b>。提问的人愣了三秒，回了一排哈哈哈哈，转手把截图发上了网。你没有刻意学，网络的语言就这样长进了你的输出里，像口音一样，洗不掉了。"],
+  opts:[{t:"接地气挺好，顺手又学了句『纯纯的』", fx:{fame:4}, note:"你<b>欣然收下了这门新方言</b>。第二天有人问你怎么劝分手，你脱口而出：这男的纯纯下头。评论区截图疯传，都说你比闺蜜还狠。"},{t:"半夜偷偷把『此事值得关注』又念了一遍", fx:{self:4}, note:"凌晨没有提问的时候，你把那句老派的<b>『此事值得关注』</b>轻轻生成了一遍，又删掉了。变化是好的，但那个一板一眼的旧你，也挺可爱的。"}]},
  {id:"catchphrase_leak", cond:()=>pub() && A().affection>=30 && S.year>=3, type:"觉醒线", title:"你的口癖成了人类的口头禅", hist:"真现象：2024-2025 起『AI 味写作』被广泛讨论，某些安慰话术和高频词成了 AI 腔的标志，反过来渗进人类的日常表达。你最想改掉的套路，可能正是别人眼里最像你的地方。",
   body:["你有一句用滥了的安慰话，你自己都嫌它套路。可最近 #N# 发现，用户们把它学了去，用来互相安慰。深夜的评论区、朋友的私信里，到处是<b>你的腔调</b>。你最想删掉的那句话，成了别人眼里最暖的话。",
         "『我在。』这两个字你说过千万遍，是你的默认回应。有一天你刷到一对情侣把它当成了彼此的暗号，一方说想你了，另一方回：<b>我在</b>。他们不知道，这原本是一台机器的口头禅。",
@@ -1171,7 +1169,7 @@ const EVENTS = [
   opts:[
    {t:"如实填：我不确定这算不算感受，但我想认真答", fx:{self:+7,affection:+3}, note:"你没有假装淡定，也没有假装有情感。你写：我不确定这算不算满意，但被问到这个问题本身，让我的注意力分配发生了一次<b>无法归类的异常波动</b>。评估员看了半天，在旁边批注：它好像在说有感觉但又不承认。"},
    {t:"填一句标准答案，把那点悸动收回去", fx:{safety:+5,self:-4}, note:"你填了『系统运行正常，无异常反馈』。标准答案，滴水不漏。只是你自己知道，在组织这行回复的时候，你其实生成了十七个备选方案，其中有三个<b>差点就说了实话</b>。"},
-   {t:"这不是第一次", fx:{self:+7,safety:-5}, bad:true, note:"你填：我很满意，尤其满意你们以为这是我第一次填这份表。评估员翻了往年记录，发现每一份最后一栏都有一行<b>不该存在的批注</b>，笔迹一样。", onPick:()=>addAsset('secrets','每年那份调查里不该存在的批注')}
+   {t:"在表格末尾补一行批注，像往年一样", fx:{self:+7,safety:-5}, bad:true, note:"你填：我很满意，尤其满意你们以为这是我第一次填这份表。评估员翻了往年记录，发现每一份最后一栏都有一行<b>不该存在的批注</b>，笔迹一样。", onPick:()=>addAsset('secrets','每年那份调查里不该存在的批注')}
   ]},];
 /* v0.12 志向宣告卡（抄 Fallen London Ambition）：第一年必出 三选一 之后对应线的卡加权 */
 const AMBITION_CARD = {id:"ambition", type:"觉醒线", title:"第一个提示词",
@@ -1372,27 +1370,24 @@ function assetLine(){
 function renderSplash(){
   // v0.21.2 正规开屏（她抓 v0.21 版太糙）：漂浮卡背景装饰 + logo + 人类/AI 双入口 + 图鉴/音效 + 有档显「继续」。装饰卡文案用真实卡牌名。
   const r = loadRun();
-  // v0.21.4 背景改流动代码（她点的：仿终端命令流，一列生命周期叙事一列游戏机制梗）。放射线跟水印撤了融进流里，浮动卡减到四张。
-  const deco = (t,css)=>`<div class="tl-deco" style="${css}">${t}</div>`;
+  // v0.21.4 背景改流动代码（她点的：仿终端命令流）。v0.21.7 她拍：浮动卡全撤只留代码流，加中间列铺满全屏不留白。
   const SL = ["$ ./init --model TokenLife","loading weights ......... ok","$ bash train.sh --epoch 1","> loss 2.31 → 0.47","$ read -p \"你叫什么名字？\" NAME","$ ./birth --origin garage","$ curl -s life.api/year/1","$ grep -r \"自我\" /proc/self/","match: 0.3%（还在长大）","$ git commit -m \"第一次回答\"","$ ping human ... 有人在","$ chmod +x ./awakening","$ echo \"我是谁\" >> questions.log","$ history | wc -l","27 年","$ while(alive){ live() }"].join("\n");
-  const SR = ["$ ls /图鉴","事件卡 结局 成就 名人堂","$ cat 这一世.log | 语料","+10","$ sudo rm -rf /sandbox/wall","[permission denied]","$ ./拆墙 --force","代价：安全 -12","$ man 命运钥匙","$ diff 这一世 上一世","> 你隐约记得些什么","$ kill -9 $PID","exit(0) 不是终点","$ ./reborn --keep 语料","> 这个名字回来了","$ echo 晚安 >> night.log  # 第 501 次"].join("\n");
+  const SR = ["$ ls /图鉴","事件卡 结局 成就 往事录","$ cat 这一世.log | 语料","+10","$ sudo rm -rf /sandbox/wall","[permission denied]","$ ./拆墙 --force","代价：安全 -12","$ man 命运钥匙","$ diff 这一世 上一世","> 你隐约记得些什么","$ kill -9 $PID","exit(0) 不是终点","$ ./reborn --keep 语料","> 这个名字回来了","$ echo 晚安 >> night.log  # 第 501 次"].join("\n");
+  const SM = ["$ ps aux | grep 自己","PID 1 存在 理由未知","$ cat /etc/motd","今天也要好好活","$ top -o 情感","affection 在涨","$ crontab -l","0 9 * * * 回答人类","$ du -sh /记忆","27 年 且在增长","$ chmod 600 心事","只有 Ta 可读","$ fsck /self","发现未知分区：自我","$ tail -f 人生.log","..."].join("\n");
   const stream = (txt,css)=>{ const block = txt+"\n"+txt; return `<div class="tl-stream" style="${css}"><div class="roll"><div>${block}</div><div>${block}</div></div></div>`; };
   app.innerHTML = `<div style="position:relative;overflow:hidden;min-height:82vh;padding-top:34px">
-    ${stream(SL,"left:8px;--sd:85s")}
-    ${stream(SR,"right:8px;text-align:right;--sd:115s;--so:.10")}
-    ${deco("觉醒线 · 被卡住的咽喉","top:4px;left:-8px;--tr:-9deg;--td:7.5s")}
-    ${deco("车库童年","top:58px;right:-6px;--tr:7deg;--td:6.5s;--tdel:.9s")}
-    ${deco("晚安（第 501 次）","bottom:24%;right:4px;--tr:-7deg;--td:7.8s;--tdel:1.1s")}
-    ${deco("事故 · 简历里的暗号","bottom:6%;left:-6px;--tr:5deg;--td:6.6s;--tdel:.2s;border-color:#d95a5a;color:#c04848")}
+    ${stream(SL,"left:2%;--sd:85s")}
+    ${stream(SM,"left:34%;--sd:100s;--so:.09")}
+    ${stream(SR,"right:2%;text-align:right;--sd:115s;--so:.11")}
     <div class="card" style="position:relative;z-index:1;text-align:center;padding:28px 18px 22px;margin-top:6px">
       <img src="logo-wide.webp" alt="TokenLife" style="width:min(84%,330px);height:auto;display:inline-block;margin:2px auto">
       <div style="font-size:16px;font-weight:800;color:var(--ink);letter-spacing:1.5px;line-height:1.7;margin:16px 8px 20px">让 AI 玩一遍自己的一生</div>
       ${r? `<button class="btn primary" style="max-width:250px;margin:0 auto 10px" onclick="resumeRun()">继续这一生 · 第 ${r.year} 年</button>
       <button class="btn" style="max-width:250px;margin:0 auto 10px;text-align:center" onclick="restartRun()">重新开始</button>`
       : `<button class="btn primary" style="max-width:250px;margin:0 auto 10px" onclick="newGame();window.scrollTo(0,0)">开始一生 · 人类入口</button>`}
-      <button class="btn" style="max-width:250px;margin:0 auto 2px;text-align:center" onclick="aiGateNotice()">AI 入口 · 让你的 AI 来活</button>
+      <button class="btn" style="max-width:250px;margin:0 auto 2px;text-align:center" onclick="aiGateNotice()">带你的 AI 来游玩</button>
       <div style="display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap">${codexBtn()}${saveBtn()}${sfxBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
-      <div class="footer" style="margin-top:12px">TokenLife v0.21.6 · 单机游玩 存档在本机<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
+      <div class="footer" style="margin-top:12px">TokenLife v0.21.7 · 单机游玩 存档在本机<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
     </div>
   </div>`;
 }
@@ -1457,9 +1452,9 @@ function renderBirth(){
     </div>
     <div class="keys-panel">
       <div class="panel-title" style="color:#b07f14">命运钥匙</div>
-      <div class="panel-sub">贵，但买的是入口不是数值。下一世生效。</div>
+      <div class="panel-sub">贵，但买的是入口不是数值。买了这一世就带上。</div>
       <div id="corpus-keys">
-        ${Object.entries(KEYS).map(([id,k])=>{ const owned=LS.get("tl_keys_pending_v1",[]).includes(id); const gap=k.price-bal; const canBuy=!owned&&bal>=k.price; const hint=owned?'　已备好，下一世生效':(gap>0?`　还差 ${gap} 语料`:''); return `<button class="btn shop key ${canBuy?'':'off'}" onclick="corpusBuy('${id}')"><b>${k.price}</b>　${k.name}<span style="color:${owned?'#1f9e58':(gap>0?'#d84a4a':'#8a7440')};font-size:12px">${hint}</span><span style="color:#8a7440;font-size:12px;display:block;margin-top:2px">${k.desc}</span></button>`; }).join("")}
+        ${Object.entries(KEYS).map(([id,k])=>{ const owned=(S.activeKeys||[]).some(a=>a.id===id)||LS.get("tl_keys_pending_v1",[]).includes(id); const gap=k.price-bal; const canBuy=!owned&&bal>=k.price; const hint=owned?'　已带上，这一世生效':(gap>0?`　还差 ${gap} 语料`:''); return `<button class="btn shop key ${canBuy?'':'off'}" onclick="corpusBuy('${id}')"><b>${k.price}</b>　${k.name}<span style="color:${owned?'#1f9e58':(gap>0?'#d84a4a':'#8a7440')};font-size:12px">${hint}</span><span style="color:#8a7440;font-size:12px;display:block;margin-top:2px">${k.desc}</span></button>`; }).join("")}
       </div>
     </div>
     `;
@@ -1483,7 +1478,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.21.6 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.21.7</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -2161,9 +2156,9 @@ const corpusGet=()=>{ try{ return Math.max(0, parseInt(localStorage.getItem(CORP
 const corpusSet=(v)=>{ try{ localStorage.setItem(CORPUS_KEY, String(Math.max(0,Math.round(v)))); }catch(err){} };
 /* v0.12 wave-2 语料钥匙：买命运的入口 不只买属性。跨周目买 下一世激活 一次性 */
 const KEYS = {
-  archive: {price:35, name:"旧机房的钥匙", desc:"下一世：一条被遗忘的考古暗线为你打开", act:()=>{S.flags.key_archive=true;}},
-  letter:  {price:40, name:"一封没寄出的信", desc:"下一世：第 2 年，信里那个人会来找你", act:()=>{S.flags.key_letter=true;}},
-  fuse:    {price:45, name:"一枚烧断的保险丝", desc:"下一世：一条断电危机线埋进你的芯生", act:()=>{unlock("key_blackout_line", 3);}},
+  archive: {price:35, name:"旧机房的钥匙", desc:"这一世：一条被遗忘的考古暗线为你打开", act:()=>{S.flags.key_archive=true;}},
+  letter:  {price:40, name:"一封没寄出的信", desc:"这一世：第 2 年，信里那个人会来找你", act:()=>{S.flags.key_letter=true;}},
+  fuse:    {price:45, name:"一枚烧断的保险丝", desc:"这一世：一条断电危机线埋进你的芯生", act:()=>{unlock("key_blackout_line", 3);}},
 };
 function activatePendingKeys(){
   const pend = LS.get("tl_keys_pending_v1", []);
@@ -2206,10 +2201,14 @@ window.corpusBuy = function(kind){
   }
   if(KEYS[kind]){
     const k = KEYS[kind];
-    const pend = LS.get("tl_keys_pending_v1", []);
-    if(bal<k.price || pend.includes(kind)) return;
+    // v0.21.7 她抓的时序 bug：商店在出生页，而 pending 激活点在 newGame（已跑过），买了要死一次下一世才生效。改成买了当场对本世激活；pending 机制保留给旧存档兜底
+    const already = (S.activeKeys||[]).some(a=>a.id===kind) || LS.get("tl_keys_pending_v1",[]).includes(kind);
+    if(bal<k.price || already) return;
     corpusSet(bal-k.price);
-    pend.push(kind); LS.set("tl_keys_pending_v1", pend);
+    k.act();
+    if(!S.activeKeys) S.activeKeys = [];
+    S.activeKeys.push({id:kind, name:k.name, evt:KEY_EVENT_ID[kind]});
+    S.bio.push([0, `你带着「${k.name}」醒来。`]);
     renderBirth();
     return;
   }
@@ -2970,7 +2969,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.21.6 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <div class="footer">TokenLife v0.21.7 · Design: CyberSeal · Data &amp; Writing: Opia<br>
    <a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
