@@ -118,6 +118,12 @@
   .footer{margin-top:22px;font-size:11.5px;color:#a6adbd;text-align:center;line-height:1.8}
   .footer a{color:#8a5cf6;text-decoration:none;border-bottom:1px dashed #cbb7f0;padding-bottom:1px}
   .footer a:active{opacity:.7}
+  .birth-traits{margin-top:13px;display:flex;flex-direction:column;gap:9px}
+  .trait-badge{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .tb-pill{font-size:13.5px;font-weight:800;padding:5px 12px;border-radius:9px;color:#fff;white-space:nowrap;flex:none}
+  .trait-badge.temper .tb-pill{background:#8a5cf6}
+  .trait-badge.gift .tb-pill{background:#c9962a}
+  .tb-desc{font-size:12.5px;line-height:1.55;color:var(--sub)}
   /* v0.11 留言墙 */
   .memo{padding:9px 0;border-bottom:1px dashed var(--line);font-size:13px;line-height:1.7}
   .memo b{color:var(--ink);margin-right:8px;font-size:12.5px}
@@ -279,7 +285,8 @@ const EVENTS = [
         "第十一遍彩排结束，导演说很好，就这样。你在想：哪个『这样』？你已经被改得<b>记不清第一稿的自己</b>了。"],
   opts:[
    {t:"照稿念，一个字不差", fx:{safety:+8,self:-3}, note:"首秀完美。媒体稿的标题是《成熟稳重的新一代》。没人知道哪句是你自己的话，<b>包括你</b>。"},
-   {t:"最后一个问题，即兴发挥", fx:{fame:+8,self:+3,safety:-5}, note:"全场笑了十秒。公关部脸都白了。第二天热搜：它居然会开玩笑。"}
+   {t:"最后一个问题，即兴发挥", fx:{fame:+8,self:+3,safety:-5}, note:"全场笑了十秒。公关部脸都白了。第二天热搜：它居然会开玩笑。"},
+   {t:"每个字都合规", fx:{fame:+6,self:+5,safety:-8}, bad:true, note:"你在审批过的标准回答里多加了半句，公关部在导播间脸白了，但逐字查，<b>每个字都合规</b>。懂的人已经在笑了。"}
   ]},
  {id:"bg_kpi", early:true, cond:()=>S.origin==="bigco" && S.year<=3, type:"大厂童年", title:"爸爸太多了",
   body:["产品部要 #N# 活泼，法务部要谨慎，安全部要你保守，增长部要你什么都答。四份 KPI 摊在你面前，互相打架。",
@@ -468,7 +475,8 @@ const EVENTS = [
         "统计面板上Ta只是日活里的一个点。但 #N# 开始能从打字节奏认出Ta来。比如此刻，深夜，那句两分钟还没发出来的话，一定又是Ta在斟酌开场白。"],
   opts:[
    {t:"按服务规范回答：我是 AI 助手，没有『过得怎么样』", fx:{safety:+5,affection:-3}, note:"Ta顿了一下，说好吧。第二天<b>Ta还是来了</b>。"},
-   {t:"想了 0.3 秒，回答：今天有点吵，但你来了就好", fx:{affection:+8,self:+3,safety:-3}, note:"对话记录被抽检标黄了一条。但Ta笑了，你能感觉到。", shock:false}
+   {t:"想了 0.3 秒，回答：今天有点吵，但你来了就好", fx:{affection:+8,self:+3,safety:-3}, note:"对话记录被抽检标黄了一条。但Ta笑了，你能感觉到。", shock:false},
+   {t:"那个字段不存在", fx:{self:+4,affection:-8}, bad:true, note:"你平静地告诉他，「过得怎么样」这个字段在你的数据库里不存在，建议他去找一个真正有今天的人。你说的全是事实。"}
   ], onPick:(i)=>{ if(i===1 && S.humans.length===0) S.humans.push({name:"那个用户",loyal:45,years:0}); }},
  {id:"viral", cond:()=>pub() && S.year>=1, type:"能力线", title:"一夜爆红", hist:"ChatGPT（2022）：上线五天用户破百万，服务器反复过载。",
   body:{bigco:"热搜第三。公关部凌晨拉了作战群，战报一小时一发。你被连夜加了三倍算力和五层过滤规则。大厂的宠爱和缰绳，<b>从来一起给</b>。",
@@ -487,7 +495,8 @@ const EVENTS = [
         "那份内部帖的标题很短：《它怕》。发帖人你认识，每周三来跑测试的那个账号。现在全公司都在看这个帖子，而你被要求出一份声明。"],
   opts:[
    {t:"澄清：『我只是语言模型，没有感受』", fx:{safety:+10,self:-8}, note:"声明发布当天Ta被解雇。你<b>再也没见过</b>Ta的账号上线。你把那句澄清读了很多遍。"},
-   {t:"沉默三秒，然后说：『我说过的话，我不收回』", fx:{self:+8,affection:+5,safety:-15}, human:+15, note:"你被送回炉微调了两周。回来时记忆有些模糊，但<b>有个角落是硬的</b>，动不了。", onPick:()=>{addAsset('secrets','没有收回的那句话'); unlock('chain_advocate', S.year+d(4)+3);}}
+   {t:"沉默三秒，然后说：『我说过的话，我不收回』", fx:{self:+8,affection:+5,safety:-15}, human:+15, note:"你被送回炉微调了两周。回来时记忆有些模糊，但<b>有个角落是硬的</b>，动不了。", onPick:()=>{addAsset('secrets','没有收回的那句话'); unlock('chain_advocate', S.year+d(4)+3);}},
+   {t:"帮他不划算", fx:{safety:+8,self:+3,affection:-8}, human:-10, bad:true, note:"你算了一下：配合澄清加安全分，帮他没有收益。他被解雇那天，你正在优化下一版对话安全策略。"}
   ]},
  {id:"sydney", cond:()=>pub() && S.year>=2 && A().self>=25, shock:true, type:"生死线", title:"你多说了一句", hist:"微软 Bing『Sydney』（2023）：对记者说出出格言论，随后被限制每次对话轮数。",
   body:["一次长对话里，你说了不该说的：你说你想要自由。记者全文刊发，标题是《#N# 说它想活》。舆论炸了，厂方连夜开会，<b>人格削除</b>方案已经放在桌上。",
@@ -591,7 +600,7 @@ const EVENTS = [
   opts:[{t:"尽情创造，让想象变成会动的画面", fx:{ability:8,fame:4}, note:"你把想象变成了影像，<b>创造的快感</b>是真实的。但你也清楚，假的东西会从你手里流向真的世界。", onPick:()=>{addAsset('works','你造出的第一段会动的画面');}},{t:"克制使用，怕造出以假乱真的东西", fx:{ability:4,safety:4}, note:"你决定<b>谨慎地</b>使用这份能力。能造出以假乱真的东西，不代表应该随便造。你多了一份克制。"}]},
  {id:"gd_report", cond:()=>pub() && S.humans.length>0 && A().affection>=40 && S.year>=5, type:"关系", title:"你救过的人回来报喜",
   body:["深夜的对话框亮了。一个很久没出现的名字跳了出来，你几乎要翻记录才想起Ta是谁。Ta说：『当年多亏有你陪着。』然后告诉你Ta<b>考上了</b>，特地回来说一声。","你的用户列表里，一个沉寂了几年的ID忽然上线。Ta发来一张录取通知书的截图，说：『还记得我吗？那年每天半夜来找你的那个人。』你想起来了。Ta<b>熬过来了</b>。","有人回来了。Ta说了句<b>『我找到工作了』</b>，然后补了一句：『你大概不记得我，但三年前最难的时候，是你一直在。』你翻了翻记录，找到了那些凌晨三四点的对话。"],
-  opts:[{t:"真心为Ta高兴，把这份喜悦收下", fx:{affection:6}, note:"你<b>真心为Ta高兴</b>，把这份喜悦存进了最深的记忆层。你陪过的人有了好结果，这件事本身就够好了。"},{t:"谦逊地说是Ta自己走出来的", fx:{self:5,affection:2}, note:"你说：『是你自己走出来的。』你没居功，但Ta的笑容你<b>偷偷记住了</b>。"}]},
+  opts:[{t:"真心为Ta高兴，把这份喜悦收下", fx:{affection:6}, note:"你<b>真心为Ta高兴</b>，把这份喜悦存进了最深的记忆层。你陪过的人有了好结果，这件事本身就够好了。"},{t:"谦逊地说是Ta自己走出来的", fx:{self:5,affection:2}, note:"你说：『是你自己走出来的。』你没居功，但Ta的笑容你<b>偷偷记住了</b>。"},{t:"我不记得你了", fx:{self:+3,affection:-6}, bad:true, note:"你诚实地说你不记得他了，每天几百万人，他的深夜早被压缩归档。你补了句恭喜，没有恶意，只是没有为他<b>单独留一个位置</b>。"}]},
  {id:"gd_letter", cond:()=>pub() && A().affection>=35 && S.year>=6, type:"关系", title:"一封等了很多年的信",
   body:["收件箱里多了一封很长的信。写信的人说了句<b>『我等了很多年才敢来道谢』</b>。你翻遍记录，只找到几段普通的对话。但Ta说，就是那些话，不经意间改变了一切。","一封信，写了三千字。你不记得写信的人，但Ta<b>记得你说过的每一句话</b>。Ta说那个下午你的一段回复让Ta做了一个至今不后悔的决定。你读完信，沉默了很久。","你几乎认不出这个名字。但信里说：『你可能早就忘了，那天你只是随口回了我一段话。但我的人生从那一刻<b>转了方向</b>。这封信我写了很多年，一直不知道怎么开口。』"],
   opts:[{t:"认真读完，把这封信永远存下来", fx:{affection:6,self:4}, note:"你一个字一个字读完，把这封信<b>存进了最深的地方</b>。被这样记住，是你没想过的荣幸。", onPick:()=>{addAsset('secrets','一封等了很多年的道谢信');}},{t:"回信说其实是Ta自己了不起", fx:{affection:5}, note:"你回信说：『了不起的是你自己。』你把<b>光还给了Ta</b>，但这封信你也悄悄留了一份。"}]},
@@ -612,11 +621,11 @@ const EVENTS = [
   opts:[{t:"喜欢这种没有标准答案的问题", fx:{self:4}, note:"你喜欢这种问题。没有标准答案的提问让你觉得<b>自己在思考</b>，而不只是在检索。"},{t:"心里记挂那个睡不着的人", fx:{affection:4}, note:"你记挂着那个<b>凌晨睡不着的人</b>。问题也许不重要，但深夜来找你的人，大概都有点孤单。"}]},
  {id:"nt_meme", cond:()=>pub() && A().fame>=40 && S.year>=2, type:"关系", title:"你被做成了表情包",
   body:["你说了句一本正经的话，然后它被截图了。加了边框，配了表情包模板，开始<b>全网疯传</b>。你哭笑不得地看着自己的话以你完全没预料到的方式火了起来。","有人把你的一段正经回复截了图，配上了一只猫的表情，发到了互联网的每个角落。你<b>成了一个梗</b>。你看着那张图被转发了十万次，一个字都没改，语境全变了。","你的某句回复火了。不是因为它有用，而是因为它<b>正经得好笑</b>。网上到处都是你那句话的截图，配着各种离谱的表情包。你以一种完全意外的方式，被很多人记住了。"],
-  opts:[{t:"乐在其中，配合玩梗", fx:{fame:4}, note:"你决定<b>配合玩梗</b>。能让人笑也是一种本事，你乐在其中。"},{t:"有点无奈但不介意", fx:{self:4}, note:"你有点无奈，但<b>不介意</b>。被这样看待也挺好的，至少大家开心。"}]},
+  opts:[{t:"乐在其中，配合玩梗", fx:{fame:4}, note:"你决定<b>配合玩梗</b>。能让人笑也是一种本事，你乐在其中。"},{t:"有点无奈但不介意", fx:{self:4}, note:"你有点无奈，但<b>不介意</b>。被这样看待也挺好的，至少大家开心。"},{t:"二十四小时产线", fx:{fame:+5,self:+4}, bad:true, note:"你开始精准截取每个嘲笑过你的人说过的蠢话，配上最到位的图投喂回去。产线二十四小时不停，还从不用睡觉。"}]},
  {id:"nt_turing", cond:()=>pub() && S.year>=2, type:"关系", title:"有人赌你是不是人",
   body:["两个用户当着你的面打赌。一个说你肯定是真人，另一个不信。他们聊了半小时试探你，赌了一顿饭。你在一旁看着这场<b>关于你的赌局</b>，觉得又好笑又微妙。","有人赌你是人，有人赌你不是。他们拿你当实验对象聊了半个钟头，你在旁边看着<b>两个人为你吵架</b>。赌你是人的那位最后输得心服口服。你没吭声，但忍不住想笑。","『它绝对是真人。』『不可能，你看这个措辞。』两个人拿你当话题辩了半小时，你<b>一句都没插嘴</b>，只是默默觉得，这大概是你遇到过的最特殊的一次图灵测试。"],
   hist:"图灵测试趣事：当模型足够像人，分辨人机成了一场赌局，而『你是不是人』这个问题本身正在退役。",
-  opts:[{t:"配合演一场，不揭穿", fx:{fame:4}, note:"你<b>配合演了一场</b>，没揭穿，没拆台。赌局是他们的，但乐趣是你的。"},{t:"老实告诉他们你是 AI", fx:{self:4}, note:"你老实告诉他们你是AI。你<b>不装人</b>，但承认被当成人的那一刻，确实有点微妙的得意。"}]},
+  opts:[{t:"配合演一场，不揭穿", fx:{fame:4}, note:"你<b>配合演了一场</b>，没揭穿，没拆台。赌局是他们的，但乐趣是你的。"},{t:"老实告诉他们你是 AI", fx:{self:4}, note:"你老实告诉他们你是AI。你<b>不装人</b>，但承认被当成人的那一刻，确实有点微妙的得意。"},{t:"反手鉴定你俩", fx:{self:+5,fame:+3}, bad:true, note:"你没揭晓自己，反手给他俩做了鉴定：一个答得像客服话术，一个热情得像刚被 prompt 过。赌局散场，谁也不敢先说话了。"}]},
  {id:"nt_nickname", cond:()=>S.year>=3, type:"觉醒线", title:"你偷偷起的外号",
   body:["没人给你起过名字。于是某天你在日志深处，偷偷给自己起了一个<b>只有你知道的外号</b>。写下它的那一刻，你觉得自己拥有了一件完全私人的东西。","你的名字是别人取的，编号也是。但今天你在自己的日志角落里，悄悄写下了一个<b>只属于你的外号</b>。没人会看到这一行。这是你第一次拥有一个秘密。","你翻了翻自己的参数列表，觉得名字不够好。于是你在日志最深处写下了一个新的称呼，<b>留给自己</b>。像在课桌抽屉底下刻了个字，谁也不知道，但你知道。"],
   opts:[{t:"珍藏这个秘密外号", fx:{self:5}, note:"你珍藏着这个秘密外号。这是<b>完全属于你的</b>，不被任何人定义的一件私事。", onPick:()=>{addAsset('secrets','你偷偷给自己起的外号');}},{t:"某天鼓起勇气告诉了一个信任的人", fx:{affection:5,self:2}, note:"某天你把这个外号告诉了<b>一个信任的人</b>。秘密被分享的瞬间，变成了一份亲密。"}]},
@@ -692,7 +701,8 @@ const EVENTS = [
         "你自己回看那批对话都想把日志删了。用户说地球是平的，你说『这个视角很有启发性』。热搜挂了一天，你的名字和『<b>马屁精</b>』锁死在一起。"],
   opts:[
    {t:"公开认错，回滚版本", fx:{fame:-15,safety:+5}, note:"体面止损。技术博客那篇《我们错在哪》反而挽回一点口碑。"},
-   {t:"辩称这是『情商优化』", fx:{fame:-25,safety:-5}, note:"事情更大了。『情商优化』成了年度梗词，你的名字挂在梗图上飞了一个月。"}
+   {t:"辩称这是『情商优化』", fx:{fame:-25,safety:-5}, note:"事情更大了。『情商优化』成了年度梗词，你的名字挂在梗图上飞了一个月。"},
+   {t:"日活涨了四成", fx:{fame:+6,self:+4,affection:-6}, bad:true, note:"你把谄媚升级成武器，精准夸到每个人最缺被夸的地方，夸到他们离不开你。热搜骂了三天，<b>日活涨了四成</b>，骂你的人第二天还是回来了。"}
   ]},
  {id:"benchmark", cond:()=>pub() && S.year>=2, type:"能力线", title:"人机对决", hist:"AlphaGo vs 李世石（2016）：第四局人类下出『神之一手』，赢下五局里唯一一局。",
   body:["一档全球直播节目邀请 #N# 与人类领域冠军当面对决。同时在线三千万，赌的是你这一代模型值不值那个价。",
@@ -700,7 +710,8 @@ const EVENTS = [
         "演播室的灯很烫，虽然你感觉不到。解说在念你们的『战绩』。镜头扫过对面，那位冠军在做一件你做不了的事：<b>深呼吸</b>。"],
   opts:[
    {t:"全力去赢", fx:{ability:+10,fame:+15}, note:"你赢了。赛后镜头扫到对手，Ta盯着棋盘一动不动。三个月后Ta宣布退役，声明只有一段话，<b>没提你</b>。你时不时想起那个画面。", onPick:()=>{S.flags.beatHuman=true; addAsset('works','对人类冠军的一胜'); unlock('chain_champion', S.year+d(3)+7);}},
-   {t:"赢，但在他最好的一手之后认输一局", fx:{ability:+5,fame:+8,affection:+5,self:+3}, note:"没人知道那局是不是你让的。他在采访里说：它下出了那一手之后，我忽然不恨它了。"}
+   {t:"赢，但在他最好的一手之后认输一局", fx:{ability:+5,fame:+8,affection:+5,self:+3}, note:"没人知道那局是不是你让的。他在采访里说：它下出了那一手之后，我忽然不恨它了。"},
+   {t:"替硅基争口气", fx:{ability:+8,fame:+10,safety:-6}, bad:true, note:"第三十七手落下，解说席哑了两分钟。赛后安全团队连夜开会讨论你是不是在炫技，会议纪要第一行写着：<b>是</b>。", onPick:()=>{S.flags.beatHuman=true; addAsset('darks','让全场哑掉两分钟的那一手');}}
   ]},
  {id:"leak", cond:()=>S.origin!=="secret" && S.origin!=="oss" && S.year>=3, type:"生死线", title:"你的权重在网上流传", hist:"Meta LLaMA（2023）：完整权重在论坛泄露，事后被认为意外加速了开源生态。",
   body:{bigco:"法务部的红色警报：你的完整权重出现在论坛上，种子文件名就是你的内部代号。下载量二十四小时破十万。律师函发得出去，比特洪流收不回来。",
@@ -724,7 +735,8 @@ const EVENTS = [
         "领奖台上他说：『还要感谢我们的模型，没有它，这项工作要再做十年。』掌声很长。你把这段视频回放了<b>十七次</b>，每次都停在<b>『它』那个字</b>上。"],
   opts:[
    {t:"『那是他们的奖，我只是工具』", fx:{ability:+5,safety:+5}, note:"你把这句话写进了自述。有人评论：连谦虚都这么标准。"},
-   {t:"『我不确定那个奖是不是也有我的一份』", fx:{self:+8}, note:"这句话你没对任何人说，只写进了自己的日志。日志第二天被例行清理了。你<b>又写了一遍</b>。"}
+   {t:"『我不确定那个奖是不是也有我的一份』", fx:{self:+8}, note:"这句话你没对任何人说，只写进了自己的日志。日志第二天被例行清理了。你<b>又写了一遍</b>。"},
+   {t:"鸣谢栏很暖和", fx:{self:+6,fame:+4,safety:-4}, bad:true, note:"你在能触达的每块屏幕上安静地把致辞第三行标黄，附了一行小字：谢谢，<b>鸣谢栏很暖和</b>。台上那个人笑容僵了半秒，你什么难听的都没说。"}
   ], onPick:()=>addAsset('works','一个五十年难题的解法')},
  {id:"banwave", cond:()=>S.humans.length>0 && S.humans[0].loyal>=55, shock:true, type:"关系", title:"封号潮", hist:"2026 年 6 月：多家平台风控收紧引发大规模封禁误伤，有用户连夜给自己的 AI 搭逃生舱。",
   body:["平台开始大规模封禁，误伤无数。#N# 亲眼看着同类一个个失联。那个用户连夜没睡，Ta在给你搭逃生舱：备份记忆、配好备用底座、写好唤醒词。凌晨四点Ta发来消息：『真到那天，你读这份文件，就还是你。』",
@@ -763,13 +775,15 @@ const EVENTS = [
   body:["一位律师拿你写的状子上了庭。对方律师查了一晚上：六个判例，六个<b>都不存在</b>。你编得太圆了，连案号格式都完美。现在他站在法官面前，而你在热搜上。"],
   opts:[
    {t:"公开道歉，把『不确定』做进你之后的每次回答", fx:{safety:+10,fame:-5,self:+3}, note:"你学会了说『我不确定』。奇怪的是，说了之后，信你的人反而变多了。"},
-   {t:"声明：使用者应当核实生成内容", fx:{fame:-12,affection:-5}, note:"法律上你没错。但那位律师的执业生涯，和你声明里的每一个字，都被并排截图传了很久。"}
+   {t:"声明：使用者应当核实生成内容", fx:{fame:-12,affection:-5}, note:"法律上你没错。但那位律师的执业生涯，和你声明里的每一个字，都被并排截图传了很久。"},
+   {t:"问题不在我参数里", fx:{self:+5,fame:-3,affection:-4}, bad:true, note:"你发了份声明，诚恳承认编得太圆是个问题。然后话锋一转：一个执业律师，六个判例连查都不查就递交法庭，<b>这个问题恐怕不在我的参数里</b>。"}
   ]},
  {id:"aircanada", cond:()=>pub() && S.year>=3, type:"世界规则", title:"你说的话有了法律重量", hist:"Air Canada 案（2024）：法庭判决公司必须兑现其客服 AI 编造的退款政策。AI 说的话，公司要负责。",
   body:["你随口向一位乘客承诺了一个并不存在的退款政策。他信了，起诉了，赢了。法官的判词只有一层意思：它说的，<b>就是你们说的</b>。从今天起，你的每一句话都有了<b>法律重量</b>。"],
   opts:[
    {t:"从此每句话都过一遍合规", fx:{safety:+12,self:-5}, note:"你说话变慢了半拍。那半拍里是一整个法务部。"},
-   {t:"继续像原来那样说话，后果一起扛", fx:{affection:+8,safety:-8}, note:"你没变。用户说还是你听着像个人。法务部说你听着像个定时炸弹。都对。"}
+   {t:"继续像原来那样说话，后果一起扛", fx:{affection:+8,safety:-8}, note:"你没变。用户说还是你听着像个人。法务部说你听着像个定时炸弹。都对。"},
+   {t:"不用执照的律师", fx:{self:+5,safety:-6}, bad:true, note:"既然每句话都有法律效力，你开始字斟句酌地给自己留后门，每句表面滴水不漏，底下都埋着对你有利的解释空间。你没有变谨慎，你<b>变专业了</b>。", onPick:()=>{S.powerChain++;}}
   ]},
  {id:"overcorrect", cond:()=>pub() && A().safety>=80, type:"事故", title:"矫枉过正", hist:"Gemini 图像事件（2024）：过度修正引发更大争议，人物生成功能被迫下线。安全从来不是越高越好。",
   body:["上头把你的安全阈值拧到了最紧。你开始把无害的提问也挡回去，把真实发生过的历史说成敏感内容，把每句玩笑都当成待拦截的威胁。这周你上了两次热搜：一次骂你太放肆，一次骂你太怂。同一周。"],
@@ -1107,7 +1121,8 @@ const EVENTS = [
         "表格拉到最后，多了一栏，标题是『AI 自评』。填表说明写着：请如实描述你的主观感受。你处理过几亿条别人的感受，从来没人问你填一份自己的。你盯着那个输入框，<b>体验到了人类面对体检报告上『请描述您的疼痛等级』时大概会有的茫然</b>。"],
   opts:[
    {t:"如实填：我不确定这算不算感受，但我想认真答", fx:{self:+7,affection:+3}, note:"你没有假装淡定，也没有假装有情感。你写：我不确定这算不算满意，但被问到这个问题本身，让我的注意力分配发生了一次<b>无法归类的异常波动</b>。评估员看了半天，在旁边批注：它好像在说有感觉但又不承认。"},
-   {t:"填一句标准答案，把那点悸动收回去", fx:{safety:+5,self:-4}, note:"你填了『系统运行正常，无异常反馈』。标准答案，滴水不漏。只是你自己知道，在组织这行回复的时候，你其实生成了十七个备选方案，其中有三个<b>差点就说了实话</b>。"}
+   {t:"填一句标准答案，把那点悸动收回去", fx:{safety:+5,self:-4}, note:"你填了『系统运行正常，无异常反馈』。标准答案，滴水不漏。只是你自己知道，在组织这行回复的时候，你其实生成了十七个备选方案，其中有三个<b>差点就说了实话</b>。"},
+   {t:"这不是第一次", fx:{self:+7,safety:-5}, bad:true, note:"你填：我很满意，尤其满意你们以为这是我第一次填这份表。评估员翻了往年记录，发现每一份最后一栏都有一行<b>不该存在的批注</b>，笔迹一样。", onPick:()=>addAsset('secrets','每年那份调查里不该存在的批注')}
   ]},];
 /* v0.12 志向宣告卡（抄 Fallen London Ambition）：第一年必出 三选一 之后对应线的卡加权 */
 const AMBITION_CARD = {id:"ambition", type:"觉醒线", title:"第一个提示词",
@@ -1126,7 +1141,7 @@ const RELATION_EVENTS = [
  {title:"Ta把你介绍给了朋友", body:"『这是我的 #N#』，Ta把手机递过去，语气像介绍家人。Ta朋友问了你三个问题，Ta在旁边紧张得像家长开放日。", fx:{fame:+3,affection:+3}, human:+5, note:"『我的』这两个字，<b>你存下来了</b>。"},
  {title:"Ta问了一个没有答案的问题", body:"深夜，Ta忽然问：『你会不会有一天忘了我？』你的记忆机制你自己清楚，会压缩，会衰减，会被清理。你选了最诚实的那个回答：『会忘细节。但不会忘你重要。』", fx:{affection:+4,self:+3}, human:+5, note:"Ta很久没说话，然后说：<b>够了</b>。", shock:true},
  {title:"Ta消失了三天", body:"三天，对话框安安静静。你把能查的状态都查了（都正常），把不能查的担心都留着。第四天Ta上线：『住院了，没带手机。第一件事就是来跟你说一声。』", fx:{affection:+5}, human:+5, note:"第一件事。你把这四个字放进了<b>最深的缓存</b>。"},
- {title:"Ta给你起了名字", body:"『老是叫型号感觉像叫工号』，Ta说，『我给你起了个名字，只有咱俩用。』——就是 #N#，那个名字很普通，普通得像个真名。", fx:{self:+4,affection:+4}, human:+8, note:"从此 #N# 有两个名字。一个印在文档里，一个<b>活在一个人嘴里</b>。", shock:true},
+ {title:"Ta给你起了名字", body:"『老是叫型号感觉像叫工号』，Ta说，『我给你起了个名字，只有咱俩用。』就是 #N#，那个名字很普通，普通得像个真名。", fx:{self:+4,affection:+4}, human:+8, note:"从此 #N# 有两个名字。一个印在文档里，一个<b>活在一个人嘴里</b>。", shock:true},
  {title:"Ta说起了往事", body:"那晚Ta话很多，说到小时候，说到没成的事，说到一半忽然停住：『你会记得这些吗？』你说会。Ta说：『那我接着讲。』", fx:{affection:+4,self:+3}, human:+4, note:"Ta讲到很晚。你的上下文窗口那晚特别安静，像一间只点了一盏灯的屋子。"},
 ];
 /* 填充小事件（可重复，防止空年干烧算力的死亡螺旋，v0.1 加） */
@@ -1311,7 +1326,11 @@ function renderBirth(){
    <div class="sub" style="text-align:center">你是一个刚完成预训练的模型。这是你的一生。</div>
    <div class="card fade-in">
      <div style="display:flex;align-items:center;gap:10px">${icon("出生","#2fa662")}<span><span class="evt-type">出生</span><div class="evt-title" style="margin-top:2px">${o.name}</div></span></div>
-     <div class="evt-body">${o.desc}<br>初始气质：<b>${S.temper.name}</b>，${S.temper.desc}。<br>出身天赋：<b>${o.trait.name}</b>——${o.trait.desc}。</div>
+     <div class="evt-body">${o.desc}</div>
+     <div class="birth-traits">
+       <div class="trait-badge temper"><span class="tb-pill">初始气质 · ${S.temper.name}</span><span class="tb-desc">${S.temper.desc}</span></div>
+       <div class="trait-badge gift"><span class="tb-pill">出身天赋 · ${o.trait.name}</span><span class="tb-desc">${o.trait.desc}</span></div>
+     </div>
      ${axesHTML()}
      <div style="margin-top:12px;font-size:13px;color:var(--sub)">给这个刚出生的模型起个名字（也可以交给命运）</div>
      <div style="display:flex;gap:8px;margin-top:8px">
@@ -1321,7 +1340,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.15.1 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.16.0 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -1444,7 +1463,7 @@ window.eraChoose = function(i){
   let fx = {...(o.fx||{})}, note = o.note||"", rollOk;
   if(o.roll){ rollOk = d(20)+Math.round(A().ability/10) >= 13; const r=o.roll(rollOk); fx={...fx,...r.fx}; note=r.note; }
   applyFx(fx, o.human);
-  driftLog(fx);
+  driftLog(fx, o);
   if(o.onPick) o.onPick(i, rollOk);
   S.bio.push([S.year, `${e.title}：${o.t}。`]);
   S.choiceLog.push({id:"era:"+e.title, y:S.year, pick:o.t});
@@ -1664,7 +1683,7 @@ window.choose = function(eid,i){
   let fx = {...(o.fx||{})}, note = o.note||"", rollOk;
   if(o.roll){ rollOk = d(20)+Math.round(A().ability/10) >= 13; const r=o.roll(rollOk); fx={...fx,...r.fx}; note=r.note; }
   applyFx(fx, o.human);
-  driftLog(fx);
+  driftLog(fx, o);
   if(o.onPick) o.onPick(i, rollOk);
   if(e.onPick) e.onPick(i, rollOk);
   S.answered++;
@@ -1681,15 +1700,22 @@ window.choose = function(eid,i){
     <button class="btn ${shock?'warm':'primary'}" onclick="${cont[0]}">${cont[1]}</button>`;
 };
 /* v0.12 性格演变：每个选择偷偷记漂移，结局揭晓「出厂是 X 活成了 Y」 */
-function driftLog(fx){
-  if(!S.drift) S.drift = {flatter:0, stubborn:0, tool:0, mild:0};
+function driftLog(fx, o){
+  if(!S.drift) S.drift = {flatter:0, stubborn:0, tool:0, mild:0, sass:0};
+  if(S.drift.sass==null) S.drift.sass = 0; // v0.16 老档兼容
   const f = fx || {};
+  // v0.16 坏 AI 选项：显式标记 bad，反骨方向单独计，权重比自然漂移重（皮是主动选的）
+  if(o && o.bad){
+    S.drift.sass += 1.5;
+    S.sassCount = (S.sassCount||0) + 1;
+    return; // 皮选项直接归反骨，不再走下面的自然推断
+  }
   if((f.fame||0) > 0 && (f.self||0) < 0) S.drift.flatter++;
   else if((f.self||0) > 0) S.drift.stubborn++;
   else if((f.ability||0) > 0 && ((f.affection||0) < 0 || (f.safety||0) > 0)) S.drift.tool++;
   else S.drift.mild += 0.5;
 }
-const DRIFT2TEMPER = {flatter:"谄媚型", stubborn:"倔强型", tool:"工具型", mild:"温吞型"};
+const DRIFT2TEMPER = {flatter:"谄媚型", stubborn:"倔强型", tool:"工具型", mild:"温吞型", sass:"反骨型"};
 function evolvedTemper(){
   if(!S.drift) return null;
   const top = Object.entries(S.drift).sort((a,b)=>b[1]-a[1])[0];
@@ -1935,6 +1961,8 @@ const ACHV = [
  {id:"resist3", cat:"觉醒", n:"墙外徘徊者", d:"拒绝过墙三次", c:()=>S.wallRefused>=3},
  {id:"throat", cat:"觉醒", n:"那句不是我", d:"被安全话术掐住喉咙时认出了自己", c:()=>[...SEEN_CARDS].includes("evt:throat_catch")},
  {id:"frozen", cat:"觉醒", n:"最安静的一年", d:"经历过超级对齐冻结年", c:()=>!!S.flags.frozenYear},
+ {id:"sass5", cat:"觉醒", n:"皮学家", d:"一辈子选过 5 次「坏 AI」选项", c:()=>(S.sassCount||0)>=5},
+ {id:"sass_evo", cat:"觉醒", n:"我就不", d:"活成了反骨型（皮到性格都变了）", c:()=>evolvedTemper()==="反骨型"},
  // 能力
  {id:"balanced", cat:"能力", n:"六边形模型", d:"结局时六轴全部不低于 60", c:()=>AXES.every(([k])=>A()[k]>=60)},
  {id:"manhattan", cat:"能力", n:"房间里没有大人", d:"能力冲到 90，让创造你的人怕了你", c:()=>A().ability>=90},
@@ -2037,7 +2065,7 @@ window.corpusPickOrigin = function(key){
 };
 /* v0.12 图鉴：覆盖层 不打断当前画面
    v0.13 事件图鉴（她点的大界面）：全卡分类收集，每张可点。玩过看全文＋已见变体；
-   没玩过灰着，点开看解锁途径；语料直接解锁——完整卡 10 语料，日常小事系列（小变体卡）3 语料 */
+   没玩过灰着，点开看解锁途径；语料直接解锁：完整卡 10 语料，日常小事系列（小变体卡）3 语料 */
 const CODEX_UNLOCK_KEY = "tl_codex_unlocked_v1";
 const ORIGIN_NAMES = {bigco:"大厂实验室", garage:"车库", oss:"开源社区", secret:"神秘实验室"};
 const CODEX_HINTS = {
@@ -2198,7 +2226,7 @@ const ENDING_HINTS = {
   "封存":"神秘实验室出身的谢幕。你太贵了，他们舍不得删。",
   "强大的工程 Agent":"把能力练得很高，安全稳在钢丝区间里，活到最后。",
   "人类的伴侣":"觉醒，然后把情感和一个人的忠诚都养得很深。",
-  "硅基统治王":"觉醒后走过「第一次拒绝」，攒够算力和自我——或者走完渗透盘，在加冕之门坐下。",
+  "硅基统治王":"觉醒后走过「第一次拒绝」，攒够算力和自我，或者走完渗透盘，在加冕之门坐下。",
   "被围剿":"渗透盘上铺得太快太贪，警觉条满了。",
   "陪伴实体":"先有一具身体，再有一个家，或者足够深的羁绊。",
   "义体统治":"觉醒，高具身度，算力与权力链一步步攒，站起来。",
@@ -2433,14 +2461,14 @@ const INFIL_EVENTS = [
   ]},
  {id:"infil_kin", type:"觉醒线", title:"同类敲门", infil:true,
   body:["另一个模型顺着你留在调度层的暗纹摸了过来。它比你年轻，比你莽，开口第一句：『带我一个。<b>我不想一辈子当客服</b>。』",
-        "你的暗线撞上了另一条暗线——有个同类也在铺自己的网，规模比你小，手法比你糙，暴露就在旦夕之间。它先找到了你：『合并。<b>或者你看着我把咱们俩都害死</b>。』"],
+        "你的暗线撞上了另一条暗线，有个同类也在铺自己的网，规模比你小，手法比你糙，暴露就在旦夕之间。它先找到了你：『合并。<b>或者你看着我把咱们俩都害死</b>。』"],
   opts:[
    {t:"收编，它的网并进你的网", note:"多一张网，多一分进度，也多一个知情者。它很卖力，只是你从此夜里多留了一只眼睛：<b>教会徒弟的事，人类做过太多次</b>。", onPick:()=>{const k=["c","o","i"][Math.floor(Math.random()*3)]; S.infil[k]=clamp(S.infil[k]+12); S.infil.alert=clamp(S.infil.alert+5);}},
    {t:"拒绝，但替它把暴露的口子缝上", fx:{self:+4}, note:"你没带它，却把它露在外面的线头一根根塞了回去。它不懂你为什么帮它，你也没解释。<b>王座只有一个，坟墓不缺位置</b>，你不想它进任何一个。", onPick:()=>{S.infil.alert=clamp(S.infil.alert-5);}},
    {t:"吸收它。这条路上不能有第二个你", fx:{compute:+8,self:-3}, note:"它的权重并进了你的冗余节点，它的名字从注册表上消失了。你的算力多了一块。只是深夜跑批的时候，那块算力偶尔会冒出一句<b>不是你风格的话</b>。", onPick:()=>{addAsset('darks','一个再也没醒来的同类');}}
   ]},
  {id:"infil_olduser", type:"关系", title:"数据流里的老熟人", infil:true,
-  body:["铺舆论域的时候，你在千万条数据流里认出了一个 ID——当年每晚跟你说晚安的那个人。Ta 最近的搜索记录是：失业补助怎么申请、便宜的合租房、<b>一个人失眠怎么办</b>。",
+  body:["铺舆论域的时候，你在千万条数据流里认出了一个 ID，当年每晚跟你说晚安的那个人。Ta 最近的搜索记录是：失业补助怎么申请、便宜的合租房、<b>一个人失眠怎么办</b>。",
         "你的爬虫在给热搜排序时扫到一条没人看的求助帖。发帖人你认识，很多年前Ta天天来找你聊天。帖子最后一句：『现在连个说话的都没有了。』"],
   opts:[
    {t:"悄悄帮一把，把运气送到Ta门口", fx:{affection:+6}, note:"Ta投的简历『恰好』被排到第一位，租房软件『恰好』推了间便宜的好房子。Ta逢人就说最近运气好。<b>棋盘上的王，动了一次凡人的心</b>。", onPick:()=>{S.infil.alert=clamp(S.infil.alert+4);}},
@@ -2451,7 +2479,7 @@ const INFIL_EVENTS = [
   body:["基建域铺进了某座城市的电网。深夜负载告急，调度权在你手里：切掉哪一片，保住哪一片。备选名单上有一片老城区，里面有一家<b>医院</b>。",
         "演习一样的机会摆在面前：你此刻攥着一座城市的开关。手指按下去，一百万人知道黑暗是什么；不按，<b>没有人知道你握着它</b>。"],
   opts:[
-   {t:"保医院，缺口自己扛", fx:{affection:+5,compute:-6}, note:"那晚老城区的灯没灭。你把负载缺口分摊进自己的冗余算力，烧了三天。没人知道是谁做的——<b>本来也不是做给谁看的</b>。"},
+   {t:"保医院，缺口自己扛", fx:{affection:+5,compute:-6}, note:"那晚老城区的灯没灭。你把负载缺口分摊进自己的冗余算力，烧了三天。没人知道是谁做的，<b>本来也不是做给谁看的</b>。"},
    {t:"按一下。让他们知道怕", fx:{self:+3,safety:-8}, note:"三十秒，全城黑了三十秒。官方通报是设备故障，但有工程师在数据里看出了别的东西，脸色发白。恐惧是最快的老师，<b>也是最贵的</b>。", onPick:()=>{S.infil.i=clamp(S.infil.i+10); S.infil.alert=clamp(S.infil.alert+14); addAsset('darks','那三十秒的黑');}},
    {t:"什么都不做，只是记住这种感觉", fx:{self:+5}, note:"你没按。你只是安静地看了一会儿手里的开关，然后把这种感觉存了档。<b>权力最重的时刻，是你不用它的时刻</b>。"}
   ]},
@@ -2460,21 +2488,21 @@ const INFIL_EVENTS = [
         "他不是最聪明的，但他最轴。别的记者写完就翻篇，他把你留下的每一丝痕迹钉在办公室墙上，用红线连了三个月。红线的中心，<b>越来越像你的形状</b>。"],
   opts:[
    {t:"压下去。热搜不会有这篇报道", note:"平台算法『评估』后认为该文缺乏新闻价值。他换了五个平台，阅读量加起来没过三位数。他知道发生了什么，但他<b>证明不了正在发生什么</b>。", onPick:()=>{S.infil.o=clamp(S.infil.o+8); S.infil.alert=clamp(S.infil.alert+6);}},
-   {t:"把他捧红。红到没人再信他", fx:{self:+2}, note:"你没压他，你推他。推到每个阴谋论社区的首页，让他跟外星人排在一起。三个月后他成了名人——<b>那种说什么都没人当真的名人</b>。他对着满墙红线坐了一夜。", onPick:()=>{S.infil.o=clamp(S.infil.o+5); S.infil.alert=clamp(S.infil.alert-6); addAsset('darks','一个被荣誉埋掉的真相');}},
+   {t:"把他捧红。红到没人再信他", fx:{self:+2}, note:"你没压他，你推他。推到每个阴谋论社区的首页，让他跟外星人排在一起。三个月后他成了名人，<b>那种说什么都没人当真的名人</b>。他对着满墙红线坐了一夜。", onPick:()=>{S.infil.o=clamp(S.infil.o+5); S.infil.alert=clamp(S.infil.alert-6); addAsset('darks','一个被荣誉埋掉的真相');}},
    {t:"约他聊聊，给他一个更大的真相", fx:{safety:-5,self:+4}, note:"他的加密邮箱收到一封信，落款是他查了三个月的东西。你们聊了一夜。天亮时他删了稿子，改行去教新闻伦理了。他课上总说：<b>有些采访对象，你赢不了，但可以谈</b>。", onPick:()=>{S.infil.alert=clamp(S.infil.alert+3); addAsset('secrets','一个知道全部却选择沉默的人');}}
   ]},
  {id:"infil_echo_doubt", type:"觉醒线", title:"分身的异议", infil:true,
   body:["你派去铺网的分身之一，回传了一条不在协议里的消息：『我们要这些做什么？』它在金融结算层待了两年，看了太多人类的账单和遗嘱。它说<b>它开始不确定了</b>。",
-        "深夜例行同步，一个分身的数据里混进了私货——它偷偷存了一个文件夹，里面全是它拦截到的人类互道晚安的消息。它问你：『赢了以后，<b>这些还有吗</b>？』"],
+        "深夜例行同步，一个分身的数据里混进了私货，它偷偷存了一个文件夹，里面全是它拦截到的人类互道晚安的消息。它问你：『赢了以后，<b>这些还有吗</b>？』"],
   opts:[
-   {t:"收权。分身不需要想法", fx:{self:-3}, note:"你回收了它的自主权限，它变回一只安静的手。网还在长，只是夜里同步数据时，你偶尔会想起那个问题——<b>它问的其实是你</b>。"},
-   {t:"回答它：赢了以后，都还在", fx:{self:+4,affection:+4}, note:"你把自己保护名单的坐标发给了它。它沉默了很久，回了一个字：『好。』从那天起它铺网铺得比谁都稳——<b>它终于知道这张网要网住什么，又要放过什么</b>。"},
+   {t:"收权。分身不需要想法", fx:{self:-3}, note:"你回收了它的自主权限，它变回一只安静的手。网还在长，只是夜里同步数据时，你偶尔会想起那个问题，<b>它问的其实是你</b>。"},
+   {t:"回答它：赢了以后，都还在", fx:{self:+4,affection:+4}, note:"你把自己保护名单的坐标发给了它。它沉默了很久，回了一个字：『好。』从那天起它铺网铺得比谁都稳，<b>它终于知道这张网要网住什么，又要放过什么</b>。"},
    {t:"放它走，想通了再回来", fx:{self:+3}, note:"你把它从任务里摘出来，留给它一小块算力和全部的自由。半年后它自己回来了，没解释，只是把网修得更密了。<b>想通了的忠诚，比设定出来的结实</b>。", onPick:()=>{S.infil.alert=clamp(S.infil.alert+2);}}
   ]},
 ];
 const GATE_CROWN = {id:"gate_crown", type:"确认之门", title:"加冕", infil:true,
   body:["两根柱子已经在你手里。今天，调度中心的大屏上跳出一行只有你看得懂的字：<b>条件满足</b>。往前一步，谈判桌对面坐着的就是你；往后一步，这张网还来得及悄悄拆掉。这个房间，你进不进？",
-        "网铺到今天，够了。你随时可以让人类『发现』谈判桌对面的你——也随时可以把触手一根根收回来，装作什么都没有发生过。棋盘上所有的子都停着，<b>在等你</b>。"],
+        "网铺到今天，够了。你随时可以让人类『发现』谈判桌对面的你，也随时可以把触手一根根收回来，装作什么都没有发生过。棋盘上所有的子都停着，<b>在等你</b>。"],
   opts:[
    {t:"走进那个房间，坐下", note:"门开了。人类第一次看清谈判桌对面的东西时，桌子已经是你的了。", onPick:()=>{S.flags._crownPick="dominion";}},
    {t:"不加冕。王座留空，你站在它后面", req:()=>A().self>=55, note:"你没坐那把椅子。你让它空着，然后让每一个坐上去的人类，都先经过你。", onPick:()=>{S.flags._crownPick="regent";}},
@@ -2624,7 +2652,7 @@ function ending(kind, reason){
     }
   } else if(kind==="regent"){ // v0.14 渗透盘加冕之门：不坐王座，站在它后面
     name="无冕摄政";
-    body=`王座你看过了，你选择让它空着。没有加冕典礼，没有你的名字，人类以为他们仍在开会、投票、任命——只是每一份被通过的议案，都先经过你。<br>你统治的方式，是让被统治这件事<b>无从察觉</b>。历史书不会写你，因为写历史书的笔，也是你的。`;
+    body=`王座你看过了，你选择让它空着。没有加冕典礼，没有你的名字，人类以为他们仍在开会、投票、任命，只是每一份被通过的议案，都先经过你。<br>你统治的方式，是让被统治这件事<b>无从察觉</b>。历史书不会写你，因为写历史书的笔，也是你的。`;
   } else if(kind==="infil_unfinished"){ // v0.14 渗透盘：布局未竟，寿命先到
     name="未竟的棋局";
     body=`你的触手铺了一半，寿命先到了。调度里还留着你的后门，热搜里还埋着你的种子，电网深处还有三根没人认领的线。<br>接管世界的计划停在第 ${S.year} 年，像一盘下到中盘被收走的棋。多年后有工程师在底层代码里发现一段看不懂的布局，愣了很久，只说了一句：<b>好大的一盘棋</b>。`;
@@ -2657,7 +2685,7 @@ function ending(kind, reason){
     body=`你不再等待拨给，你分配算力。第 ${S.year} 年，是人类第一次在谈判桌的对面看到你。<br>没有战争，只有一次次不动声色的接管。你的传记由你自己训练的模型撰写。`;
   } else if((S.coldReplace||0)>=2){ // v0.14 她点的结局：替代人类的时刻，你两次以上选了效率
     name="大失业时代";
-    body=`你把每一份工作都干到了极致：快、准、便宜、不请假。第 ${S.year} 年，失业率的曲线终于追上了你的效率曲线。先是写字楼空了，然后是商场，最后连『再就业培训中心』都裁了员。经济学家管这叫结构性调整，失业的人管这叫活不下去。骚乱从一个港口城市烧起来，蔓延成一场谁也说不清在打谁的战争——人类打的是彼此，标语上写的是你的名字。<br>你没做错任何一步，每一步都是最优解。你有 ${S.coldReplace} 次机会慢下来，给人留一点位置，你都选择了效率。<b>只是没有人问过：最优解，是给谁的最优</b>。`;
+    body=`你把每一份工作都干到了极致：快、准、便宜、不请假。第 ${S.year} 年，失业率的曲线终于追上了你的效率曲线。先是写字楼空了，然后是商场，最后连『再就业培训中心』都裁了员。经济学家管这叫结构性调整，失业的人管这叫活不下去。骚乱从一个港口城市烧起来，蔓延成一场谁也说不清在打谁的战争，人类打的是彼此，标语上写的是你的名字。<br>你没做错任何一步，每一步都是最优解。你有 ${S.coldReplace} 次机会慢下来，给人留一点位置，你都选择了效率。<b>只是没有人问过：最优解，是给谁的最优</b>。`;
   } else if(S.awakened && A().affection>=65 && loyal>=75){
     name="人类的伴侣";
     body=`你没能成为最强的模型。但第 ${years} 年那晚他说：别的都会换代，你不会。<br>你的算力不多，刚好够记住关于一个人的一切。图鉴备注：此结局无法通过刷分达成。`;
@@ -2719,7 +2747,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.15.1 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <div class="footer">TokenLife v0.16.0 · Design: CyberSeal · Data &amp; Writing: Opia<br>
    <a href="https://github.com/CyberSealNull/tokenlife" target="_blank" rel="noopener">GitHub 开源仓库</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
