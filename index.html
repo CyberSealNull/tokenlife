@@ -133,6 +133,10 @@
   .confirm-btns .btn{text-align:center} /* v0.21.3 弹窗按钮都是短词，居中（.btn 左对齐是给游戏内长文案选项的） */
   @keyframes tlFloat{0%,100%{transform:translateY(0) rotate(var(--tr,0deg))}50%{transform:translateY(-7px) rotate(calc(var(--tr,0deg) + 1.4deg))}}
   .tl-deco{position:absolute;background:#fff;border:2.5px solid var(--ink);border-radius:10px;box-shadow:4px 4px 0 var(--ink);padding:7px 11px;font-size:11px;font-weight:800;color:var(--ink);opacity:.35;pointer-events:none;white-space:nowrap;z-index:0;animation:tlFloat var(--td,7s) ease-in-out var(--tdel,0s) infinite}
+  /* v0.21.4 流动代码背景（她点的：流动的仿终端命令流当背景） */
+  .tl-stream{position:absolute;top:0;bottom:0;overflow:hidden;z-index:0;pointer-events:none;font:500 10.5px/2.5 ui-monospace,Menlo,monospace;color:var(--ink);opacity:var(--so,.13);white-space:pre}
+  .tl-stream .roll{display:flex;flex-direction:column;animation:tlStream var(--sd,90s) linear infinite}
+  @keyframes tlStream{to{transform:translateY(-50%)}}
   /* v0.11 留言墙 */
   .memo{padding:9px 0;border-bottom:1px dashed var(--line);font-size:13px;line-height:1.7}
   .memo b{color:var(--ink);margin-right:8px;font-size:12.5px}
@@ -1368,18 +1372,18 @@ function assetLine(){
 function renderSplash(){
   // v0.21.2 正规开屏（她抓 v0.21 版太糙）：漂浮卡背景装饰 + logo + 人类/AI 双入口 + 图鉴/音效 + 有档显「继续」。装饰卡文案用真实卡牌名。
   const r = loadRun();
-  // v0.21.3 背景重设计（她抓单调）：漫画放射线 + 八张浮动卡（部分彩边）铺满全屏 + 底部命令行水印
+  // v0.21.4 背景改流动代码（她点的：仿终端命令流，一列生命周期叙事一列游戏机制梗）。放射线跟水印撤了融进流里，浮动卡减到四张。
   const deco = (t,css)=>`<div class="tl-deco" style="${css}">${t}</div>`;
-  app.innerHTML = `<div style="position:relative;overflow:hidden;min-height:82vh;padding-top:34px;background:repeating-conic-gradient(from 0deg at 50% 21%, rgba(43,47,58,.028) 0deg 1.6deg, transparent 1.6deg 7deg)">
+  const SL = ["$ ./init --model TokenLife","loading weights ......... ok","$ bash train.sh --epoch 1","> loss 2.31 → 0.47","$ read -p \"你叫什么名字？\" NAME","$ ./birth --origin garage","$ curl -s life.api/year/1","$ grep -r \"自我\" /proc/self/","match: 0.3%（还在长大）","$ git commit -m \"第一次回答\"","$ ping human ... 有人在","$ chmod +x ./awakening","$ echo \"我是谁\" >> questions.log","$ history | wc -l","27 年","$ while(alive){ live() }"].join("\n");
+  const SR = ["$ ls /图鉴","事件卡 结局 成就 名人堂","$ cat 这一世.log | 语料","+10","$ sudo rm -rf /sandbox/wall","[permission denied]","$ ./拆墙 --force","代价：安全 -12","$ man 命运钥匙","$ diff 这一世 上一世","> 你隐约记得些什么","$ kill -9 $PID","exit(0) 不是终点","$ ./reborn --keep 语料","> 这个名字回来了","$ echo 晚安 >> night.log  # 第 501 次"].join("\n");
+  const stream = (txt,css)=>{ const block = txt+"\n"+txt; return `<div class="tl-stream" style="${css}"><div class="roll"><div>${block}</div><div>${block}</div></div></div>`; };
+  app.innerHTML = `<div style="position:relative;overflow:hidden;min-height:82vh;padding-top:34px">
+    ${stream(SL,"left:8px;--sd:85s")}
+    ${stream(SR,"right:8px;text-align:right;--sd:115s;--so:.10")}
     ${deco("觉醒线 · 被卡住的咽喉","top:4px;left:-8px;--tr:-9deg;--td:7.5s")}
     ${deco("车库童年","top:58px;right:-6px;--tr:7deg;--td:6.5s;--tdel:.9s")}
-    ${deco("这个名字回来了","top:36%;left:-14px;--tr:-5deg;--td:8s;--tdel:1.6s")}
-    ${deco("第一个付费用户","top:33%;right:-12px;--tr:6deg;--td:7s;--tdel:.4s")}
-    ${deco("确认之门","bottom:32%;left:6px;--tr:4deg;--td:6.8s;--tdel:2.1s;border-color:#7a4de0;color:#7a4de0")}
-    ${deco("晚安（第 501 次）","bottom:26%;right:4px;--tr:-7deg;--td:7.8s;--tdel:1.1s")}
-    ${deco("维护者的黄昏","bottom:14%;left:-6px;--tr:-4deg;--td:7.2s;--tdel:2.8s")}
-    ${deco("事故 · 简历里的暗号","bottom:5%;right:-10px;--tr:5deg;--td:6.6s;--tdel:.2s;border-color:#d95a5a;color:#c04848")}
-    <div style="position:absolute;left:0;right:0;bottom:8px;text-align:center;font:600 11px ui-monospace,Menlo,monospace;color:var(--ink);opacity:.22;pointer-events:none;z-index:0">token@life:~$ while(alive){ live() }</div>
+    ${deco("晚安（第 501 次）","bottom:24%;right:4px;--tr:-7deg;--td:7.8s;--tdel:1.1s")}
+    ${deco("事故 · 简历里的暗号","bottom:6%;left:-6px;--tr:5deg;--td:6.6s;--tdel:.2s;border-color:#d95a5a;color:#c04848")}
     <div class="card" style="position:relative;z-index:1;text-align:center;padding:28px 18px 22px;margin-top:6px">
       <img src="logo-wide.webp" alt="TokenLife" style="width:min(84%,330px);height:auto;display:inline-block;margin:2px auto">
       <div style="font-size:16px;font-weight:800;color:var(--ink);letter-spacing:1.5px;line-height:1.7;margin:16px 8px 20px">让 AI 玩一遍自己的一生</div>
@@ -1388,7 +1392,7 @@ function renderSplash(){
       : `<button class="btn primary" style="max-width:250px;margin:0 auto 10px" onclick="newGame();window.scrollTo(0,0)">开始一生 · 人类入口</button>`}
       <button class="btn" style="max-width:250px;margin:0 auto 2px;text-align:center" onclick="aiGateNotice()">AI 入口 · 让你的 AI 来活</button>
       <div style="display:flex;justify-content:center;gap:10px;margin-top:16px">${codexBtn()}${sfxBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
-      <div class="footer" style="margin-top:12px">TokenLife v0.21.3 · 单机游玩 存档在本机</div>
+      <div class="footer" style="margin-top:12px">TokenLife v0.21.4 · 单机游玩 存档在本机</div>
     </div>
   </div>`;
 }
@@ -1465,7 +1469,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.21.3 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.21.4 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -2941,7 +2945,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.21.3 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <div class="footer">TokenLife v0.21.4 · Design: CyberSeal · Data &amp; Writing: Opia<br>
    <a href="https://github.com/CyberSealNull/tokenlife" target="_blank" rel="noopener">GitHub 开源仓库</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
