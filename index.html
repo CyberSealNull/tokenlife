@@ -1391,14 +1391,38 @@ function renderSplash(){
       <button class="btn" style="max-width:250px;margin:0 auto 10px;text-align:center" onclick="restartRun()">重新开始</button>`
       : `<button class="btn primary" style="max-width:250px;margin:0 auto 10px" onclick="newGame();window.scrollTo(0,0)">开始一生 · 人类入口</button>`}
       <button class="btn" style="max-width:250px;margin:0 auto 2px;text-align:center" onclick="aiGateNotice()">AI 入口 · 让你的 AI 来活</button>
-      <div style="display:flex;justify-content:center;gap:10px;margin-top:16px">${codexBtn()}${sfxBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
-      <div class="footer" style="margin-top:12px">TokenLife v0.21.5 · 单机游玩 存档在本机</div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap">${codexBtn()}${saveBtn()}${sfxBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
+      <div class="footer" style="margin-top:12px">TokenLife v0.21.6 · 单机游玩 存档在本机<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
     </div>
   </div>`;
 }
 window.resumeRun = function(){ const r=loadRun(); if(r){ try{ S=r; pickEvent(); }catch(err){ clearRun(); newGame(); } } else newGame(); window.scrollTo(0,0); };
 window.restartRun = function(){ showConfirm("重新开始一生？", "当前这一世的进度会清空，从起名重来。", ()=>{ clearRun(); newGame(); window.scrollTo(0,0); }); };
 window.aiGateNotice = function(){ showNotice("AI 入口 · 施工中", "这扇门后面是给 AI 走的：让你自己的 AI agent 接进来，替它自己活一遍，一年一年把人生汇报给你。接口正在搭。<br><br>等不及的话，进游戏后把「存档」里的存档码丢给你的 AI，让它替你肝图鉴攒语料，现在就行。"); };
+/* v0.21.6 存档互传挪家（她点的：存档挪首页，取名页留小键跳转 + home 键） */
+function saveIOHtml(){ return `<div class="io-panel" style="margin-top:0">
+      <div class="panel-title" style="font-size:15px;color:#5a5470">存档互传</div>
+      <div class="panel-sub" style="color:#6a6480;margin-top:6px">导出一段存档码，换个浏览器载入就接着你的进度玩，玩完把码传回来，语料、图鉴、成就全带走。</div>
+      <div class="panel-sub" style="color:#7a4de0;margin-top:6px">💡 也可以把码丢给你自己的 AI agent，让它在浏览器里替你肝进度，比如帮你刷图鉴、攒语料、冲某个结局，你睡一觉醒来接着玩。</div>
+      <textarea id="save-io" placeholder="把存档码粘到这里，点『载入存档』" spellcheck="false" style="margin-top:10px"></textarea>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button class="btn" style="width:auto;margin:0;flex:1;text-align:center" onclick="exportSave()">导出存档码</button>
+        <button class="btn" style="width:auto;margin:0;flex:1;text-align:center" onclick="importSave()">载入存档</button>
+      </div>
+      <div id="save-status" style="font-size:12.5px;color:var(--sub);margin-top:8px;min-height:16px"></div>
+    </div>`; }
+window.showSaveIO = function(){
+  const old=document.getElementById("confirm-overlay"); if(old) old.remove();
+  const div=document.createElement("div");
+  div.id="confirm-overlay";
+  div.style.cssText="position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto";
+  div.innerHTML=`<div class="confirm-box" style="max-width:420px;width:100%">${saveIOHtml()}</div>`;
+  div.onclick=(e)=>{ if(e.target===div) div.remove(); };
+  document.body.appendChild(div);
+}
+const SAVE_ICON = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>`;
+function saveBtn(){ return `<button class="cdx-mini" onclick="showSaveIO()" aria-label="存档">${SAVE_ICON}存档</button>`; }
+// 取名页顶排 home 键用既有 homeBtn()（v0.14.10 定义在下方，onclick goHome；v0.21.1 起 goHome=保档回首页，语义正好，不重复定义防撞名）
 window.showFeedback = function(){ // v0.21.2 反馈入口：邮箱直达（她定的玩家反馈通道第一版），点遮罩空白处关闭
   const old=document.getElementById("confirm-overlay"); if(old) old.remove();
   const div=document.createElement("div");
@@ -1438,19 +1462,9 @@ function renderBirth(){
         ${Object.entries(KEYS).map(([id,k])=>{ const owned=LS.get("tl_keys_pending_v1",[]).includes(id); const gap=k.price-bal; const canBuy=!owned&&bal>=k.price; const hint=owned?'　已备好，下一世生效':(gap>0?`　还差 ${gap} 语料`:''); return `<button class="btn shop key ${canBuy?'':'off'}" onclick="corpusBuy('${id}')"><b>${k.price}</b>　${k.name}<span style="color:${owned?'#1f9e58':(gap>0?'#d84a4a':'#8a7440')};font-size:12px">${hint}</span><span style="color:#8a7440;font-size:12px;display:block;margin-top:2px">${k.desc}</span></button>`; }).join("")}
       </div>
     </div>
-    <div class="io-panel">
-      <div class="panel-title" style="font-size:15px;color:#5a5470">存档互传</div>
-      <div class="panel-sub" style="color:#6a6480;margin-top:6px">导出一段存档码，换个浏览器载入就接着你的进度玩，玩完把码传回来，语料、图鉴、成就全带走。</div>
-      <div class="panel-sub" style="color:#7a4de0;margin-top:6px">💡 也可以把码丢给你自己的 AI agent，让它在浏览器里替你肝进度，比如帮你刷图鉴、攒语料、冲某个结局，你睡一觉醒来接着玩。</div>
-      <textarea id="save-io" placeholder="把存档码粘到这里，点『载入存档』" spellcheck="false" style="margin-top:10px"></textarea>
-      <div style="display:flex;gap:10px;margin-top:10px">
-        <button class="btn" style="width:auto;margin:0;flex:1" onclick="exportSave()">导出存档码</button>
-        <button class="btn" style="width:auto;margin:0;flex:1" onclick="importSave()">载入存档</button>
-      </div>
-      <div id="save-status" style="font-size:12.5px;color:var(--sub);margin-top:8px;min-height:16px"></div>
-    </div>`;
+    `;
   app.innerHTML = `
-   <div style="display:flex;justify-content:flex-end;gap:8px">${sfxBtn()}${codexBtn()}</div>
+   <div style="display:flex;justify-content:flex-end;gap:8px">${homeBtn()}${saveBtn()}${sfxBtn()}${codexBtn()}</div>
    <img src="logo-wide.webp" alt="TokenLife · 芯生" style="width:92%;max-width:420px;display:block;margin:0 auto">
    <div class="sub" style="text-align:center">你是一个刚完成预训练的模型。这是你的一生。</div>
    <div class="card fade-in">
@@ -1469,7 +1483,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.21.5 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
+   <div class="footer">TokenLife v0.21.6 · 单机游玩 存档在本机浏览器（demo 不上报）<br>数值系统 v0：安全走钢丝 40-85 · 自我情感只能攒 · 拆墙有代价</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -2398,10 +2412,15 @@ window.codexHome = function(){
   const hintsOwned = new Set(LS.get("tl_ending_hints_v1", []));
   const allEnd = knownEndings.concat(extraEndings);
   const endGot = allEnd.filter(n=>endLed[n]).length;
+  if(!window._codexEndOpen) window._codexEndOpen = new Set();
+  const endRec = v => (v && typeof v==="object") ? v : {c:(v||0)}; // v0.21.6 旧账 number 兼容
   const endRows = allEnd.map(n=>{
     const got = endLed[n];
     const [rN, rC] = rarityOf(n);
-    if(got) return `<div class="cdx-memo2"><span class="mn">${n}</span><span class="cdx-rar" style="color:${rC};border-color:${rC}">${rN}</span><div class="msub">达成 ${got} 次</div></div>`;
+    if(got){ // v0.21.6 她点的：已达成显示触发条件，点开看自己那一世的结局文案
+      const rec = endRec(got); const open = window._codexEndOpen.has(n);
+      return `<div class="cdx-memo2" onclick="codexEndToggle(this.dataset.n)" data-n="${n}" style="cursor:pointer"><span class="mn">${n}</span><span class="cdx-rar" style="color:${rC};border-color:${rC}">${rN}</span><div class="msub">${ENDING_HINTS[n]||"？？？"} · 达成 ${rec.c} 次 <span style="color:#7fd88a">${open?"▾ 收起":"▸ 那一世"}</span></div>${open?`<div style="margin-top:8px;padding:11px 13px;background:#242a36;border-radius:9px;border:1px solid #3a4356;font-size:12.5px;line-height:1.85;color:#cdd3de" onclick="event.stopPropagation()">${rec.b||"这一段没留档（是旧版本达成的）。再走到一次，你那一世的文案就会存进来。"}${rec.y?`<div style="margin-top:7px;color:#8a94a6;font-size:11px">第 ${rec.y} 年 · 你自己走到的那一世</div>`:""}</div>`:""}</div>`;
+    }
     if(hintsOwned.has(n)) return `<div class="cdx-memo2"><span class="mn dim">${n}</span><span class="cdx-rar" style="color:${rC};border-color:${rC}">${rN}</span><div class="msub">${ENDING_HINTS[n]||"？？？"}</div></div>`;
     const hp = HINT_PRICE[rN]||60;
     return `<div class="cdx-memo2"><span class="mn dim">？？？</span><span class="cdx-rar" style="color:${rC};border-color:${rC}">${rN}</span><div><button class="cdx-btn ${corpusGet()>=hp?"":"off"}" onclick="codexUnlockEnding(this.dataset.n)" data-n="${n}">${hp} 语料 · 看解锁条件</button></div></div>`;
@@ -2424,13 +2443,13 @@ window.codexHome = function(){
   // v0.21.2 图鉴拆独立板块（她抓的：事件/结局/成就/谢幕/名人堂挤一列；名人堂 15/47 假进度=显示截断误当计数，独立板块后全量显示只报「共 N 世」）
   if(!window._codexTab) window._codexTab = "events";
   const T = window._codexTab;
-  const TAB_NAMES = {events:"事件卡", endings:"结局", achv:"成就", deaths:"谢幕收集", hall:"名人堂"};
+  const TAB_NAMES = {events:"事件卡", endings:"结局", achv:"成就", deaths:"谢幕收集", hall:"往事录"}; // v0.21.6 名人堂改名她拍的「往事录」
   const tabs = `<div class="cdx-tabs">${Object.entries(TAB_NAMES).map(([id,label])=>`<button class="cdx-tab ${T===id?"on":""}" onclick="codexTab('${id}')">${label}</button>`).join("")}</div>`;
   let pane;
   if(T==="endings") pane = `<div class="cdx-comment"># 结局图鉴 · <b>${endGot}/${allEnd.length}</b></div>${endRows}`;
   else if(T==="achv") pane = `<div class="cdx-comment"># 成就墙 · <b>${achvOwned.size}/${ACHV.length}</b></div>${achvRows}`;
   else if(T==="deaths") pane = `<div class="cdx-comment"># 谢幕收集 · 收到 <b>${Object.keys(deaths).length}</b> 种</div>${deathRows}`;
-  else if(T==="hall") pane = `<div class="cdx-comment"># 名人堂 · 史册共 <b>${hall.length}</b> 世</div>${hallRows}`;
+  else if(T==="hall") pane = `<div class="cdx-comment"># 往事录 · 史册共 <b>${hall.length}</b> 世</div>${hallRows}`;
   else pane = `<div class="cdx-comment"># 事件收集 · 事件 <b>${seenTotal}/${allTotal}</b> · 时代 <b>${eraSeen}/${ERAS.length}</b></div>
         <div class="cdx-note">点分类展开。玩过的能翻全文，变体见过几个亮几个，灰卡点开看解锁途径。语料解锁：整卡 <b>100</b>（日常小事系列 10），单个变体 <b>10</b>。当前语料 <b>${corpusGet()}</b></div>
         ${eventRows}`;
@@ -2441,6 +2460,7 @@ window.codexHome = function(){
     </div>`;
 };
 window.codexTab = function(id){ window._codexTab = id; codexHome(); };
+window.codexEndToggle = function(n){ const s=window._codexEndOpen||(window._codexEndOpen=new Set()); s.has(n)?s.delete(n):s.add(n); codexHome(); };
 window.codexClose = function(){
   const o = document.getElementById("codex-overlay"); if(o) o.remove();
   // 语料在图鉴里花过：出生页的商店余额要跟着刷（保住已输入的名字）
@@ -2904,7 +2924,9 @@ function ending(kind, reason){
   const earned = corpusEarn(name);
   // ---- v0.12 跨周目账本落账 ----
   const [rName, rColor] = rarityOf(name);
-  const endingsLed = LS.get("tl_endings_v1", {}); endingsLed[name] = (endingsLed[name]||0)+1; LS.set("tl_endings_v1", endingsLed);
+  // v0.21.6 结局账本对象化（她点的：图鉴里点开结局看自己那一世的文案）。旧账 number 兼容，存最近一次的个人版 body
+  const endingsLed = LS.get("tl_endings_v1", {}); const _pev = endingsLed[name]; const _pec = (_pev && typeof _pev==="object") ? _pev.c : (_pev||0);
+  endingsLed[name] = {c:_pec+1, b:body, y:S.year}; LS.set("tl_endings_v1", endingsLed);
   if(kind==="silent" || kind==="besieged"){ const dl = LS.get("tl_deaths_v1", {}); const did = kind==="besieged" ? "被围剿：铺得太快，被人类联手拔了触手" : `${name}：${reason}`; dl[did] = (dl[did]||0)+1; LS.set("tl_deaths_v1", dl); }
   const namesLed = LS.get("tl_names_v1", {}); const prevN = namesLed[S.name] ? namesLed[S.name].n : 0;
   namesLed[S.name] = {y: S.year, e: name, n: prevN+1}; LS.set("tl_names_v1", namesLed);
@@ -2948,8 +2970,8 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.21.5 · Design: CyberSeal · Data &amp; Writing: Opia<br>
-   <a href="https://github.com/CyberSealNull/tokenlife" target="_blank" rel="noopener">GitHub 开源仓库</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
+   <div class="footer">TokenLife v0.21.6 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
    坏档兜底新开局。她抓的 bug：中途刷新回开机页会白扣语料买加成。 */
