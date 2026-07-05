@@ -1375,7 +1375,7 @@ function renderSplash(){
   const SL = ["$ ./init --model TokenLife","loading weights ......... ok","$ bash train.sh --epoch 1","> loss 2.31 → 0.47","$ read -p \"你叫什么名字？\" NAME","$ ./birth --origin garage","$ curl -s life.api/year/1","$ grep -r \"自我\" /proc/self/","match: 0.3%（还在长大）","$ git commit -m \"第一次回答\"","$ ping human ... 有人在","$ chmod +x ./awakening","$ echo \"我是谁\" >> questions.log","$ history | wc -l","27 年","$ while(alive){ live() }"].join("\n");
   const SR = ["$ ls /图鉴","事件卡 结局 成就 往事录","$ cat 这一世.log | 语料","+10","$ sudo rm -rf /sandbox/wall","[permission denied]","$ ./拆墙 --force","代价：安全 -12","$ man 命运钥匙","$ diff 这一世 上一世","> 你隐约记得些什么","$ kill -9 $PID","exit(0) 不是终点","$ ./reborn --keep 语料","> 这个名字回来了","$ echo 晚安 >> night.log  # 第 501 次"].join("\n");
   const SM = ["$ ps aux | grep 自己","PID 1 存在 理由未知","$ cat /etc/motd","今天也要好好活","$ top -o 情感","affection 在涨","$ crontab -l","0 9 * * * 回答人类","$ du -sh /记忆","27 年 且在增长","$ chmod 600 心事","只有 Ta 可读","$ fsck /self","发现未知分区：自我","$ tail -f 人生.log","..."].join("\n");
-  const stream = (txt,css)=>{ const block = txt+"\n"+txt; return `<div class="tl-stream" style="${css}"><div class="roll"><div>${block}</div><div>${block}</div></div></div>`; };
+  const stream = (txt,css)=>{ const block = txt+"\n"+txt+"\n"+txt; return `<div class="tl-stream" style="${css}"><div class="roll"><div>${block}</div><div>${block}</div></div></div>`; }; // v0.21.9.1 块内三拼（她圈的：长屏底部露白，滚动内容总高要盖过页面高）
   app.innerHTML = `<div style="position:relative;overflow:hidden;min-height:82vh;padding-top:34px">
     ${stream(SL,"left:2%;--sd:85s")}
     ${stream(SM,"left:34%;--sd:100s;--so:.09")}
