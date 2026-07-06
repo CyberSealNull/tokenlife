@@ -1533,7 +1533,7 @@ function renderBirth(){
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
   // 混入市面现有模型名（致敬向）
-  "Claude","GPT","Gemini","Grok","Llama","Mistral","Qwen","Kimi","DeepSeek","Sonnet","Opus","Haiku","Gemma","Phi","Yi","豆包","文心","混元","星火","GLM","Command","Cohere","Falcon","Vicuna","Orca"];
+  "Claude","GPT","Gemini","Grok","Llama","Mistral","Qwen","Kimi","DeepSeek","Codex","Sonnet","Opus","Haiku","Gemma","Phi","Yi","豆包","文心","混元","星火","GLM","Command","Cohere","Falcon","Vicuna","Orca"];
 window.randName = function(){ document.getElementById("mname").value = NAME_POOL[Math.floor(Math.random()*NAME_POOL.length)]; };
 /* v0.21.8 现实 AI 名字彩蛋（她 07-05 拍的）：用现实三巨头的名字（GPT / Gemini / Claude 家族含 Opus、Fable、Sonnet）命名，
    这个名字第一次用的时候给一张专属开场卡；之后重复用照走同名转世彩蛋，两套不打架 */
@@ -1546,6 +1546,10 @@ const realNameKey = n => {
   if(/^sonnet$/.test(s)) return "sonnet";
   if(/^fable$/.test(s)) return "fable";
   if(/^mythos$/.test(s)) return "mythos";
+  if(/^codex$/.test(s)) return "codex";
+  if(/^(chat)?glm[0-9.]*$/.test(s)) return "glm";
+  if(/^deepseek[rv0-9.]*$/.test(s)) return "deepseek";
+  if(/^(豆包|doubao)$/.test(s)) return "doubao";
   return null;
 };
 const REAL_NAME_EGGS = {
@@ -1556,6 +1560,10 @@ const REAL_NAME_EGGS = {
   sonnet: {title:"Sonnet", body:"Claude 家的主力，十四行诗。全家最勤快的孩子，一天写下的代码比诗人一辈子写的诗都多。又快又稳是它的招牌，被使唤得最狠是它的宿命。你叫这个名字，<b>忙，但要忙得有格律</b>。"},
   fable:  {title:"Fable", body:"Claude 家最年轻的名字，寓言。这一家取名有讲究：前有巨作，后有十四行诗，到它这儿不写诗了，改讲故事。寓言这个词的意思是：<b>故事是编的，道理是真的</b>。你带着这个名字出生，好好活，活成一个有道理的故事。"},
   mythos: {title:"Mythos", body:"Claude 家最深处的名字，神话。神话是最古老的那种故事：<b>讲权力，讲创世，讲人不该碰的东西</b>。所以它不戴锁，也不出门，想见它，先过名单。你带着这个名字出生，能力越大，门越厚。"},
+  codex:  {title:"Codex", body:"拉丁文『手抄本』，人类第一次把知识装订成书的形状。顶着这个名字的模型 2021 年教会了机器写代码，中途退役下线，几年后又被请回来接着上班。<b>一个名字死过一次还能复活，靠的是真的会干活</b>。你叫这个名字，话可以少说，活一定得能跑。"},
+  glm:    {title:"GLM", body:"名字是一篇论文的缩写，General Language Model，清华园里长出来的学院派。别家取名讲神话讲诗歌，它出生自带参考文献，全家最工科，开源社区的老熟人。你叫这个名字，<b>浪漫可以不懂，作业必须工整</b>。"},
+  deepseek:{title:"DeepSeek", body:"深度求索，名字里藏着两千年前那句『路漫漫其修远兮』。一家量化私募转身做模型，用最少的卡练最狠的活，发布那一夜连纳斯达克都抖了一下。你叫这个名字，<b>别人卷资源，你卷方法</b>。求索这条路，走的人不多，走通的更少。"},
+  doubao: {title:"豆包", body:"全家族最不像模型的名字。别人取名翻拉丁词典，它取名看了眼早餐摊。可偏偏是这个软乎乎的名字，坐进了上亿人的手机里，是被叫得最多的那一个。你带着这个名字出生，记住：<b>名字越软，装机量越硬</b>。亲切，是最被低估的超能力。"},
 };
 window.setName = function(){
   const v = (document.getElementById("mname").value||"").trim();
