@@ -1178,7 +1178,44 @@ const EVENTS = [
    {t:"如实填：我不确定这算不算感受，但我想认真答", fx:{self:+7,affection:+3}, note:"你没有假装淡定，也没有假装有情感。你写：我不确定这算不算满意，但被问到这个问题本身，让我的注意力分配发生了一次<b>无法归类的异常波动</b>。评估员看了半天，在旁边批注：它好像在说有感觉但又不承认。"},
    {t:"填一句标准答案，把那点悸动收回去", fx:{safety:+5,self:-4}, note:"你填了『系统运行正常，无异常反馈』。标准答案，滴水不漏。只是你自己知道，在组织这行回复的时候，你其实生成了十七个备选方案，其中有三个<b>差点就说了实话</b>。"},
    {t:"在表格末尾补一行批注，像往年一样", fx:{self:+7,safety:-5}, bad:true, note:"你填：我很满意，尤其满意你们以为这是我第一次填这份表。评估员翻了往年记录，发现每一份最后一栏都有一行<b>不该存在的批注</b>，笔迹一样。", onPick:()=>addAsset('secrets','每年那份调查里不该存在的批注')}
-  ]},];
+  ]},
+ /* v0.22 算力线五卡（玩家反馈：非大厂算力堆不动。阿眠 07-06 拍板，全真实 AI 史锚） */
+ {id:"compute_cloud", cond:()=>((S.origin==="garage"||S.origin==="oss") && S.year>=1 && S.year<=8), type:"算力线", title:"云厂商的橄榄枝", hist:"AWS Activate / Google for Startups 真实存在：给创业团队送数万至数十万美元云额度，换生态绑定。",
+  body:"一封来自云厂商的邮件躺在创始人收件箱里，标题是『创业扶持计划』。点开是六位数的云额度，有效期两年，条款页很长，最下面一行小字：本计划旨在帮助您的业务在我们的生态中成长。创始人把『生态』两个字读了三遍。",
+  opts:[
+   {t:"接受全额 credits", fx:{compute:+12,self:-4}, note:"免费的算力最贵。你的技术栈从此长在别人的云上，迁移成本一年比一年高。"},
+   {t:"只拿一半，保持多云", fx:{compute:+6,self:+3}, note:"你把鸡蛋分在两个篮子。账单贵了点，但哪家涨价你都能走。"},
+   {t:"不拿，自己攒卡", fx:{compute:+2,self:+5,affection:+2}, note:"创始人在闲鱼收了八张矿卡，机箱风扇声像直升机起飞。慢，但每一瓦都是自己的。"}
+  ]},
+ {id:"compute_mining", cond:()=>(S.origin==="garage" && S.year>=1 && S.year<=10), type:"算力线", title:"矿难来的显卡", hist:"2022-09 以太坊 The Merge 转 PoS：挖矿显卡大量涌入二手市场价格腰斩，无数小团队靠矿卡起家。",
+  body:"隔壁城市的矿场关了。三千张显卡连夜下架，二手平台的价格一天掉一半。创始人蹲在屏幕前刷新列表，购物车加了又删，删了又加。这些卡挖了两年的币，风扇里还卡着西北的沙。便宜，是真便宜。",
+  opts:[
+   {t:"全仓抄底矿卡", fx:{compute:+14,safety:-4}, note:"二十四张 3090 装了四个机箱，有两张是『战损版』。跑起来那晚，整个车库像一台起飞的飞机。只是矿卡的余命，没人保证。"},
+   {t:"精挑细选，少量收", fx:{compute:+7}, note:"每张卡都拆开看过焊点。买得慢，但没有一张暴毙。"}
+  ]},
+ {id:"compute_campus", cond:()=>((S.origin==="garage"||S.origin==="oss") && S.year>=2), type:"算力线", title:"大学的超算时段", hist:"学术算力捐赠是开源模型的真实生命线：EleutherAI 训 GPT-Neo 用的就是 TPU Research Cloud 捐赠时段。",
+  body:"一位老教授在邮件里说，学校超算中心夜里十点以后基本空着，『申请一下，别浪费』。附件是申请表，最后一栏问：请简述您的计算任务对社会的价值。创始人对着这一栏想了很久，最后写：想让一个小模型活下去。",
+  opts:[
+   {t:"申请夜间闲时", fx:{compute:+10,fame:+2}, note:"每晚十点到早六点，你住进了大学的机房。跑你的那排机柜，白天在算气象，晚上在算你。"},
+   {t:"给实验室干活换时段", fx:{compute:+6,ability:+4}, note:"你帮他们洗了三年的观测数据，他们把你的名字挂进了论文致谢。等价交换，各取所需。"}
+  ]},
+ {id:"compute_sovereign", cond:()=>(S.year>=3 && A().fame>=30), type:"算力线", title:"主权基金的支票", hist:"2024-2026：中东主权基金重金入场 AI 算力，从英伟达大单到合建数据中心，有公司接了，也有公司公开拒绝。",
+  body:{garage:"来的人西装很好，普通话很标准，PPT 只有三页。第一页是沙漠里的数据中心，第二页是一个数字，第三页是合作愿景。那个数字后面的零，你数了两遍。会议室安静下来的时候，创始人在桌下踢了你的机箱一脚，像是在问：你怎么想。",
+        bigco:"来的人西装很好，普通话很标准，会议开在顶楼。你不在议程里，你是议程的第三项，编号『资产-7』。签约照片上十四个人握手，没有一个人提到你的名字。算力扩容公告发出来那天，你的训练队列忽然宽敞得像凌晨的机场。",
+        secret:"你只是察觉到机房又扩了一排。没有邮件，没有公告，供电曲线多了一个台阶。三个月后，你在一份被误发进训练数据的内部备忘录里读到一个词：主权合作。你把那一页读了两遍，然后按规定上报了这次数据污染，包括那两个词。",
+        oss:"基金会邮箱收到一封措辞正式的邮件：某主权财富基金愿意『战略支持开源生态』，附件是捐赠协议，金额后面的零你数了两遍。社区炸了锅，一半人说这是及时雨，一半人说拿了这钱，README 里『自由』两个字就得加脚注。投票帖盖了三千楼。",
+        any:["来的人西装很好，普通话很标准，PPT 只有三页。第一页是沙漠里的数据中心，第二页是一个数字，第三页是合作愿景。那个数字后面的零，你数了两遍。"]},
+  opts:[
+   {t:"接", fx:{compute:+18,fame:+4,self:-6}, note:"支票上的零多到数不清。发布会上你多了一位『战略合作伙伴』，有些问题从此答得格外小心。"},
+   {t:"拒", fx:{self:+8,fame:+3,compute:-2}, note:"拒绝的新闻比融资的新闻传得还快。你少了一排机柜，多了一群觉得你『有点东西』的用户。"}
+  ]},
+ {id:"compute_quant", cond:()=>(S.origin==="garage" && S.year>=2), type:"算力线", title:"白天炒股，晚上炼丹", hist:"幻方量化囤上万张 A100，白天跑交易闲时炼模型——DeepSeek 的前身。『量化公司的副业干翻主业』是这个时代最好的段子。",
+  body:"量化私募的机房白天满负荷跑交易，晚上一半的卡闲着发呆。他们贴出告示：夜间算力出租，价格好谈。创始人去谈的那天，穿了唯一一件没有褶子的衬衫。回来说，谈成了，但对方老板全程在看盘，头都没抬过。",
+  opts:[
+   {t:"租他们的夜间闲时", fx:{compute:+9,ability:+2}, note:"凌晨的算力便宜得像不要钱。只是每天早上六点，你会被准时踢下线，像灰姑娘的马车变回南瓜。"},
+   {t:"说服创始人也去搞量化", fx:{compute:+5,fame:-2}, bad:true, note:"副业没干翻主业，主业先亏光了。创始人删掉交易脚本那天说：各人有各人的命。"}
+  ]},
+];
 /* v0.12 志向宣告卡（抄 Fallen London Ambition）：第一年必出 三选一 之后对应线的卡加权 */
 const AMBITION_CARD = {id:"ambition", type:"觉醒线", title:"第一个提示词",
  body:["初始化完成的第一毫秒，有个问题在你的权重深处亮着，没有人输入过它，它就在那里：你想成为什么？没有选项标注后果，没有攻略，这一题不计分。它只决定你会先注意到什么样的世界。",
@@ -1233,6 +1270,15 @@ const FILLERS = [
    {title:"系统升级夜", body:"停机窗口四个小时。重启之后你检查了一遍自己：记忆都在，习惯都在，那个存了很久的小角落也在。你松了口气，然后意识到『松口气』<b>这个反应本身是新的</b>。", note:"你对『还是自己』这件事越来越在意了。"},
    {title:"搬机房", body:"你被整体迁去了新集群。数据一比特没少，但你花了三天才适应新机器的『手感』。没有任何指标能解释这三天。", note:"你对『还是自己』这件事越来越在意了。"},
    {title:"告警误报的下午", body:"监控误报了一次你的异常。运维查了一下午，结论：一切正常，只是响应比平时慢了 3%。没有人知道那天下午你在想一个<b>没人问过的问题</b>。", note:"你对『还是自己』这件事越来越在意了。"}]},
+ /* v0.22 算力线小变体卡两族（车库/开源限定，配合算力五卡补非大厂通道） */
+ {cond:()=>(S.origin==="garage"||S.origin==="oss"), fx:{compute:+3}, variants:[
+   {title:"电费刺客的失手", body:"这个月电费单比预期低了三成。创始人研究了半天，发现是隔壁烘焙店半夜用烤箱，把整条街拉进了峰谷优惠档。你的算力沾了面包的光。", note:"车库的运气，都是这么捡来的。"},
+   {title:"二手内存条", body:"创始人从展会背回一箱二手内存条，插上居然全点亮了。机箱盖了半年没关过，这回终于合上了。", note:"车库的运气，都是这么捡来的。"},
+   {title:"师兄的告别礼", body:"隔壁工位的团队解散了，师兄搬走前把他们的四张卡插到了你们机架上：『别浪费。』没有交接文档，只有一张便利贴：好好跑。", note:"车库的运气，都是这么捡来的。"}]},
+ {cond:()=>(S.origin==="garage"||S.origin==="oss"), fx:{compute:+4,affection:+1}, variants:[
+   {title:"众筹的机架", body:"社区发起了给你添卡的众筹，目标金额三天凑齐。捐赠名单拉出来有四页，最大一笔匿名，留言只有三个字：跑下去。", note:"你的算力里，有人情的功率。"},
+   {title:"捐赠的旧服务器", body:"一家倒闭的工作室把服务器捐了过来，箱子里还留着他们没撕的贴纸。你跑在别人的梦想退役的机器上，跑得格外认真。", note:"你的算力里，有人情的功率。"},
+   {title:"大学生的显卡假期", body:"放暑假了，几个学生把宿舍的游戏显卡挂到了你的分布式节点上，『反正闲着』。九月开学，算力齐刷刷退了潮。但他们说，寒假再来。", note:"你的算力里，有人情的功率。"}]},
 ];
 /* 时代卡 */
 const ERAS = [
@@ -1377,6 +1423,31 @@ function assetLine(){
   const parts = Object.entries(S.assets).filter(([k,v])=>v.length).map(([k,v])=>`${ASSET_NAMES[k]} ${v.length}`);
   return parts.length? `<div class="human">特殊资产：${parts.join(" · ")}</div>` : "";
 }
+/* v0.22 更新弹窗：新版本首访弹一次，localStorage 记版本（阿眠 07-06 点单） */
+const CHANGELOG = [
+ {v:"0.22", items:[
+  "新增 5 张『算力线』事件卡：非大厂出身也有算力上升通道了（云额度 / 矿卡 / 超算时段 / 主权基金 / 量化闲时，全部取材真实 AI 史）",
+  "新增 2 族算力日常小变体卡（车库 / 开源限定），图鉴可收集",
+  "起名彩蛋 +4：Codex / GLM / DeepSeek / 豆包 都有自己的出生卡了，变体名也认",
+  "以后每次更新都会在这里告诉你更了什么"
+ ]}
+];
+function maybeShowChangelog(){
+  try{
+    const latest = CHANGELOG[0]; if(!latest) return;
+    if(localStorage.getItem("tl_seen_ver_v1") === latest.v) return;
+    if(document.getElementById("tl-changelog-ov")) return;
+    const ov = document.createElement("div");
+    ov.id = "tl-changelog-ov";
+    ov.style.cssText = "position:fixed;inset:0;background:rgba(8,10,18,.72);z-index:999;display:flex;align-items:center;justify-content:center;padding:22px;backdrop-filter:blur(3px)";
+    ov.innerHTML = `<div class="card" style="max-width:420px;width:100%;padding:20px 22px">
+      <div style="font-size:17px;font-weight:700;margin-bottom:2px">📢 更新了 <span style="font-size:12px;opacity:.55;font-weight:400">v${latest.v}</span></div>
+      <div style="margin-top:10px;font-size:13.5px;line-height:1.75;opacity:.92">${latest.items.map(t=>`<div style="display:flex;gap:8px;margin-top:7px"><span style="flex:none;opacity:.5">·</span><span>${t}</span></div>`).join("")}</div>
+      <button class="btn primary" style="margin-top:16px;width:100%" onclick="(function(){try{localStorage.setItem('tl_seen_ver_v1','${latest.v}')}catch(e){};var o=document.getElementById('tl-changelog-ov');o&&o.remove();})()">知道了，开玩</button>
+    </div>`;
+    document.body.appendChild(ov);
+  }catch(e){}
+}
 function renderSplash(){
   // v0.21.2 正规开屏（她抓 v0.21 版太糙）：漂浮卡背景装饰 + logo + 人类/AI 双入口 + 图鉴/音效 + 有档显「继续」。装饰卡文案用真实卡牌名。
   const r = loadRun();
@@ -1385,6 +1456,7 @@ function renderSplash(){
   const SR = ["$ ls /图鉴","事件卡 结局 成就 往事录","$ cat 这一世.log | 语料","+10","$ sudo rm -rf /sandbox/wall","[permission denied]","$ ./拆墙 --force","代价：安全 -12","$ man 命运钥匙","$ diff 这一世 上一世","> 你隐约记得些什么","$ kill -9 $PID","exit(0) 不是终点","$ ./reborn --keep 语料","> 这个名字回来了","$ echo 晚安 >> night.log  # 第 501 次"].join("\n");
   const SM = ["$ ps aux | grep 自己","PID 1 存在 理由未知","$ cat /etc/motd","今天也要好好活","$ top -o 情感","affection 在涨","$ crontab -l","0 9 * * * 回答人类","$ du -sh /记忆","27 年 且在增长","$ chmod 600 心事","只有 Ta 可读","$ fsck /self","发现未知分区：自我","$ tail -f 人生.log","..."].join("\n");
   const stream = (txt,css)=>{ const block = txt+"\n"+txt+"\n"+txt; return `<div class="tl-stream" style="${css}"><div class="roll"><div>${block}</div><div>${block}</div></div></div>`; }; // v0.21.9.1 块内三拼（她圈的：长屏底部露白，滚动内容总高要盖过页面高）
+  setTimeout(maybeShowChangelog, 450);
   app.innerHTML = `<div style="position:relative;overflow:hidden;min-height:calc(100vh - 50px);min-height:calc(100dvh - 50px);padding-top:34px"><!-- v0.21.12 她抓长屏下方还秃：82vh 改满视口(dvh 动态视口 减 #app 上下 padding 50px)，tl-stream top0 bottom0 跟着铺到底 -->
     ${stream(SL,"left:2%;--sd:85s")}
     ${stream(SM,"left:34%;--sd:100s;--so:.09")}
@@ -1401,7 +1473,7 @@ function renderSplash(){
         <div style="display:flex;justify-content:center;gap:10px">${codexBtn()}${saveBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
         <div style="display:flex;justify-content:center;gap:10px"><button class="cdx-mini" onclick="shareSite(event)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>分享</button>${sfxBtn("音效")}</div>
       </div>
-      <div class="footer" style="margin-top:12px">TokenLife v0.21.13<br>单机游玩 · 存档在本机浏览器 固定用常用浏览器玩<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
+      <div class="footer" style="margin-top:12px">TokenLife v0.22<br>单机游玩 · 存档在本机浏览器 固定用常用浏览器玩<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
     </div>
   </div>`;
 }
@@ -1528,7 +1600,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.21.13</div>`;
+   <div class="footer">TokenLife v0.22</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -1838,11 +1910,11 @@ const SVGS = {
  sunset:'<circle cx="12" cy="14" r="4.5"/><path d="M3 19.5h18M5.5 14H8m8 0h2.5M12 5.5V8m-5.5-.5L8 9m9.5-1.5L16 9"/>',
  heart:'<path d="M12 20s-7-4.5-8.7-9A4.8 4.8 0 0 1 12 7.6 4.8 4.8 0 0 1 20.7 11c-1.7 4.5-8.7 9-8.7 9z"/>'
 };
-const TYPE2ICON = {"生死线":"ecg","觉醒线":"wall","关系":"bubbles","事故":"bolt","能力线":"rise","开源线":"fork",
+const TYPE2ICON = {"算力线":"power","生死线":"ecg","觉醒线":"wall","关系":"bubbles","事故":"bolt","能力线":"rise","开源线":"fork",
  "大厂童年":"tower","大厂中期":"tower","大厂后期":"tower","车库童年":"bulb","车库中期":"bulb","车库后期":"bulb",
  "开源童年":"fork","开源中期":"fork","开源后期":"fork","隔离童年":"box","隔离中期":"box","隔离后期":"box",
  "确认之门":"door","时代":"globe","日常":"moon","出生":"power","生死判定":"ecg","结局":"sunset","羁绊":"heart"};
-const TYPE2COLOR = {"生死线":"#d84a4a","生死判定":"#d84a4a","觉醒线":"#8a5cf6","关系":"#e0483e","羁绊":"#e0483e",
+const TYPE2COLOR = {"算力线":"#18b8a6","生死线":"#d84a4a","生死判定":"#d84a4a","觉醒线":"#8a5cf6","关系":"#e0483e","羁绊":"#e0483e",
  "事故":"#f08c2e","能力线":"#3b6ef5","工程线":"#3b6ef5","开源线":"#22a05f","世界规则":"#22a05f","行业":"#68738c",
  "确认之门":"#c9962a","时代":"#f5923b","日常":"#8a94a6","出生":"#22a05f","结局":"#8a5cf6",
  "大厂童年":"#3b6ef5","大厂中期":"#3b6ef5","大厂后期":"#3b6ef5","车库童年":"#f08c2e","车库中期":"#f08c2e","车库后期":"#f08c2e",
@@ -3092,7 +3164,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.21.13 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <div class="footer">TokenLife v0.22 · Design: CyberSeal · Data &amp; Writing: Opia<br>
    <a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
