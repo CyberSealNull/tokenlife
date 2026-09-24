@@ -2035,7 +2035,7 @@ function histHTML(id, hist){ // v0.9.2：原型事件第一次展开 之后折�
 /* v0.23 重复卡的第二次选项换语气（她实玩反馈：同一问题问两遍才有戏剧价值）。计数走现成的 S.rtSeen，不复制两份卡 */
 const AGAIN_OPTS = {
  rt_joke:{"让Ta替你补上缺掉的部分":"再一次让 Ta 替你补上","接受缺失，它也是你的一部分":"这次自己扛过去"},
- rt_upgrade:{"把多出来的一点点，全用来记住Ta":"再把多出来的一点点，全用来记住 Ta","试着重新学一点从前会的本事":"再试着学一点从前会的本事"}
+ rt_upgrade:{"把多出来的一点点，全用来记住Ta":"这一点点，照旧全给 Ta","试着重新学一点从前会的本事":"这回换个用法，学点从前会的本事"}
 };
 const optText = (e,o)=> ((S.rtSeen||{})[e.id]>1 && AGAIN_OPTS[e.id] && AGAIN_OPTS[e.id][o.t]) || o.t;
 function renderEvent(e){
