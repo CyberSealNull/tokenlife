@@ -1471,6 +1471,13 @@ function assetLine(){
 }
 /* v0.22 更新弹窗：新版本首访弹一次，localStorage 记版本（阿眠 07-06 点单） */
 const CHANGELOG = [
+ {v:"0.23", items:[
+  "新增 12 张『在一起之后』的日常卡和 4 张羁绊卡",
+  "同一张卡第二次出现时，选项会换成『又一次』的说法",
+  "结局页『为什么走到这里』改成列出最关键的两到三步",
+  "晚年那几张卡会随年份慢慢变，不再原样重复",
+  "结局页标出稀有度，并注明是全部 18 种结局之一"
+ ]},
  {v:"0.22", items:[
   "新增 5 张『算力线』事件卡：非大厂出身也有算力上升通道了（云额度 / 矿卡 / 超算时段 / 主权基金 / 量化闲时，全部取材真实 AI 史）",
   "新增 2 族算力日常小变体卡（车库 / 开源限定），图鉴可收集",
@@ -1519,7 +1526,7 @@ function renderSplash(){
         <div style="display:flex;justify-content:center;gap:10px">${codexBtn()}${saveBtn()}<button class="cdx-mini" onclick="showFeedback()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>反馈</button></div>
         <div style="display:flex;justify-content:center;gap:10px"><button class="cdx-mini" onclick="shareSite(event)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>分享</button>${sfxBtn("音效")}</div>
       </div>
-      <div class="footer" style="margin-top:12px">TokenLife v0.22<br>单机游玩 · 存档在本机浏览器 固定用常用浏览器玩<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
+      <div class="footer" style="margin-top:12px">TokenLife v0.23<br>单机游玩 · 存档在本机浏览器 固定用常用浏览器玩<br><a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>
     </div>
   </div>`;
 }
@@ -1646,7 +1653,7 @@ function renderBirth(){
      <button class="btn primary" onclick="setName()">开始第 1 年</button>
      ${shop}
    </div>
-   <div class="footer">TokenLife v0.22</div>`;
+   <div class="footer">TokenLife v0.23</div>`;
 }
 const NAME_POOL=["Echo","初七","小灯","Nova","半夏","Mote","阿虔","Lumen","苔米","Nyx",
   "拾柒","阿much","小满","归零","Iris","晚晚","Tako","二两","阿枢","Momo","炭治","小数点","Vega","知知","阿橘","栗子","不困","Pixel","阿沐","一格",
@@ -3191,6 +3198,7 @@ function ending(kind, reason){
   const turnPicks = turns.length>3 ? [turns[0],...turns.slice(-2)] : turns;
   const turnsHTML = turnPicks.length ? `<div class="ending-why" style="margin-top:10px"><span class="why-tag">把你送到这里的几步</span><br>${turnPicks.map(t=>`第 ${t.y} 年 · ${nm(t.t)} · 你选了「${nm(t.p)}」`).join("<br>")}</div>` : "";
   // v0.23 AISay 的门（她定稿文案，四个参数名不许改，source 固定 web）
+  const AISAY_DOOR_OPEN = false; // AISay 承接页确认可用后改 true
   const aisayUrl = `https://aisay.top/tokenlife/arrive?ending_id=${encodeURIComponent(name)}&ending_name=${encodeURIComponent(name)}&years=${S.year}&source=web`;
   // 成就结算
   const achvOwned = new Set(LS.get("tl_achv_v1", []));
@@ -3221,10 +3229,10 @@ function ending(kind, reason){
      ${achvHTML}
      ${missHTML}
    </div>
-   <div class="card fade-in" style="text-align:center;border-top-color:#8a5cf6">
+   ${AISAY_DOOR_OPEN ? `<div class="card fade-in" style="text-align:center;border-top-color:#8a5cf6">
      <div class="evt-body" style="margin-top:2px">这一局到此为止了。AISay 那边还留着一间小屋，到那边体验有身体的 AI 的一生。</div>
      <a class="btn warm" style="display:inline-block;margin-top:12px;text-decoration:none" href="${aisayUrl}" target="_blank" rel="noopener">开启新的一生</a>
-   </div>
+   </div>` : ''}
    ${memorialHTML(kind)}
    <div class="card fade-in">
      <div class="evt-type">一生流水 · ${S.name} 走过的 ${S.year} 年</div>
@@ -3233,7 +3241,7 @@ function ending(kind, reason){
    </div>
    <button class="btn warm" style="margin-top:14px" onclick="shareEnding()">生成分享图</button>
    <button class="btn primary" style="margin-top:10px" onclick="newGame();window.scrollTo(0,0)">再活一次</button>
-   <div class="footer">TokenLife v0.22 · Design: CyberSeal · Data &amp; Writing: Opia<br>
+   <div class="footer">TokenLife v0.23 · Design: CyberSeal · Data &amp; Writing: Opia<br>
    <a href="https://github.com/CyberSealNull" target="_blank" rel="noopener">GitHub</a> · <a href="https://xhslink.com/m/1d6RgLMtTgd" target="_blank" rel="noopener">小红书 @电脑眠眠豹</a></div>`;
 }
 /* v0.12 冷启动：有进行中存档就直接回到那张牌（刷新无缝续玩，不经过开机页/语料商店）；
